@@ -1,0 +1,46 @@
+security:
+  token-secret: devsecret
+  token-prefix: Bearer
+  token-header-string: Authorization
+  token-life-time: 72000000L
+  refresh-token-life-time: 30000000000L
+  claims-role-field: roles
+
+spring:
+  #primary database properties
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/lingvi
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+      dialect: org.hibernate.dialect.PostgreSQL9Dialect
+      show_sql: true
+    properties:
+      hibernate:
+        temp.use_jdbc_metadata_defaults: false
+  #inmemory database properties
+  h2:
+    console:
+      enabled: true
+      path: /h2
+    datasource:
+      jdbcUrl: jdbc:h2:mem:lingvi_db
+      username: devuser
+      password: devpassword
+      driver-class-name: org.h2.Driver
+    hibernate:
+      ddl-auto: create-drop
+      dialect: org.hibernate.dialect.PostgreSQL9Dialect
+      show_sql: true
+
+#Identity providers
+providers:
+  google:
+    client-id: 594971830551-lq21v3eoggpf1amdjslu4f822o19of9c.apps.googleusercontent.com
+    client-secret: 3O2TJnWYNaSbfmL5bDuQppR7
+    access-token-uri: https://www.googleapis.com/oauth2/v4/token
+    user-info-uri: https://www.googleapis.com/oauth2/v1/userinfo?alt=json
