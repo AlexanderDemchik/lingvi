@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -28,8 +27,12 @@ import java.util.HashMap;
         basePackages = { "com.lingvi.lingviserver.**.repositories.inmemory" })
 public class InMemoryDBConfig {
 
+    private Environment environment;
+
     @Autowired
-    Environment environment;
+    public InMemoryDBConfig(Environment environment) {
+        this.environment = environment;
+    }
 
     @Bean
     @ConfigurationProperties("spring.h2.datasource")
@@ -46,9 +49,7 @@ public class InMemoryDBConfig {
 
     @Bean(name = "inMemoryEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean inMemoryEntityManagerFactory(
-            EntityManagerFactoryBuilder builder,
             @Qualifier("inMemoryDataSource") DataSource inMemoryDataSource) {
-
         LocalContainerEntityManagerFactoryBean em
                 = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(inMemoryDataSource);
@@ -65,12 +66,6 @@ public class InMemoryDBConfig {
         em.setJpaPropertyMap(properties);
 
         return em;
-
-//        return builder
-//                .dataSource(inMemoryDataSource)
-//                .packages("com.lingvi.lingviserver.**.entities.inmemory")
-//                .persistenceUnit("inMemory")
-//                .build();
     }
 
     @Bean(name = "inMemoryTransactionManager")

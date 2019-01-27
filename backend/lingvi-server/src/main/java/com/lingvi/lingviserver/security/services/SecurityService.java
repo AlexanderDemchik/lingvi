@@ -1,19 +1,28 @@
 package com.lingvi.lingviserver.security.services;
 
-import com.lingvi.lingviserver.commons.config.SecurityProperties;
+import com.lingvi.lingviserver.account.entities.primary.Account;
+import com.lingvi.lingviserver.account.repositories.primary.AccountRepository;
+import com.lingvi.lingviserver.security.config.SecurityProperties;
 import com.lingvi.lingviserver.commons.exceptions.*;
 import com.lingvi.lingviserver.security.config.Constants;
 import com.lingvi.lingviserver.security.entities.*;
+import com.lingvi.lingviserver.security.entities.inmemory.InMemoryBlackListToken;
 import com.lingvi.lingviserver.security.entities.primary.*;
+import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListRepository;
+import com.lingvi.lingviserver.security.repositories.primary.BlackListTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.RefreshTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,19 +33,27 @@ import java.util.stream.Collectors;
 @Service
 public class SecurityService {
 
+    private Logger logger = LoggerFactory.getLogger(SecurityService.class);
+
     private SecurityProperties securityProperties;
     private UserRepository userRepository;
     private RefreshTokenRepository refreshTokenRepository;
     private PasswordEncoder passwordEncoder;
     private GoogleService googleService;
+    private InMemoryBlackListRepository inMemoryBlackListRepository;
+    private BlackListTokenRepository blackListTokenRepository;
+    private AccountRepository accountRepository;
 
     @Autowired
-    public SecurityService(SecurityProperties securityProperties, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, GoogleService googleService) {
+    public SecurityService(SecurityProperties securityProperties, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, GoogleService googleService, InMemoryBlackListRepository inMemoryBlackListRepository, BlackListTokenRepository blackListTokenRepository, AccountRepository accountRepository) {
         this.securityProperties = securityProperties;
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.googleService = googleService;
+        this.inMemoryBlackListRepository = inMemoryBlackListRepository;
+        this.blackListTokenRepository = blackListTokenRepository;
+        this.accountRepository = accountRepository;
     }
 
     /**
@@ -67,6 +84,7 @@ public class SecurityService {
         User user;
         if((user = userRepository.findByEmail(loginRequest.getEmail())) != null) {
             if(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                if(user.isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
                 return createAuthResponse(user);
             }
         }
@@ -80,6 +98,7 @@ public class SecurityService {
      * @return {@link AuthResponse}
      */
     @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+    @Transactional
     public AuthResponse register(AuthRequest registerRequest) {
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
@@ -94,7 +113,7 @@ public class SecurityService {
 
         User user = new User(email, passwordEncoder.encode(password), new ArrayList<>(Arrays.asList(Role.USER)));
         userRepository.save(user);
-
+        accountRepository.save(new Account(user, email));
 
         return createAuthResponse(user);
     }
@@ -151,13 +170,17 @@ public class SecurityService {
         BaseAccessTokenResponse tokenResponse = providerService.getAccessToken(code, redirectUri);
         ProviderUser providerUser = providerService.loadUser(tokenResponse.getAccessToken());
 
-        User user;
-        if((user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId())) != null) {
-            return createAuthResponse(user);
+        User user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId());
+        if(user == null) {
+            throw new ApiError("Login exception", ErrorCodes.PROVIDER_LOGIN_EXCEPTION, HttpStatus.BAD_REQUEST,
+                    Collections.singletonList(new ProviderLoginError(ErrorCodes.USER_NOT_FOUND, tokenResponse.getAccessToken(), tokenResponse.getExpireIn(), provider)));
         }
 
-        throw new ApiError("Login exception", ErrorCodes.PROVIDER_LOGIN_EXCEPTION, HttpStatus.BAD_REQUEST,
-                Collections.singletonList(new ProviderLoginError(ErrorCodes.USER_NOT_FOUND, tokenResponse.getAccessToken(), tokenResponse.getExpireIn(), provider)));
+        if(user.isLocked()) {
+            throw new ApiError("Account is locked", HttpStatus.BAD_REQUEST);
+        }
+
+        return createAuthResponse(user);
     }
 
     /**
@@ -167,6 +190,7 @@ public class SecurityService {
      * @return {@link AuthResponse}
      */
     @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+    @Transactional
     public AuthResponse providerRegister(String code, String redirectUri, String provider) {
 
         BaseProviderService providerService = selectProviderService(provider);
@@ -182,19 +206,12 @@ public class SecurityService {
             providerList.add(new UserProvider(new UserProviderPK(Providers.GOOGLE, providerUser.getId()), user));
             user.setUserProviders(providerList);
 
-            if(providerUser.getEmail() != null && userRepository.findByEmail(providerUser.getEmail()) != null) {
+            if(providerUser.getEmail() != null && userRepository.findByEmail(providerUser.getEmail()) == null) {
                 user.setEmail(providerUser.getEmail());
             }
 
             userRepository.save(user);
-
-            try {
-                providerUser.setId(String.valueOf(user.getId()));
-//                restTemplate.postForEntity(Constants.ACCOUNT_SERVICE_USER_LINK, providerUser, null);
-            } catch (HttpStatusCodeException e) {
-                userRepository.delete(user);
-                throw new ApiError("Error creating user account", ErrorCodes.ACCOUNT_SERVICE_EXCEPTION, HttpStatus.BAD_REQUEST);
-            }
+            accountRepository.save(new Account(user, providerUser.getGivenName(), providerUser.getFamilyName(), user.getEmail(), providerUser.getProfilePhoto(), providerUser.getGender()));
         }
 
         return createAuthResponse(user);
@@ -210,6 +227,8 @@ public class SecurityService {
     public AuthResponse refreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token);
         if(refreshToken != null) {
+
+            if(refreshToken.getUser() != null && refreshToken.getUser().isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
 
             if((System.currentTimeMillis() - refreshToken.getCreationDate().getTime()) > securityProperties.getRefreshTokenLifeTime()) {
                 throw new ApiError("Refresh token is expired", HttpStatus.BAD_REQUEST);
@@ -280,5 +299,16 @@ public class SecurityService {
             case Providers.GOOGLE: return googleService;
             default: throw new ApiError("Unsupported provider " + provider, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    /**
+     * Used to populate in memory blacklist with data from disk database after application start
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void initInMemoryBlackList() {
+        logger.info("Init in-memory blacklist");
+        blackListTokenRepository.findAllByType(BlackListToken.Type.ACCESS).forEach(
+                (t) -> inMemoryBlackListRepository.save(new InMemoryBlackListToken(t.getToken(), t.getAddingDate()))
+        );
     }
 }

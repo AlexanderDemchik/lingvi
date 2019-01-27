@@ -32,10 +32,10 @@ spring:
       username: devuser
       password: devpassword
       driver-class-name: org.h2.Driver
-    hibernate:
-      ddl-auto: create-drop
-      dialect: org.hibernate.dialect.PostgreSQL9Dialect
-      show_sql: true
+    jpa:
+      hibernate:
+        ddl-auto: create-drop
+        show_sql: true
 
 #Identity providers
 providers:

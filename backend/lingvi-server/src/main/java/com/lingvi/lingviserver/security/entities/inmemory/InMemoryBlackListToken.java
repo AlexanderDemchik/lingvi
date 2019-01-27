@@ -13,4 +13,25 @@ public class InMemoryBlackListToken {
 
     @Column
     private Date addingDate;
+
+    public InMemoryBlackListToken(String token, Date addingDate) {
+        this.token = token;
+        this.addingDate = addingDate;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public Date getAddingDate() {
+        return addingDate;
+    }
+
+    public void setAddingDate(Date addingDate) {
+        this.addingDate = addingDate;
+    }
 }

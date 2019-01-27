@@ -1,9 +1,9 @@
 package com.lingvi.lingviserver.account.entities.primary;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import com.lingvi.lingviserver.security.entities.primary.User;
+
+import javax.persistence.*;
 
 /**
  * Class that contain user info.
@@ -13,6 +13,11 @@ public class Account {
 
     @Id
     private Long id;
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "id")
+    private User user;
 
     @Column
     private String givenName;
@@ -30,6 +35,20 @@ public class Account {
     private String gender;
 
     public Account() {
+    }
+
+    public Account(User user, String email) {
+        this.user = user;
+        this.email = email;
+    }
+
+    public Account(User user, String givenName, String familyName, String email, String profilePhoto, String gender) {
+        this.user = user;
+        this.givenName = givenName;
+        this.familyName = familyName;
+        this.email = email;
+        this.profilePhoto = profilePhoto;
+        this.gender = gender;
     }
 
     public Account(Long id) {
@@ -94,5 +113,13 @@ public class Account {
                 ", profilePhoto='" + profilePhoto + '\'' +
                 ", gender='" + gender + '\'' +
                 '}';
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

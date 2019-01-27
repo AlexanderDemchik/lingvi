@@ -23,12 +23,15 @@ import java.util.HashMap;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        entityManagerFactoryRef = "entityManagerFactory",
         basePackages = {"com.lingvi.lingviserver.**.repositories.primary"})
 public class PrimaryDBConfig {
 
+    private Environment env;
+
     @Autowired
-    Environment env;
+    public PrimaryDBConfig(Environment env) {
+        this.env = env;
+    }
 
     @Primary
     @Bean

@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.commons.config;
 
 import com.google.common.collect.Lists;
+import com.lingvi.lingviserver.security.config.SecurityProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

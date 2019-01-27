@@ -9,4 +9,5 @@ import java.util.Date;
 @Repository
 public interface BlackListTokenRepository extends CrudRepository<BlackListToken, String> {
     void removeAllByTypeAndAddingDateBefore(BlackListToken.Type type, Date date);
+    Iterable<BlackListToken> findAllByType(BlackListToken.Type type);
 }

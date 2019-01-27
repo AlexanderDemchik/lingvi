@@ -21,6 +21,9 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Column
+    private boolean locked = false;
+
     @JsonIgnore
     @Column
     private String password;
@@ -123,5 +126,13 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(id, email, password, userProviders, roles, accessTokens, refreshTokens);
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 }

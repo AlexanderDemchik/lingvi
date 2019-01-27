@@ -1,9 +1,10 @@
 package com.lingvi.lingviserver.security.services;
 
-import com.lingvi.lingviserver.commons.config.SecurityProperties;
+import com.lingvi.lingviserver.security.config.SecurityProperties;
 import com.lingvi.lingviserver.security.config.Constants;
 import com.lingvi.lingviserver.security.entities.primary.BlackListToken;
 import com.lingvi.lingviserver.security.entities.primary.RefreshToken;
+import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListRepository;
 import com.lingvi.lingviserver.security.repositories.primary.AccessTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.BlackListTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.RefreshTokenRepository;
@@ -15,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+/**
+ * Used to periodically clean database from old tokens
+ */
 @Service
 public class CleanerService {
 
@@ -22,13 +26,15 @@ public class CleanerService {
     private AccessTokenRepository accessTokenRepository;
     private RefreshTokenRepository refreshTokenRepository;
     private BlackListTokenRepository blackListTokenRepository;
+    private InMemoryBlackListRepository inMemoryBlackListRepository;
     private SecurityProperties securityProperties;
 
     @Autowired
-    public CleanerService(AccessTokenRepository accessTokenRepository, RefreshTokenRepository refreshTokenRepository, BlackListTokenRepository blackListTokenRepository, SecurityProperties securityProperties) {
+    public CleanerService(AccessTokenRepository accessTokenRepository, RefreshTokenRepository refreshTokenRepository, BlackListTokenRepository blackListTokenRepository, InMemoryBlackListRepository inMemoryBlackListRepository, SecurityProperties securityProperties) {
         this.accessTokenRepository = accessTokenRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.blackListTokenRepository = blackListTokenRepository;
+        this.inMemoryBlackListRepository = inMemoryBlackListRepository;
         this.securityProperties = securityProperties;
     }
 
@@ -45,11 +51,17 @@ public class CleanerService {
         refreshTokenRepository.removeAllByStatusAndCreationDateBefore(RefreshToken.Status.DISABLED, new Date(System.currentTimeMillis() - Constants.ALLOWED_REFRESH_TOKEN_REJECTION_TIME));
     }
 
-    @Scheduled(initialDelay = 10000, fixedDelayString = "#{${security.refresh-token-lifetime} / 2}")
+    @Scheduled(initialDelay = 10000, fixedDelayString = "#{${security.token-lifetime} * 10}")
     public void cleanBlackList() {
         logger.info("Clean blacklist");
         blackListTokenRepository.removeAllByTypeAndAddingDateBefore(BlackListToken.Type.ACCESS, new Date(System.currentTimeMillis() - securityProperties.getTokenLifeTime()));
         blackListTokenRepository.removeAllByTypeAndAddingDateBefore(BlackListToken.Type.REFRESH, new Date(System.currentTimeMillis() - Constants.ALLOWED_REFRESH_TOKEN_REJECTION_TIME));
+    }
+
+    @Scheduled(initialDelay = 10000, fixedDelayString = "#{${security.token-lifetime} * 5}")
+    public void cleanInMemoryBlackList() {
+        logger.info("Clean in-memory blacklist");
+        inMemoryBlackListRepository.removeAllByAddingDateBefore(new Date(System.currentTimeMillis() - securityProperties.getTokenLifeTime()));
     }
 
 }

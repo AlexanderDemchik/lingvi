@@ -1,4 +1,4 @@
-package com.lingvi.lingviserver.commons.config;
+package com.lingvi.lingviserver.security.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

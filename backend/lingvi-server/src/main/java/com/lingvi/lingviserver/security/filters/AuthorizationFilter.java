@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.security.filters;
 
-import com.lingvi.lingviserver.commons.config.SecurityProperties;
+import com.lingvi.lingviserver.security.config.SecurityProperties;
+import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
@@ -23,14 +24,19 @@ import java.util.stream.Collectors;
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     private Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
+    private InMemoryBlackListRepository blackListRepository;
     private SecurityProperties securityProperties;
 
-    public AuthorizationFilter(SecurityProperties securityProperties) {
+    public AuthorizationFilter(InMemoryBlackListRepository blackListRepository, SecurityProperties securityProperties) {
+        this.blackListRepository = blackListRepository;
         this.securityProperties = securityProperties;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        logger.info("Auth filter");
+
         Authentication authentication = getAuthFromRequest(request);
         if(authentication != null) {
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -49,7 +55,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     @SuppressWarnings("unchecked")
     private Authentication getAuthFromRequest(HttpServletRequest request) {
         String token = request.getHeader(securityProperties.getTokenHeaderString());
-        if (token != null) {
+        if (token != null && !blackListRepository.existsById(token)) {
             // parse the token.
             Long id;
             List<GrantedAuthority> roles = null;
