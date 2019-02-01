@@ -5,11 +5,10 @@ import com.lingvi.lingviserver.security.entities.AuthRequest;
 import com.lingvi.lingviserver.security.entities.AuthResponse;
 import com.lingvi.lingviserver.security.entities.OAuthRequest;
 import com.lingvi.lingviserver.security.entities.RefreshTokenRequest;
+import com.lingvi.lingviserver.security.entities.primary.User;
 import com.lingvi.lingviserver.security.services.SecurityService;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SecurityController {
@@ -43,6 +42,13 @@ public class SecurityController {
     @PostMapping(ControllerPaths.REFRESH_TOKEN)
     public AuthResponse refresh(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return securityService.refreshToken(refreshTokenRequest.getRefreshToken());
+    }
+
+    @GetMapping(ControllerPaths.ME)
+    public Object me() {
+        User user = new User();
+        user.setId(Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName()));
+        return user;
     }
 
 }

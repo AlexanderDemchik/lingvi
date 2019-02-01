@@ -1,12 +1,9 @@
 import React, { Component } from "react";
 import {Provider} from "react-redux";
-import {Route, Router, Switch} from "react-router";
 import store from "./store";
-import history from "./history";
-import {API_ROOT, EXPIRE_IN_FIELD, TOKEN_FIELD} from "./constants";
-import axios from "axios";
-import {changeAuthState, clearAuthLocalStorage} from "./authorization/actions";
-import WelcomePage from "./welcome/WelcomePage";
+import {API_ROOT, EXPIRE_IN_FIELD, REFRESH_TOKEN_FIELD, TOKEN_FIELD} from "./constants";
+import {changeAuthState, clearAuthLocalStorage, me, refresh} from "./authorization/actions";
+import Routes from "./Routes";
 
 class App extends Component {
   constructor(props) {
@@ -17,12 +14,15 @@ class App extends Component {
   }
 
   appInit() {
-    if(localStorage.getItem(TOKEN_FIELD) !== null && localStorage.getItem(EXPIRE_IN_FIELD) != null) {
-      if((new Date().getTime() - localStorage.getItem(EXPIRE_IN_FIELD)) < 0) {
-
-      } else {
+    if(localStorage.getItem(TOKEN_FIELD) !== null && localStorage.getItem(EXPIRE_IN_FIELD) !== null && localStorage.getItem(REFRESH_TOKEN_FIELD) !== null) {
+      me().then((r) => {
+        console.log("r");
+        store.dispatch(changeAuthState(true));
         this.setState({isAppInit: true});
-      }
+      }).catch(err => {
+        console.log(err);
+        this.setState({isAppInit: true});
+      });
     } else {
       this.setState({isAppInit: true});
     }
@@ -38,11 +38,7 @@ class App extends Component {
       <React.Fragment>
         {(isAppInit) && (
           <Provider store={store}>
-              <Router history={history}>
-                <Switch>
-                  <Route exact={true} path={"/"} component={WelcomePage}/>
-                </Switch>
-              </Router>
+            <Routes/>
           </Provider>
         )}
       </React.Fragment>
@@ -50,4 +46,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default (App);

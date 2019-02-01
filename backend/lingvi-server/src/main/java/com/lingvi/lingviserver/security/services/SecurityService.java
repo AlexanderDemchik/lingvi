@@ -193,6 +193,7 @@ public class SecurityService {
     @Transactional
     public AuthResponse providerRegister(String code, String redirectUri, String provider) {
 
+        System.out.println(redirectUri);
         BaseProviderService providerService = selectProviderService(provider);
 
         String token = providerService.getAccessToken(code, redirectUri).getAccessToken();

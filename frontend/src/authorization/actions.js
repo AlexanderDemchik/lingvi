@@ -1,80 +1,124 @@
 import axios from "axios";
 import history from "../history"
 import {
-  API_ROOT, CHANGE_AUTH_STATE, EXPIRE_IN_FIELD, LOGIN_ERROR, LOGIN_PATH, LOGIN_REQUEST, LOGIN_SUCCESS,
-  REFRESH_TOKEN_FIELD,
-  REGISTER_ERROR, REGISTER_PATH,
-  REGISTER_REQUEST, REGISTER_SUCCESS, TOKEN_FIELD
+  API_ROOT, EXPIRE_IN_FIELD, LOGIN_PATH, ME_PATH, PROVIDER_LOGIN_EXCEPTION, REFRESH_PATH,
+  REFRESH_TOKEN_FIELD, REGISTER_PATH, TOKEN_FIELD, USER_NOT_FOUND
 } from "../constants";
+import {openCreateAccountForm} from "../welcome/actions";
+export const LOGIN_REQUEST = "LOGIN_REQUEST";
+export const LOGIN_REQUEST_SUCCESS = "LOGIN_REQUEST_SUCCESS";
+export const LOGIN_REQUEST_ERROR = "LOGIN_REQUEST_ERROR";
+export const REGISTER_REQUEST = "REGISTER_REQUEST";
+export const REGISTER_REQUEST_SUCCESS = "REGISTER_REQUEST_SUCCESS";
+export const REGISTER_REQUEST_ERROR = "REGISTER_REQUEST_ERROR";
+export const CHANGE_AUTH_STATE = "CHANGE_AUTH_STATE";
+export const CHANGE_REFRESH_STATE = "CHANGE_REFRESH_STATE";
+export const REFRESH_REQUEST = "REFRESH_REQUEST";
+export const REFRESH_REQUEST_SUCCESS = "REFRESH_REQUEST_SUCCESS";
+export const REFRESH_REQUEST_ERROR = "REFRESH_REQUEST_ERROR";
+export const EXIT = "EXIT";
 
-export function login(email, password) {
+export function socialLogin(provider, code, redirect_uri) {
   return function (dispatch) {
     dispatch({type: LOGIN_REQUEST});
-    return axios.post(API_ROOT+LOGIN_PATH, {email: email, password: password})
+    return axios.post(API_ROOT+LOGIN_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
       .then(r => {
-        dispatch({type: LOGIN_SUCCESS});
-        dispatch(changeAuthState(true));
         fillAuthLocalStorage(r.data);
-        history.push("/dashboard");
+        dispatch({type: LOGIN_REQUEST_SUCCESS});
+        history.replace("/");
       })
       .catch(err => {
-        dispatch({type: LOGIN_ERROR});
+        dispatch({type: LOGIN_REQUEST_ERROR});
+        history.replace("/");
+        const errBody = err.response.data;
+        if(errBody.code === PROVIDER_LOGIN_EXCEPTION && errBody.errors && errBody.errors[0].code === USER_NOT_FOUND) {
+          dispatch(openCreateAccountForm())
+        }
       })
   }
 }
 
-export function socialLogin(provider, code) {
-  return function (dispatch) {
+export const login = (email, password) => {
+  return dispatch => {
     dispatch({type: LOGIN_REQUEST});
-    return axios.post(API_ROOT+LOGIN_PATH+"/"+provider, {code: code})
+    axios.post(API_ROOT + LOGIN_PATH, {email: email, password: password})
       .then(r => {
-        dispatch({type: LOGIN_SUCCESS});
         fillAuthLocalStorage(r.data);
-        dispatch(changeAuthState(true));
-        history.push("/dashboard");
+        dispatch({type: LOGIN_REQUEST_SUCCESS});
       })
       .catch(err => {
-        dispatch({type: LOGIN_ERROR});
+        dispatch({type: LOGIN_REQUEST_ERROR});
+      });
+  };
+};
+
+
+export const register = (email, password, name = "", surname = "") => {
+  return dispatch => {
+    dispatch({type: REGISTER_REQUEST});
+    axios.post(API_ROOT + REGISTER_PATH, {email: email, password: password, name: name, surname: surname})
+      .then(r => {
+        fillAuthLocalStorage(r.data);
+        dispatch({type: REGISTER_REQUEST_SUCCESS});
+      })
+      .catch(err => {
+        dispatch({type: REGISTER_REQUEST_ERROR});
+      });
+  };
+};
+
+export function socialRegister(provider, code, redirect_uri) {
+  return function (dispatch) {
+    dispatch({type: REGISTER_REQUEST});
+    return axios.post(API_ROOT+REGISTER_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
+      .then(r => {
+        fillAuthLocalStorage(r.data);
+        dispatch({type: REGISTER_REQUEST_SUCCESS});
+        history.replace("/");
+      })
+      .catch(err => {
+        dispatch({type: REGISTER_REQUEST_ERROR});
       })
   }
 }
 
-export function register(email, password) {
+export function refresh(token) {
   return function (dispatch) {
-    dispatch({type: REGISTER_REQUEST});
-    return axios.post(API_ROOT+REGISTER_PATH, {email: email, password: password})
+    dispatch({type: REFRESH_REQUEST});
+    return axios.post(API_ROOT + REFRESH_PATH, {refreshToken: token})
       .then(r => {
-        dispatch({type: REGISTER_SUCCESS});
         fillAuthLocalStorage(r.data);
-        dispatch(changeAuthState(true));
-        history.push("/dashboard");
+        dispatch({type: REFRESH_REQUEST_SUCCESS});
       })
       .catch(err => {
-        dispatch({type: REGISTER_ERROR});
+        clearAuthLocalStorage();
+        dispatch({type: REFRESH_REQUEST_ERROR});
       })
   }
 }
 
-export function socialRegister(provider, code) {
-  return function (dispatch) {
-    dispatch({type: REGISTER_REQUEST});
-    return axios.post(API_ROOT+REGISTER_PATH+"/"+provider, {code: code})
-      .then(r => {
-        dispatch({type: REGISTER_SUCCESS});
-        fillAuthLocalStorage(r.data);
-        dispatch(changeAuthState(true));
-        history.push("/dashboard");
-      })
-      .catch(err => {
-        dispatch({type: REGISTER_ERROR});
-      })
+export function exit() {
+  clearAuthLocalStorage();
+  return {
+    type: EXIT
   }
+}
+
+export function me() {
+  return axios.get(API_ROOT + ME_PATH);
 }
 
 export function changeAuthState(state) {
   if(state === false) clearAuthLocalStorage();
   return {
     type: CHANGE_AUTH_STATE,
+    state: state
+  }
+}
+
+export function changeRefreshState(state) {
+  return {
+    type: CHANGE_REFRESH_STATE,
     state: state
   }
 }

@@ -18,9 +18,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @Column(unique = true)
     private String email;
 
+    @JsonIgnore
     @Column
     private boolean locked = false;
 
@@ -28,6 +30,7 @@ public class User {
     @Column
     private String password;
 
+    @JsonIgnore
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserProvider> userProviders = new ArrayList<>();
 
@@ -38,9 +41,11 @@ public class User {
     @Enumerated(EnumType.STRING)
     private List<Role> roles;
 
+    @JsonIgnore
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "user", fetch = FetchType.LAZY)
     private List<RefreshToken> refreshTokens = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "user", fetch = FetchType.LAZY)
     private List<AccessToken> accessTokens = new ArrayList<>();
 

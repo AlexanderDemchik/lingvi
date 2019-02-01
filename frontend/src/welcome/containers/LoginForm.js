@@ -1,9 +1,7 @@
 import React from "react";
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
+import Dialog from '../../shared/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Zoom from '@material-ui/core/Zoom';
 import PropTypes from "prop-types";
 import {connect} from "react-redux";
 import {closeLoginForm, openRegisterForm} from "../actions";
@@ -15,43 +13,42 @@ import GoogleButton from "../../shared/social_buttons/GoogleButton";
 import classNames from "classnames";
 import VkButton from "../../shared/social_buttons/VkButton";
 import FacebookButton from "../../shared/social_buttons/FacebookButton";
-import {Close} from "@material-ui/icons";
 import {Typography} from "@material-ui/core";
+import {GOOGLE_LOGIN_REF, VK_LOGIN_REF} from "../../constants";
+import {login} from "../../authorization/actions";
+import RequestButton from "../../shared/RequestButton";
 
 class LoginForm extends React.PureComponent {
 
-  Transition = (props) => (
-    <Zoom in={false} timeout={{enter: 1000, exit: 1000}} {...props}/>
-  );
+  state = {
+    email: "",
+    password: ""
+  };
 
   render() {
-    const {open, handleClose, fullScreen, classes, openRegisterForm} = this.props;
+    const {email, password} = this.state;
+    const {open, handleClose, classes, openRegisterForm, isLoginRequest, login} = this.props;
     return (
       <Dialog
         open={open}
-        fullScreen={fullScreen}
-        TransitionComponent={this.Transition}
         onClose={handleClose}
-        classes={{paperScrollBody: classes.dialog}}
         scroll={"body"}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
       >
         <DialogTitle>
           {"Вход"}
-          <Close className={classes.closeIcon} onClick={handleClose}/>
         </DialogTitle>
         <DialogContent>
-          <TextField placeholder={"Email"} className={classes.bottomIntend}/>
-          <TextField placeholder={"Password"} type={"password"} className={classes.bottomIntend}/>
-          <Button color={"secondary"} variant={"contained"} fullWidth className={classes.bottomIntend}>ВОЙТИ</Button>
+          <TextField placeholder={"Email"} className={classes.bottomIntend} value={email} onChange={(e) => this.setState({email: e.target.value})}/>
+          <TextField placeholder={"Password"} type={"password"} className={classes.bottomIntend} value={password} onChange={(e) => this.setState({password: e.target.value})}/>
+          <RequestButton color={"secondary"} variant={"contained"} fullWidth className={classes.bottomIntend} onClick={() => login(email, password)} isRequest={isLoginRequest}>ВОЙТИ</RequestButton>
+
           <div className={classNames(classes.orWrapper, classes.bottomIntend)}>
             <div className={classes.orBefore}/>
             <div className={classes.or}>или</div>
             <div className={classes.orAfter}/>
           </div>
-          <GoogleButton className={classes.bottomIntend}>Войти через google</GoogleButton>
-          <VkButton className={classes.bottomIntend}>Войти через vk</VkButton>
+          <GoogleButton className={classes.bottomIntend} href={GOOGLE_LOGIN_REF}>Войти через google</GoogleButton>
+          <VkButton className={classes.bottomIntend} href={VK_LOGIN_REF}>Войти через vk</VkButton>
           <FacebookButton className={classes.bottomIntend}>Войти через facebook</FacebookButton>
           <Typography onClick={openRegisterForm} className={classes.link} variant={"caption"}>СОЗДАТЬ АККАУНТ</Typography>
         </DialogContent>
@@ -67,7 +64,8 @@ LoginForm.propTypes = {
 };
 
 const mapStateToProps = (state) => ({
-  open: state.welcomePageState.loginForm.open
+  open: state.welcomePageState.loginForm.open,
+  isLoginRequest: state.authorization.login.isLoginRequest
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -75,7 +73,8 @@ const mapDispatchToProps = (dispatch) => ({
   openRegisterForm: () => {
     dispatch(closeLoginForm());
     dispatch(openRegisterForm());
-  }
+  },
+  login: (email, password) => dispatch(login(email, password))
 });
 
 export default compose(withStyles(style), connect(mapStateToProps, mapDispatchToProps))(LoginForm);
