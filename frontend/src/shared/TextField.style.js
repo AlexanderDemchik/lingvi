@@ -16,5 +16,10 @@ export const style = (theme) => ({
       borderBottomLeftRadius: 0,
       borderBottomRightRadius: 0
     }
+  },
+  error: {
+    borderBottom: `2px solid ${theme.palette.error.main}!important`,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0
   }
 });

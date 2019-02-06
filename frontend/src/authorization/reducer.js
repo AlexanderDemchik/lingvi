@@ -11,12 +11,11 @@ let initialState = {
   userId: null,
   isRefreshing: false,
   login: {
-    isLoginRequest: false
+    isLoginRequest: false,
   },
   register: {
-    isRegisterRequest: false
+    isRegisterRequest: false,
   }
-
 };
 
 const authReducer = (state = initialState, action) => {

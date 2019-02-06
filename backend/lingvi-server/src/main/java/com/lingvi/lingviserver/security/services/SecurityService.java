@@ -193,18 +193,36 @@ public class SecurityService {
     @Transactional
     public AuthResponse providerRegister(String code, String redirectUri, String provider) {
 
-        System.out.println(redirectUri);
         BaseProviderService providerService = selectProviderService(provider);
 
         String token = providerService.getAccessToken(code, redirectUri).getAccessToken();
         ProviderUser providerUser = providerService.loadUser(token);
 
+        User user = getProviderUser(provider, providerUser);
+
+        return createAuthResponse(user);
+
+    }
+
+    public AuthResponse providerRegisterWithToken(String token, String provider) {
+
+        BaseProviderService providerService = selectProviderService(provider);
+
+        ProviderUser providerUser = providerService.loadUser(token);
+
+        User user;
+        user = getProviderUser(provider, providerUser);
+
+        return createAuthResponse(user);
+    }
+
+    private User getProviderUser(String provider, ProviderUser providerUser) {
         User user;
         if((user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId())) == null) {
             user = new User();
             user.setRoles(new ArrayList<>(Arrays.asList(Role.USER)));
             List<UserProvider> providerList = new ArrayList<>();
-            providerList.add(new UserProvider(new UserProviderPK(Providers.GOOGLE, providerUser.getId()), user));
+            providerList.add(new UserProvider(new UserProviderPK(provider, providerUser.getId()), user));
             user.setUserProviders(providerList);
 
             if(providerUser.getEmail() != null && userRepository.findByEmail(providerUser.getEmail()) == null) {
@@ -214,9 +232,7 @@ public class SecurityService {
             userRepository.save(user);
             accountRepository.save(new Account(user, providerUser.getGivenName(), providerUser.getFamilyName(), user.getEmail(), providerUser.getProfilePhoto(), providerUser.getGender()));
         }
-
-        return createAuthResponse(user);
-
+        return user;
     }
 
     /**
@@ -260,7 +276,6 @@ public class SecurityService {
      */
     private AuthResponse createAuthResponse(User user) {
         Long expireIn = new Date().getTime() + securityProperties.getTokenLifeTime();
-        System.out.println(user.getId() + " " +user.getRoles());
         String token = generateToken(user.getId(), expireIn, user.getRoles() != null ? user.getRoles().stream().map(Role::toString).collect(Collectors.toList()) : null);
         String refreshToken = UUID.randomUUID().toString();
 

@@ -1,7 +1,8 @@
-export const style = {
+export const style = (theme) => ({
   first: {
     backgroundColor: "#9BB1FF",
     height: "100vh",
+    minHeight: "300px",
     backgroundImage: 'linear-gradient(\n' +
     '          rgba(0, 0, 0, 0), \n' +
     '          rgba(0, 0, 0, 0.2)\n' +
@@ -14,6 +15,7 @@ export const style = {
     justifyContent: "center"
   },
   tagWrapper: {
+    paddingTop: "60px",
     display: "flex",
     alignContent: "center",
     flexDirection: "column",
@@ -27,7 +29,10 @@ export const style = {
     fontSize: "2.5rem",
     textShadow: "2px 2px 4px #313131",
     color: "#fff",
-    textAlign: "center"
+    textAlign: "center",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "1.5rem"
+    }
   },
   subtitle: {
     textAlign: "center",
@@ -36,7 +41,10 @@ export const style = {
     alignSelf: "center",
     fontSize: "1.5rem",
     textShadow: "2px 2px 4px #313131",
-    color: "#fff"
+    color: "#fff",
+    [theme.breakpoints.down('xs')]: {
+      fontSize: "1rem"
+    }
   },
   howItWork: {
     textAlign: "center",
@@ -51,4 +59,4 @@ export const style = {
     padding: 30,
 
   },
-};
+});

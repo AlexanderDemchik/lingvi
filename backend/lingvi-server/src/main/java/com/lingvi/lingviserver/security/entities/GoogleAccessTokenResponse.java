@@ -9,6 +9,13 @@ import java.util.Date;
  */
 public class GoogleAccessTokenResponse extends BaseAccessTokenResponse {
 
+    public GoogleAccessTokenResponse() {
+    }
+
+    public GoogleAccessTokenResponse(String accessToken, String expiresIn) {
+        super(accessToken, expiresIn);
+    }
+
     @Override
     @JsonSetter("access_token")
     public void setAccessToken(String accessToken) {

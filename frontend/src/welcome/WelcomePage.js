@@ -9,6 +9,7 @@ import {connect} from "react-redux";
 import {compose} from "redux";
 import RegisterForm from "./containers/RegisterForm";
 import CreateAccountForm from "./containers/CreateAccountForm";
+import RestoreForm from "./containers/RestoreForm";
 
 class WelcomePage extends Component {
 
@@ -16,6 +17,7 @@ class WelcomePage extends Component {
     const {classes, openLoginForm, openRegisterForm} = this.props;
     return (
       <React.Fragment>
+        <RestoreForm/>
         <CreateAccountForm/>
         <LoginForm/>
         <RegisterForm/>

@@ -1,10 +1,7 @@
 package com.lingvi.lingviserver.security.controllers;
 
 import com.lingvi.lingviserver.security.config.ControllerPaths;
-import com.lingvi.lingviserver.security.entities.AuthRequest;
-import com.lingvi.lingviserver.security.entities.AuthResponse;
-import com.lingvi.lingviserver.security.entities.OAuthRequest;
-import com.lingvi.lingviserver.security.entities.RefreshTokenRequest;
+import com.lingvi.lingviserver.security.entities.*;
 import com.lingvi.lingviserver.security.entities.primary.User;
 import com.lingvi.lingviserver.security.services.SecurityService;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,6 +34,11 @@ public class SecurityController {
     @PostMapping(ControllerPaths.SOCIAL_REGISTER)
     public AuthResponse socialRegister(@PathVariable String provider, @RequestBody OAuthRequest request) {
         return securityService.providerRegister(request.getCode(), request.getRedirectUri(), provider);
+    }
+
+    @PostMapping(ControllerPaths.SOCIAL_REGISTER_WITH_ACCESS_TOKEN)
+    public AuthResponse socialRegisterWithAccessToken(@PathVariable String provider, @RequestBody OAuthRequestWithToken request) {
+        return securityService.providerRegisterWithToken(request.getAccessToken(), provider);
     }
 
     @PostMapping(ControllerPaths.REFRESH_TOKEN)

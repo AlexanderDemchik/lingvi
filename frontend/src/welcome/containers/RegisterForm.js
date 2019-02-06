@@ -5,7 +5,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import PropTypes from "prop-types";
 import {withStyles} from "@material-ui/core";
 import {connect} from "react-redux";
-import {closeRegisterForm, openLoginForm} from "../actions";
+import {closeRegisterForm, openLoginForm, resetToInitial, setRegisterFormErrors} from "../actions";
 import {compose} from "redux";
 import {style} from "./RegisterForm.style";
 import TextField from "../../shared/TextField";
@@ -28,7 +28,10 @@ class RegisterForm extends React.PureComponent {
 
   render() {
     const {name, surname, email, password} = this.state;
-    const {open, handleClose, classes, openLoginForm, isRequest, register} = this.props;
+    const {open, handleClose, classes, openLoginForm, isRegisterRequest, register, registerForm, clearRegisterFormErrors} = this.props;
+
+    let concatArray = registerForm.nameErrors.concat(registerForm.surnameErrors).concat(registerForm.emailErrors).concat(registerForm.passwordErrors);
+
     return (
       <Dialog
         open={open}
@@ -39,26 +42,42 @@ class RegisterForm extends React.PureComponent {
           {"Регистрация"}
         </DialogTitle>
         <DialogContent>
+          {(concatArray.length > 0) && <div className={classes.errorBlock}>
+            {concatArray.map(message => (
+              <span key={message} style={{display: "flex"}}>{message}</span>
+            ))}
+          </div>}
           <Grid container direction={"column"} spacing={8}>
             <Grid container item direction={"row"} spacing={8}>
               <Grid item xs={6}>
-                <TextField placeholder={"Имя"} onChange={(e) => this.setState({name: e.target.value})}/>
+                <TextField placeholder={"Имя"} error={registerForm.nameErrors.length > 0} onChange={(e) => {
+                  if(concatArray.length > 0) clearRegisterFormErrors();
+                  this.setState({name: e.target.value})}}/>
               </Grid>
               <Grid item xs={6}>
-                <TextField placeholder={"Фамилия"} onChange={(e) => this.setState({surname: e.target.value})}/>
+                <TextField placeholder={"Фамилия"} error={registerForm.surnameErrors.length > 0} onChange={(e) => {
+                  if(concatArray.length > 0) clearRegisterFormErrors();
+                  this.setState({surname: e.target.value})
+                }}/>
               </Grid>
             </Grid>
 
             <Grid item>
-              <TextField placeholder={"Email"} onChange={(e) => this.setState({email: e.target.value})}/>
+              <TextField placeholder={"Email"} error={registerForm.emailErrors.length > 0} onChange={(e) => {
+                if(concatArray.length > 0) clearRegisterFormErrors();
+                this.setState({email: e.target.value})
+              }}/>
             </Grid>
 
             <Grid item>
-              <TextField placeholder={"Password"} type={"password"} onChange={(e) => this.setState({password: e.target.value})}/>
+              <TextField placeholder={"Password"} error={registerForm.passwordErrors.length > 0} type={"password"} onChange={(e) => {
+                if(concatArray.length > 0) clearRegisterFormErrors();
+                this.setState({password: e.target.value})
+              }}/>
             </Grid>
 
             <Grid item>
-              <RequestButton color={"secondary"} variant={"contained"} fullWidth isRequest={isRequest}
+              <RequestButton color={"secondary"} variant={"contained"} fullWidth isRequest={isRegisterRequest}
                              onClick={() => register(name, surname, email, password)}>СОЗДАТЬ АККАУНТ</RequestButton>
             </Grid>
 
@@ -93,12 +112,15 @@ class RegisterForm extends React.PureComponent {
 RegisterForm.propTypes = {
   open: PropTypes.bool,
   handleClose: PropTypes.func,
-  fullScreen: PropTypes.bool
+  fullScreen: PropTypes.bool,
+  isRegisterRequest: PropTypes.bool,
+  openLoginForm: PropTypes.func
 };
 
 const mapStateToProps = (state) => ({
   open: state.welcomePageState.registerForm.open,
-  isRequest: state.authorization.register.isRegisterRequest
+  registerForm: state.welcomePageState.registerForm,
+  isRegisterRequest: state.authorization.register.isRegisterRequest
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -107,7 +129,8 @@ const mapDispatchToProps = (dispatch) => ({
     dispatch(closeRegisterForm());
     dispatch(openLoginForm());
   },
-  register: (name, surname, email, pass) => dispatch(register(email, pass, name, surname))
+  register: (name, surname, email, pass) => dispatch(register(email, pass, name, surname)),
+  clearRegisterFormErrors: () => dispatch(setRegisterFormErrors()),
 });
 
 export default compose(withStyles(style), connect(mapStateToProps, mapDispatchToProps))(RegisterForm);

@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {Provider} from "react-redux";
 import store from "./store";
-import {API_ROOT, EXPIRE_IN_FIELD, REFRESH_TOKEN_FIELD, TOKEN_FIELD} from "./constants";
-import {changeAuthState, clearAuthLocalStorage, me, refresh} from "./authorization/actions";
+import {EXPIRE_IN_FIELD, REFRESH_TOKEN_FIELD, TOKEN_FIELD} from "./constants";
+import {changeAuthState, me} from "./authorization/actions";
 import Routes from "./Routes";
 
 class App extends Component {
@@ -16,7 +16,6 @@ class App extends Component {
   appInit() {
     if(localStorage.getItem(TOKEN_FIELD) !== null && localStorage.getItem(EXPIRE_IN_FIELD) !== null && localStorage.getItem(REFRESH_TOKEN_FIELD) !== null) {
       me().then((r) => {
-        console.log("r");
         store.dispatch(changeAuthState(true));
         this.setState({isAppInit: true});
       }).catch(err => {

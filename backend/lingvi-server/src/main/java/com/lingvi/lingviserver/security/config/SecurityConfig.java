@@ -31,7 +31,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin().disable()
                 .httpBasic().disable();
-        http.authorizeRequests().antMatchers(ControllerPaths.LOGIN, ControllerPaths.REGISTER, ControllerPaths.SOCIAL_LOGIN, ControllerPaths.SOCIAL_REGISTER, ControllerPaths.REFRESH_TOKEN, Constants.H2_DB_PATH).permitAll();
+        http.authorizeRequests().antMatchers(ControllerPaths.LOGIN,
+                ControllerPaths.REGISTER, ControllerPaths.SOCIAL_LOGIN,
+                ControllerPaths.SOCIAL_REGISTER, ControllerPaths.REFRESH_TOKEN,
+                Constants.H2_DB_PATH, ControllerPaths.SOCIAL_REGISTER_WITH_ACCESS_TOKEN).permitAll();
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilterAfter(new AuthorizationFilter(blackListRepository, securityProperties), BasicAuthenticationFilter.class);
         http.csrf().disable();

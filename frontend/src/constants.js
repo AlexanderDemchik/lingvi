@@ -2,10 +2,14 @@
 export const ROOT = "http://localhost:3000";
 export const API_ROOT = "http://localhost:8080";
 
+export const GOOGLE = "google";
 export const PROJECT_NAME = "lingvi";
 
 export const LOGIN_PATH = "/login";
 export const REGISTER_PATH = "/register";
+export const providerRegisterWithTokenPath = (provider) => (
+  `${REGISTER_PATH}/${provider}/token`
+);
 export const REFRESH_PATH = "/token/refresh";
 export const ME_PATH = "/me";
 
@@ -20,4 +24,5 @@ export const GOOGLE_REGISTER_REF = "https://accounts.google.com/o/oauth2/v2/auth
 
 //error codes
 export const PROVIDER_LOGIN_EXCEPTION = "PROVIDER_LOGIN_EXCEPTION";
+export const VALIDATION_EXCEPTION = "VALIDATION_EXCEPTION";
 export const USER_NOT_FOUND = "USER_NOT_FOUND";

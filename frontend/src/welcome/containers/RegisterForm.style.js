@@ -1,3 +1,5 @@
+import {fade} from "@material-ui/core/styles/colorManipulator";
+
 export const style = (theme) => ({
   dialog: {
     maxWidth: 300,
@@ -55,5 +57,15 @@ export const style = (theme) => ({
     "&:hover": {
       color: theme.palette.secondary.light
     }
+  },
+  errorBlock: {
+    backgroundColor: fade(theme.palette.error.main, 0.7),
+    display: "flex",
+    flexDirection: "column",
+    marginBottom: 10,
+    padding: 10,
+    color: theme.palette.secondary.contrastText,
+    fontSize: 12,
+    borderRadius: 4
   }
 });

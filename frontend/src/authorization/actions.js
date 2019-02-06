@@ -1,10 +1,13 @@
-import axios from "axios";
+import api from "../api";
 import history from "../history"
 import {
-  API_ROOT, EXPIRE_IN_FIELD, LOGIN_PATH, ME_PATH, PROVIDER_LOGIN_EXCEPTION, REFRESH_PATH,
-  REFRESH_TOKEN_FIELD, REGISTER_PATH, TOKEN_FIELD, USER_NOT_FOUND
+  EXPIRE_IN_FIELD, LOGIN_PATH, ME_PATH, PROVIDER_LOGIN_EXCEPTION, providerRegisterWithTokenPath, REFRESH_PATH,
+  REFRESH_TOKEN_FIELD, REGISTER_PATH, TOKEN_FIELD, USER_NOT_FOUND, VALIDATION_EXCEPTION
 } from "../constants";
-import {openCreateAccountForm} from "../welcome/actions";
+import {
+  closeCreateAccountForm, openCreateAccountForm, resetToInitial, setLoginFormErrorState,
+  setRegisterFormErrors
+} from "../welcome/actions";
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_REQUEST_SUCCESS = "LOGIN_REQUEST_SUCCESS";
 export const LOGIN_REQUEST_ERROR = "LOGIN_REQUEST_ERROR";
@@ -21,7 +24,7 @@ export const EXIT = "EXIT";
 export function socialLogin(provider, code, redirect_uri) {
   return function (dispatch) {
     dispatch({type: LOGIN_REQUEST});
-    return axios.post(API_ROOT+LOGIN_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
+    return api.post(LOGIN_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
       .then(r => {
         fillAuthLocalStorage(r.data);
         dispatch({type: LOGIN_REQUEST_SUCCESS});
@@ -32,7 +35,7 @@ export function socialLogin(provider, code, redirect_uri) {
         history.replace("/");
         const errBody = err.response.data;
         if(errBody.code === PROVIDER_LOGIN_EXCEPTION && errBody.errors && errBody.errors[0].code === USER_NOT_FOUND) {
-          dispatch(openCreateAccountForm())
+          dispatch(openCreateAccountForm(errBody.errors[0].accessToken, errBody.errors[0].expireIn, errBody.errors[0].provider));
         }
       })
   }
@@ -41,13 +44,15 @@ export function socialLogin(provider, code, redirect_uri) {
 export const login = (email, password) => {
   return dispatch => {
     dispatch({type: LOGIN_REQUEST});
-    axios.post(API_ROOT + LOGIN_PATH, {email: email, password: password})
+    api.post(LOGIN_PATH, {email: email, password: password})
       .then(r => {
         fillAuthLocalStorage(r.data);
+        dispatch(resetToInitial());
         dispatch({type: LOGIN_REQUEST_SUCCESS});
       })
       .catch(err => {
         dispatch({type: LOGIN_REQUEST_ERROR});
+        dispatch(setLoginFormErrorState(true));
       });
   };
 };
@@ -56,13 +61,44 @@ export const login = (email, password) => {
 export const register = (email, password, name = "", surname = "") => {
   return dispatch => {
     dispatch({type: REGISTER_REQUEST});
-    axios.post(API_ROOT + REGISTER_PATH, {email: email, password: password, name: name, surname: surname})
+    api.post( REGISTER_PATH, {email: email, password: password, name: name, surname: surname})
       .then(r => {
         fillAuthLocalStorage(r.data);
+        dispatch(resetToInitial());
         dispatch({type: REGISTER_REQUEST_SUCCESS});
       })
       .catch(err => {
         dispatch({type: REGISTER_REQUEST_ERROR});
+        console.log(err.response);
+        console.log(err);
+        console.log(err.response.data)
+        if(err.response.data.code === VALIDATION_EXCEPTION) {
+
+         let emailErrors = [];
+         let passwordErrors = [];
+         let nameErrors = [];
+         let surnameErrors = [];
+
+          err.response.data.errors.forEach(e => {
+            switch (e.field) {
+              case "email":
+                emailErrors.push(e.message);
+                break;
+              case "password":
+                passwordErrors.push(e.message);
+                break;
+              case "name":
+                nameErrors.push(e.message);
+                break;
+              case "surname":
+                surnameErrors.push(e.message);
+                break;
+              default:
+            }
+          });
+
+          dispatch(setRegisterFormErrors(emailErrors, passwordErrors, nameErrors, surnameErrors));
+        }
       });
   };
 };
@@ -70,7 +106,7 @@ export const register = (email, password, name = "", surname = "") => {
 export function socialRegister(provider, code, redirect_uri) {
   return function (dispatch) {
     dispatch({type: REGISTER_REQUEST});
-    return axios.post(API_ROOT+REGISTER_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
+    return api.post(REGISTER_PATH+"/"+provider, {code: code, redirectUri: redirect_uri})
       .then(r => {
         fillAuthLocalStorage(r.data);
         dispatch({type: REGISTER_REQUEST_SUCCESS});
@@ -85,7 +121,7 @@ export function socialRegister(provider, code, redirect_uri) {
 export function refresh(token) {
   return function (dispatch) {
     dispatch({type: REFRESH_REQUEST});
-    return axios.post(API_ROOT + REFRESH_PATH, {refreshToken: token})
+    return api.post( REFRESH_PATH, {refreshToken: token})
       .then(r => {
         fillAuthLocalStorage(r.data);
         dispatch({type: REFRESH_REQUEST_SUCCESS});
@@ -97,6 +133,21 @@ export function refresh(token) {
   }
 }
 
+export const providerRegisterWithToken = (token, provider) => (
+  (dispatch) => {
+    dispatch({type: REGISTER_REQUEST});
+    return api.post( providerRegisterWithTokenPath(provider), {accessToken: token})
+      .then(r => {
+        fillAuthLocalStorage(r.data);
+        dispatch(closeCreateAccountForm());
+        dispatch({type: REGISTER_REQUEST_SUCCESS});
+      })
+      .catch(err => {
+        dispatch({type: REGISTER_REQUEST_ERROR});
+      })
+  }
+);
+
 export function exit() {
   clearAuthLocalStorage();
   return {
@@ -105,7 +156,7 @@ export function exit() {
 }
 
 export function me() {
-  return axios.get(API_ROOT + ME_PATH);
+  return api.get( ME_PATH);
 }
 
 export function changeAuthState(state) {

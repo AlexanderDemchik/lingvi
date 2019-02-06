@@ -9,6 +9,14 @@ public abstract class BaseAccessTokenResponse {
     private String accessToken;
     private String expiresIn;
 
+    public BaseAccessTokenResponse() {
+    }
+
+    public BaseAccessTokenResponse(String accessToken, String expiresIn) {
+        this.accessToken = accessToken;
+        this.expiresIn = expiresIn;
+    }
+
     public String getAccessToken() {
         return accessToken;
     }
