@@ -1,7 +1,8 @@
 import React, {Component} from "react";
 import WelcomeBar from "./components/WelcomeBar";
 import {withStyles} from "@material-ui/core";
-import {ChevronDoubleDown} from "mdi-material-ui";
+import {mdiChevronDoubleDown as ChevronDoubleDown} from "@mdi/js";
+import Icon from "@mdi/react";
 import {style} from "./WelcomePage.style";
 import LoginForm from "./containers/LoginForm";
 import {openLoginForm, openRegisterForm} from "./actions";
@@ -10,6 +11,7 @@ import {compose} from "redux";
 import RegisterForm from "./containers/RegisterForm";
 import CreateAccountForm from "./containers/CreateAccountForm";
 import RestoreForm from "./containers/RestoreForm";
+import VideoPlayer from "../videoplayerv2/VideoPlayer";
 
 class WelcomePage extends Component {
 
@@ -29,9 +31,14 @@ class WelcomePage extends Component {
           </div>
           <div className={classes.howItWork}>
             <span>Как это работает?</span>
-            <ChevronDoubleDown/>
+            <Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>
           </div>
         </div>
+       <VideoPlayer url={"http://localhost/streamv2/test.m3u8"}/>
+       {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
+       {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
+        {/*https://youtu.be/L4K0lxVJweU*/}
+        {/*"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"*/}
       </React.Fragment>
     )
   }

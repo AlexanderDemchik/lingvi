@@ -21,5 +21,14 @@ export const style = (theme) => ({
     borderBottom: `2px solid ${theme.palette.error.main}!important`,
     borderBottomLeftRadius: 0,
     borderBottomRightRadius: 0
+  },
+  required: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    color: theme.palette.error.main,
+  },
+  textFieldWrapper: {
+    position: "relative"
   }
 });

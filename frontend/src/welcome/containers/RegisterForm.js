@@ -63,14 +63,14 @@ class RegisterForm extends React.PureComponent {
             </Grid>
 
             <Grid item>
-              <TextField placeholder={"Email"} error={registerForm.emailErrors.length > 0} onChange={(e) => {
+              <TextField required={true} placeholder={"Email"} error={registerForm.emailErrors.length > 0} onChange={(e) => {
                 if(concatArray.length > 0) clearRegisterFormErrors();
                 this.setState({email: e.target.value})
               }}/>
             </Grid>
 
             <Grid item>
-              <TextField placeholder={"Password"} error={registerForm.passwordErrors.length > 0} type={"password"} onChange={(e) => {
+              <TextField required={true} placeholder={"Password"} error={registerForm.passwordErrors.length > 0} type={"password"} onChange={(e) => {
                 if(concatArray.length > 0) clearRegisterFormErrors();
                 this.setState({password: e.target.value})
               }}/>

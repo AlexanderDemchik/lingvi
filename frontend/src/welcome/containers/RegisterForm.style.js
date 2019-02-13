@@ -59,7 +59,7 @@ export const style = (theme) => ({
     }
   },
   errorBlock: {
-    backgroundColor: fade(theme.palette.error.main, 0.7),
+    backgroundColor: fade(theme.palette.error.main, 0.9),
     display: "flex",
     flexDirection: "column",
     marginBottom: 10,

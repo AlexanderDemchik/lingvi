@@ -48,6 +48,7 @@ export const style = (theme) => ({
   },
   howItWork: {
     textAlign: "center",
+    fill: "rgba(255,255,255,0.7)",
     fontWeight: 200,
     display: "flex",
     alignSelf: "center",

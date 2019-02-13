@@ -9,7 +9,7 @@ export const style = {
     position: "relative",
     justifyContent: "flex-start",
     "&:hover": {
-      backgroundColor: "#fff"
+      backgroundColor: "#fff!important"
     }
   },
   icon: {

@@ -3,7 +3,7 @@ export const style = {
     backgroundColor: "#4a76a8",
     color: "#fff",
     "&:hover": {
-      backgroundColor: "#4a76a8"
+      backgroundColor: "#4a76a8!important"
     }
   }
 };
