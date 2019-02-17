@@ -1,114 +1,64 @@
 import React from "react";
-import classNames from "classnames";
-import withStyles from "@material-ui/core/styles/withStyles";
-import {debounce} from "lodash";
+import {withStyles} from "@material-ui/core";
+import {style} from "./Translate.style";
+import Grid from "@material-ui/core/Grid/Grid";
+import {mdiVolumeHigh, mdiBookPlus} from "@mdi/js";
+import {Icon} from "@mdi/react";
 import PropTypes from "prop-types";
+import ClipLoader from "react-spinners/ClipLoader";
 
-const styles = {
-  hidden: {
-    opacity: 0,
-    visibility: "hidden",
-  },
-  popper: {
-    fontSize: 15,
-    position: "absolute",
-    left: "calc(50% - 100px)",
-    width: "200px",
-    backgroundColor: "red"
-  },
-  popperBottom: {
-    marginTop: 10,
-    top: "100%"
-  },
-  popperTop: {
-    bottom: "100%",
-    marginBottom: 10
-  },
-  right: {
-    right: 0,
-    left: "unset"
-  },
-  left: {
-    left: 0
-  },
-  word: {
-    position: "relative",
-    "&:hover": {
-      backgroundColor: "red"
-    }
-  }
-};
+class Translate extends React.Component {
 
-class Translate extends React.PureComponent {
   constructor(props) {
     super(props);
+
     this.state = {
-      isMouseOver: false,
-      isLeft: false,
-      isRight: false
-    };
-    this.ref = null;
+      isInit: false
+    }
+  }
+
+  componentDidUpdate() {
+    if(!this.state.isInit) {
+      if(this.props.active) {
+        this.setState({isInit: true});
+      }
+    }
   }
 
   componentDidMount() {
-    this.renderPopper();
-  }
-
-  componentWillUpdate(nextState, nextProps, nextSnapshot) {
-    if(nextProps.left !== this.props.left || nextProps.right !== this.props.right) {
-      this.renderPopper();
+    if(this.props.active) {
+      this.setState({isInit: true});
     }
   }
-
-  renderPopper = () => {
-    if (this.props.right !== null && this.props.left !== null) {
-      let isRight = false;
-      let isLeft = false;
-
-      if ((this.props.right - this.ref.getBoundingClientRect().right) < 100) isRight = true;
-      if ((this.ref.getBoundingClientRect().left - this.props.left) < 100) isLeft = true;
-
-      if (!(isRight && isLeft)) {
-        this.setState({isLeft: isLeft, isRight: isRight});
-      } else {
-        this.setState({isLeft: false, isRight: false});
-      }
-    }
-  };
-
-  onMouseOver = () => {
-    this.setState({isMouseOver: true});
-  };
-
-  onMouseOut = () => {
-    this.setState({isMouseOver: false})
-  };
 
   render() {
-    const {children, classes, popperPosition} = this.props;
-    const {isMouseOver, isRight, isLeft} = this.state;
+    const {isInit} = this.state;
+    const {classes, text} = this.props;
     return (
-      <span ref={ref => this.ref = ref} onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOut} className={classes.word}>{children}
-        <div className={classNames({[classes.hidden]: !isMouseOver}, classes.popper, {[classes.left]: isLeft}, {[classes.right]: isRight}, {[classes.popperBottom]:popperPosition === "bottom"}, {[classes.popperTop]:popperPosition === "top"})}>
-          text
-        </div>
-      </span>
+      <div className={classes.wrapper}>
+        {isInit ?
+          <Grid container direction={"row"} wrap={"nowrap"} justify={"space-between"} className={classes.header}
+                alignItems={"center"}>
+            <Grid item>
+              <span className={classes.word}>{text}</span>
+            </Grid>
+            <Grid item style={{alignSelf: "start"}}>
+              <Grid container direction={"row"} alignItems={"center"} wrap={"nowrap"}>
+                <Icon path={mdiVolumeHigh} size={1} className={classes.icon}/>
+                <Icon path={mdiBookPlus} size={1} className={classes.icon}/>
+              </Grid>
+            </Grid>
+          </Grid> : <div className={classes.loader}><ClipLoader color="inherit"/></div>
+        }
+      </div>
     )
   }
 }
 
-Translate.defaultProps = {
-  popperPosition: "top",
-  left: null,
-  right: null
-};
-
 Translate.propTypes = {
-  popperPosition: PropTypes.oneOf(["top", "bottom"]),
-  left: PropTypes.number,
-  right: PropTypes.number
+  classes: PropTypes.object,
+  text: PropTypes.string,
+  active: PropTypes.bool
 };
 
-
-
-export default withStyles(styles)(Translate);
+export default withStyles(style)(Translate);

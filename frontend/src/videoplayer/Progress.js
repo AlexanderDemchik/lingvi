@@ -2,100 +2,9 @@ import React, {PureComponent} from "react";
 import classNames from "classnames";
 import {withStyles} from "@material-ui/core";
 import PropTypes from "prop-types";
-import {fade} from "@material-ui/core/styles/colorManipulator";
-import VideoPlayer from "./VideoPlayer";
 import {throttle} from "lodash";
+import {styles} from "./Progress.style";
 
-const styles = (theme) => ({
-  wrapper: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    height: "15px",
-    paddingRight: "1px",
-    cursor: "pointer",
-    userSelect: "none",
-    position: "relative"
-  },
-  slider: {
-    width: "100%",
-    backgroundColor: fade(theme.palette.grey["300"], 0.1),
-    height: "5px",
-    display: "flex",
-    alignItems: "center",
-    position: "relative"
-  },
-  filled: {
-    left: 0,
-    position: "absolute",
-    height: "100%",
-    width: 0,
-    zIndex: 2,
-    backgroundColor: theme.palette.primary.main
-  },
-  thumb: {
-    userSelect: "none",
-    width: "10px",
-    height: "10px",
-    borderRadius: "50%",
-    position: "absolute",
-    zIndex: 3,
-    transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
-    opacity: 1,
-    backgroundColor: theme.palette.primary.main
-  },
-  tooltip: {
-    opacity: 1,
-    visibility: "visible",
-    transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
-    borderRadius: 3,
-    width: 150,
-    height: 85,
-    transformOrigin: "bottom",
-    position: "absolute",
-    bottom: "150%",
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "center",
-    backgroundSize: "cover",
-    // backgroundColor: theme.palette.primary.main,
-    backgroundColor: "hsla(0, 0%, 6.7%, .8)",
-    color: theme.palette.primary.contrastText,
-    // "&:after": {
-    //   position: "absolute",
-    //   content: "' '",
-    //   top: "100%",
-    //   left: "50%",
-    //   height: 0,
-    //   width: 0,
-    //   border: "5px solid transparent",
-    //   // borderTopColor: theme.palette.primary.main,
-    //   borderTopColor: "hsla(0, 0%, 6.7%, .8)",
-    //   marginLeft: -5
-    // }
-  },
-  tooltipTime: {
-    display: "flex",
-    alignItems: "center",
-    backgroundColor: "hsla(0, 0%, 6.7%, .8)",
-    fontSize: 11,
-    minWidth: 30,
-    height: 20,
-  },
-  hidden: {
-    visibility: "hidden",
-    opacity: 0,
-  },
-  bufferFilled: {
-    left: 0,
-    zIndex: 1,
-    position: "absolute",
-    height: "100%",
-    width: 0,
-    transition: "width .2s linear",
-    backgroundColor: fade(theme.palette.primary.main, 0.3)
-  }
-});
 
 class Progress extends PureComponent {
 
@@ -118,8 +27,8 @@ class Progress extends PureComponent {
     if (!state.isMouseDown && props.value && !state.changed) {
       return {fakeValue: props.value};
     } else if(state.changed) {
-      if(Math.abs(props.value - state.fakeValue) < 0.1) {
-        return {changed: false}
+      if(Math.abs(props.value - state.fakeValue) < 0.0001) {
+        return {changed: false, fakeValue: props.value}
       }
     }
     return null;
@@ -150,8 +59,9 @@ class Progress extends PureComponent {
 
   onMouseUp = () => {
     if(this.state.isMouseDown) {
-      this.props.changeValue(this.state.fakeValue);
-      this.setState({isMouseDown: false}, () => this.props.onMouseUp());
+      this.setState({isMouseDown: false, changed: true}, () => {
+        this.props.changeValue(this.state.fakeValue);
+      })
     }
   };
 
@@ -165,7 +75,7 @@ class Progress extends PureComponent {
       let offset = e.pageX - this.sliderRef.current.getBoundingClientRect().left;
       if(offset > this.sliderRef.current.getBoundingClientRect().width) offset = this.sliderRef.current.getBoundingClientRect().width;
       if(offset < 0) offset = 0;
-      let percent = (offset)/this.sliderRef.current.getBoundingClientRect().width * 100;
+      let percent = (offset)/this.sliderRef.current.getBoundingClientRect().width;
 
       if(offset < (this.tooltipRef.current.getBoundingClientRect().width/2)) {
         this.tooltipRef.current.style.left = 0;
@@ -178,8 +88,8 @@ class Progress extends PureComponent {
       this.setState({tooltipValue: percent});
 
       if(this.state.isMouseDown) {
-          this.setState({fakeValue: offset/this.sliderRef.current.getBoundingClientRect().width*100}, () => {
-              this.props.onMouseDown(this.state.fakeValue);
+          this.setState({fakeValue: offset/this.sliderRef.current.getBoundingClientRect().width}, () => {
+              // this.props.onMouseDown(this.state.fakeValue);
           });
       }
     }
@@ -204,7 +114,7 @@ class Progress extends PureComponent {
     if(offset > this.sliderRef.current.getBoundingClientRect().width) offset = this.sliderRef.current.getBoundingClientRect().width;
     if(offset < 0) offset = 0;
     this.setState({isMouseDown: true}, () => {
-      this.setState({fakeValue: offset/this.sliderRef.current.getBoundingClientRect().width * 100, changed: true}, () => this.props.onMouseDown(this.state.fakeValue));
+      this.setState({fakeValue: offset/this.sliderRef.current.getBoundingClientRect().width});
     });
 
   };
@@ -219,26 +129,36 @@ class Progress extends PureComponent {
 
   calculateWidth(width) {
     if(this.sliderRef.current !== null) {
-      return this.sliderRef.current.getBoundingClientRect().width * width / 100;
+      return this.sliderRef.current.getBoundingClientRect().width * width;
     } else {
       return 0;
     }
   }
 
   render() {
-    const {classes} = this.props;
+    const imagesPerSprite = 20;
+    const secondsPerImage = 5;
+    const spritesExt = "jpg";
+    const {classes, convertTooltipValue, spritesUrl, duration} = this.props;
+    const {tooltipValue, fakeValue, isHover, isMouseDown} = this.state;
+    let spritesN = Math.ceil((duration * tooltipValue)/secondsPerImage/imagesPerSprite + 0.01);
+    let numInSprite = (Math.ceil(((duration * tooltipValue)%(imagesPerSprite * secondsPerImage))/secondsPerImage) - 1);
+
+    if(numInSprite === -1) numInSprite+=1;
+
     return (
       <div style={{position: "relative", width: "100%"}}>
-        <div ref={this.tooltipRef} className={classNames(classes.tooltip, {[classes.hidden]: !this.state.isHover && !this.state.isMouseDown})} >
+        <div ref={this.tooltipRef} className={classNames(classes.tooltip, {[classes.hidden]: !this.state.isHover && !this.state.isMouseDown})}
+             style={{backgroundImage: `url(${spritesUrl}/sprite${spritesN}.${spritesExt})`, backgroundPosition: `0 -${numInSprite * 100}%`, backgroundSize: `100% ${imagesPerSprite}00%`}}>
           <div className={classes.tooltipTime}>
-            {VideoPlayer.convertSeconds(this.props.convertTooltipValue(this.state.tooltipValue))}
+            {convertTooltipValue(tooltipValue)}
           </div>
         </div>
 
-        <div className={classes.wrapper} onMouseDown={(e) => {this.onMouseDown(e)}} onTouchStart={(e) => {this.onTouchStart(e)}} onMouseOver={() => this.onMouseEnter()} onMouseOut={() => this.onMouseLeave()}>
+        <div className={classes.wrapper} onMouseDown={this.onMouseDown} onTouchStart={this.onTouchStart} onMouseOver={this.onMouseEnter} onMouseOut={this.onMouseLeave}>
           <div ref={this.sliderRef} className={classes.slider} >
-            <div ref={this.fillRef} style = {{width: this.calculateWidth(this.state.fakeValue) + "px"}} className={classes.filled}/>
-            <div className={classNames(classes.thumb, {[classes.hidden]:!this.state.isHover})} style={{left: this.calculateWidth(this.state.fakeValue) - 5 + "px"}}/>
+            <div ref={this.fillRef} style = {{width: this.calculateWidth(fakeValue) + "px"}} className={classes.filled}/>
+            <div className={classNames(classes.thumb, {[classes.hidden]:!isHover && !isMouseDown})} style={{left: this.calculateWidth(fakeValue) - 5 + "px"}}/>
             {
               this.props.buffered.map(o => (
                 <div key={o.start} className={classes.bufferFilled} style = {{width: this.calculateWidth(o.end - o.start) + "px", left: this.calculateWidth(o.start) + "px"}}/>
@@ -252,12 +172,15 @@ class Progress extends PureComponent {
 }
 
 Progress.propTypes = {
+  /*From 0 to 1*/
   value: PropTypes.number,
   changeValue: PropTypes.func,
+  /*Convert state.tooltipValue to readable format*/
   convertTooltipValue: PropTypes.func,
+  /*Array with values from 0 to 1*/
   buffered: PropTypes.array,
-  onMouseDown: PropTypes.func, //callback
-  onMouseUp: PropTypes.func //callback
+  spritesUrl: PropTypes.string,
+  duration: PropTypes.number
 };
 
 export default withStyles(styles)(Progress)

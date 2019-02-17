@@ -52,4 +52,21 @@ export const style = (theme) => ({
   cursorHidden: {
     cursor: "none"
   },
+  bottomSubWrapper: {
+    position: "absolute",
+    bottom: 20,
+    width: "100%",
+    transition: "all .2s ease-in-out"
+  },
+  bottomSubMargin: {
+    [theme.breakpoints.down('sm')]: {
+      bottom: 40
+    },
+    [theme.breakpoints.up('sm')]: {
+      bottom: 45,
+    },
+    [theme.breakpoints.up('md')]: {
+      bottom: 50,
+    },
+  },
 });

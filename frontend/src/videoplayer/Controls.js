@@ -8,11 +8,11 @@ import {Icon} from "@mdi/react";
 import VolumeSlider from "./VolumeSlider";
 
 const Controls = ({played, changePlayed, buffered, duration, classes, volume, changeVolume, playing, changePlaying, fullScreen,
-                    enterFullScreen, exitFullScreen, className}) => (
+                    enterFullScreen, exitFullScreen, className, spritesUrl}) => (
   <div className={classes.controlsWrapper}>
     <Grid container direction={"column"} className={`${classes.controls} ${className}`}>
       <Grid item>
-        <Progress value={played / duration} changeValue={changePlayed} buffered={buffered} convertTooltipValue={(v) => convertSeconds(duration * v)}/>
+        <Progress value={played / duration} changeValue={changePlayed} buffered={buffered} convertTooltipValue={(v) => convertSeconds(duration * v)} spritesUrl={spritesUrl} duration={duration}/>
       </Grid>
       <Grid item>
         <Grid container alignItems={"center"} justify={"space-between"} direction={"row"} wrap={"nowrap"}>
@@ -54,7 +54,6 @@ const Controls = ({played, changePlayed, buffered, duration, classes, volume, ch
         </Grid>
       </Grid>
     </Grid>
-
   </div>
 );
 
