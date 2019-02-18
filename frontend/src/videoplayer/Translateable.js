@@ -4,6 +4,7 @@ import {style} from "./Translateable.style";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {debounce} from "lodash";
 import {elementContainsSelection} from "./utils";
+import TouchAwayListener from "../shared/TouchAwayListener";
 
 class Translateable extends React.Component {
 
@@ -38,23 +39,25 @@ class Translateable extends React.Component {
   };
 
   onSelectionChange = debounce(() => {
-    this.setState({selectedText: this.getSelectionText().trim()}, () => {
+    this.setState({selectedText: this.getSelectionText().trim().replace("\n", "")}, () => {
       this.props.onSelectionChange && this.props.onSelectionChange(this.state.selectedText);
     });
   }, 50);
 
   render() {
     const {selectedText} = this.state;
-    const {children, classes} = this.props;
+    const {children, classes, onMouseEnter, onMouseLeave, onTouchAway} = this.props;
     return (
-      <div ref={ref => this.ref = ref} style={{position: "relative"}}>
-        {children}
-        {selectedText.length > 0 &&
-          <div className={`${classes.popper} ${classes.popperTop}`}>
-             <Translate text={selectedText} active={true}/>
-          </div>
-          }
-      </div>
+      <TouchAwayListener onTouchAway={onTouchAway}>
+        <div ref={ref => this.ref = ref} style={{position: "relative"}} onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} onContextMenu={(e) => (e.preventDefault())}>
+          {children}
+          {selectedText.length > 0 &&
+            <div className={`${classes.popper} ${classes.popperTop}`}>
+               <Translate text={selectedText} active={true}/>
+            </div>
+            }
+        </div>
+      </TouchAwayListener>
     )
   }
 }

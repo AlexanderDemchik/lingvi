@@ -8,7 +8,10 @@ export const style = (theme) => ({
     overflow: "hidden",
     margin: "0 auto",
     width: "100%",
-    height: 0
+    height: 0,
+    "& video": {
+      userSelect: "none"
+    }
   },
   poster: {
     width: "100%",
@@ -44,10 +47,12 @@ export const style = (theme) => ({
   },
   hidden: {
     visibility: "hidden",
+    maxHeight: 0,
     opacity: 0
   },
   controls: {
-    transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
+    maxHeight: 500,
+    transition: "visibility .2s ease-in-out, opacity .2s ease-in-out, max-height 0.2s cubic-bezier(0, 1, 0, 1);",
   },
   cursorHidden: {
     cursor: "none"

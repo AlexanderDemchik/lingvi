@@ -105,7 +105,7 @@ class VolumeSlider extends PureComponent {
     const {isHover} = this.state;
     return (
     <div style={{position: "relative", width: "100%"}} className={className}>
-      <div className={classes.wrapper} onMouseDown={(e) => {this.onMouseDown(e)}} onTouchStart={(e) => {this.onTouchStart(e)}} onMouseEnter={() => this.onMouseEnter()} onMouseLeave={() => this.onMouseLeave()}>
+      <div className={classes.wrapper} onMouseDown={(e) => {this.onMouseDown(e)}} onTouchStart={(e) => {this.onTouchStart(e)}} onTouchMove={this.onTouchMove} onMouseEnter={() => this.onMouseEnter()} onMouseLeave={() => this.onMouseLeave()}>
         <div ref={this.sliderRef} className={classes.slider} >
           <div ref={this.fillRef} style = {{width: this.calculateWidth(value) + "px"}} className={classes.filled}/>
           <div className={classNames(classes.thumb, {[classes.hidden]:!isHover})} style={{left: this.calculateWidth(value) - 5 + "px"}}/>

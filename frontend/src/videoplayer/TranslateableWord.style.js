@@ -28,11 +28,13 @@ export const styles = theme => ({
     position: "relative",
   },
   word: {
-    "&:hover": {
-      backgroundColor: theme.palette.primary.main
-    },
     "&::selection": {
-      background: theme.palette.primary.main
-    },
+      background: theme.palette.primary.main,
+      borderRadius: 5
+    }
+  },
+  active: {
+    background: theme.palette.primary.main,
+    borderRadius: 2
   }
 });

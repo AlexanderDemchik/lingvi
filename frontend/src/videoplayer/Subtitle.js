@@ -48,7 +48,7 @@ class Subtitle extends React.PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     if(prevState.content !== this.state.content) {
-      clearSelection(this.translateableRef);
+      this.onMouseLeave();
     }
   }
 
@@ -84,21 +84,40 @@ class Subtitle extends React.PureComponent {
   }
 
   onSelectionChange = (selectionText) => {
-    this.setState({selectionTranslateOpen: selectionText !== ""})
+    let state = selectionText !== "";
+    this.setState({selectionTranslateOpen: state});
+    // if(state) this.props.changePausedState(true);
+  };
+
+  onMouseEnter = () => {
+    this.props.changePausedState(true);
+  };
+
+  onMouseLeave = () => {
+    this.props.changePausedState(false);
+    clearSelection(this.translateableRef);
+  };
+
+  onTouchEnd = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    this.props.changePausedState(true);
   };
 
   render() {
     const {classes} = this.props;
     return (
-      <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange}>
-        <div ref={ref => this.ref = ref} className={classes.subtitle}>
-            {this.state.content && this.state.content.map((el) => (
-              <Typography component={"div"} key={el} color={"inherit"} classes={{root: classes.text}}>
-                {this.divide(el)}
-              </Typography>
-            ))}
-        </div>
-      </Translateable>
+      <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onTouchEnd={this.onTouchEnd}>
+        <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}}>
+          <div ref={ref => this.ref = ref} className={classes.subtitle}>
+              {this.state.content && this.state.content.map((el) => (
+                <Typography component={"div"} key={el} color={"inherit"} classes={{root: classes.text}}>
+                  {this.divide(el)}
+                </Typography>
+              ))}
+          </div>
+        </Translateable>
+      </div>
     )
   }
 }
@@ -106,7 +125,9 @@ class Subtitle extends React.PureComponent {
 Subtitle.propTypes = {
   data: PropTypes.array,//subtitles
   time: PropTypes.number,//current video time
-  classes: PropTypes.object
+  classes: PropTypes.object,
+  changePausedState: PropTypes.func,
+  paused: PropTypes.bool
 };
 
 export default withStyles(styles)(Subtitle);

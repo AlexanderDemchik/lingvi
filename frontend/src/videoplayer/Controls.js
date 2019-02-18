@@ -19,7 +19,7 @@ const Controls = ({played, changePlayed, buffered, duration, classes, volume, ch
           <Grid item>
             <Grid container direction={"row"} alignItems={"center"} justify={"flex-start"} spacing={8}>
               <Grid item>
-                {<Icon path={!playing ? mdiPlay : mdiPause} className={classes.icon} onClick={() => changePlaying(!playing)}/>}
+                {<Icon path={!playing ? mdiPlay : mdiPause} className={classes.icon} onClick={() => changePlaying(!playing)} onTouchEnd={() => changePlaying(!playing)}/>}
               </Grid>
               <Grid item>
                 <Icon path={volume > 0.5 ? mdiVolumeHigh : volume > 0 ? mdiVolumeMedium : mdiVolumeOff} className={classes.icon}/>
@@ -43,9 +43,9 @@ const Controls = ({played, changePlayed, buffered, duration, classes, volume, ch
               <Grid item>
                 {
                   fullScreen ? (
-                    <Icon path={mdiFullscreenExit} className={classes.icon} onClick={exitFullScreen}/>
+                    <Icon path={mdiFullscreenExit} className={classes.icon} onClick={exitFullScreen} onTouchEnd={exitFullScreen}/>
                   ) : (
-                    <Icon path={mdiFullscreen} className={classes.icon} onClick={enterFullScreen}/>
+                    <Icon path={mdiFullscreen} className={classes.icon} onClick={enterFullScreen} onTouchEnd={enterFullScreen}/>
                   )
                 }
               </Grid>

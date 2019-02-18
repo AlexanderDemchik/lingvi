@@ -38,7 +38,7 @@ class Translate extends React.Component {
       <div className={classes.wrapper}>
         {isInit ?
           <Grid container direction={"row"} wrap={"nowrap"} justify={"space-between"} className={classes.header}
-                alignItems={"center"}>
+                alignItems={"center"} spacing={8}>
             <Grid item>
               <span className={classes.word}>{text}</span>
             </Grid>

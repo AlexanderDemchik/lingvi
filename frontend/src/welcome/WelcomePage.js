@@ -34,7 +34,7 @@ class WelcomePage extends Component {
             <Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>
           </div>
         </div>
-       <VideoPlayer url={"http://localhost/video/gameofthrones/season1/s1/test.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/s1/sprites"}/>
+       <VideoPlayer url={"http://192.168.100.94/video/gameofthrones/season1/s1/test.m3u8"} spritesUrl={"http://192.168.100.94/video/gameofthrones/season1/s1/sprites"}/>
        {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
        {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
         {/*https://youtu.be/L4K0lxVJweU*/}

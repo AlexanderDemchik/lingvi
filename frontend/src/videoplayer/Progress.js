@@ -65,10 +65,6 @@ class Progress extends PureComponent {
     }
   };
 
-  onTouchEnd = () => {
-    this.setState({isMouseDown: false});
-  };
-
   onMouseMove = (e) => {
     if(this.state.isMouseDown || this.state.isHover) {
 
@@ -77,14 +73,7 @@ class Progress extends PureComponent {
       if(offset < 0) offset = 0;
       let percent = (offset)/this.sliderRef.current.getBoundingClientRect().width;
 
-      if(offset < (this.tooltipRef.current.getBoundingClientRect().width/2)) {
-        this.tooltipRef.current.style.left = 0;
-      } else if((this.sliderRef.current.getBoundingClientRect().width - offset) < this.tooltipRef.current.getBoundingClientRect().width/2) {
-        this.tooltipRef.current.style.left = this.sliderRef.current.getBoundingClientRect().width - this.tooltipRef.current.getBoundingClientRect().width + "px";
-      } else {
-        this.tooltipRef.current.style.left = offset - this.tooltipRef.current.getBoundingClientRect().width/2 + "px";
-      }
-
+      this.setTooltipPosition(offset);
       this.setState({tooltipValue: percent});
 
       if(this.state.isMouseDown) {
@@ -96,8 +85,10 @@ class Progress extends PureComponent {
   };
 
   onTouchStart = (e) => {
-    this.props.changeValue((e.touches[0].pageX - this.sliderRef.current.getBoundingClientRect().left)/this.sliderRef.current.getBoundingClientRect().width * 100);
-    this.setState({isMouseDown: true})
+    let offset = (e.touches[0].pageX - this.sliderRef.current.getBoundingClientRect().left);
+    let boundingClientRectWidth = this.sliderRef.current.getBoundingClientRect().width;
+    this.setState({fakeValue: offset / boundingClientRectWidth, isMouseDown: true, tooltipValue: offset / boundingClientRectWidth});
+    this.setTooltipPosition(offset);
   };
 
   onTouchMove = (e) => {
@@ -105,8 +96,17 @@ class Progress extends PureComponent {
       let newPlace = e.touches[0].pageX - this.sliderRef.current.getBoundingClientRect().left;
       if(newPlace > this.sliderRef.current.getBoundingClientRect().width) newPlace = this.sliderRef.current.getBoundingClientRect().width;
       if(newPlace < 0) newPlace = 0;
-      this.props.changeValue(newPlace/this.sliderRef.current.getBoundingClientRect().width*100);
+      this.setState({fakeValue: newPlace/this.sliderRef.current.getBoundingClientRect().width});
+
+      this.setTooltipPosition(newPlace);
+      this.setState({tooltipValue: newPlace / this.sliderRef.current.getBoundingClientRect().width});
     }
+  };
+
+  onTouchEnd = (e) => {
+    e.preventDefault();
+    this.onMouseUp();
+    this.setState({isHover: false});
   };
 
   onMouseDown = (e) => {
@@ -116,7 +116,6 @@ class Progress extends PureComponent {
     this.setState({isMouseDown: true}, () => {
       this.setState({fakeValue: offset/this.sliderRef.current.getBoundingClientRect().width});
     });
-
   };
 
   onMouseEnter = () => {
@@ -134,6 +133,16 @@ class Progress extends PureComponent {
       return 0;
     }
   }
+
+  setTooltipPosition = (position) => {
+    if(position < (this.tooltipRef.current.getBoundingClientRect().width/2)) {
+      this.tooltipRef.current.style.left = 0;
+    } else if((this.sliderRef.current.getBoundingClientRect().width - position) < this.tooltipRef.current.getBoundingClientRect().width/2) {
+      this.tooltipRef.current.style.left = this.sliderRef.current.getBoundingClientRect().width - this.tooltipRef.current.getBoundingClientRect().width + "px";
+    } else {
+      this.tooltipRef.current.style.left = position - this.tooltipRef.current.getBoundingClientRect().width/2 + "px";
+    }
+  };
 
   render() {
     const imagesPerSprite = 20;
@@ -155,7 +164,7 @@ class Progress extends PureComponent {
           </div>
         </div>
 
-        <div className={classes.wrapper} onMouseDown={this.onMouseDown} onTouchStart={this.onTouchStart} onMouseOver={this.onMouseEnter} onMouseOut={this.onMouseLeave}>
+        <div className={classes.wrapper} onMouseDown={this.onMouseDown} onTouchStart={this.onTouchStart} onMouseOver={this.onMouseEnter} onMouseOut={this.onMouseLeave} onTouchEnd={this.onTouchEnd} onTouchMove={this.onTouchMove}>
           <div ref={this.sliderRef} className={classes.slider} >
             <div ref={this.fillRef} style = {{width: this.calculateWidth(fakeValue) + "px"}} className={classes.filled}/>
             <div className={classNames(classes.thumb, {[classes.hidden]:!isHover && !isMouseDown})} style={{left: this.calculateWidth(fakeValue) - 5 + "px"}}/>

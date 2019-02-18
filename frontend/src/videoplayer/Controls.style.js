@@ -28,6 +28,7 @@ export const style = (theme) => ({
   },
   time: {
     color: "#fff",
-    fontSize: "0.7rem"
+    fontSize: "0.7rem",
+    userSelect: "none"
   }
 });
