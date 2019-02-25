@@ -39,17 +39,17 @@ class Translateable extends React.Component {
   };
 
   onSelectionChange = debounce(() => {
-    this.setState({selectedText: this.getSelectionText().trim().replace("\n", "")}, () => {
+    this.setState({selectedText: this.getSelectionText().replace("\n", "")}, () => {
       this.props.onSelectionChange && this.props.onSelectionChange(this.state.selectedText);
     });
   }, 50);
 
   render() {
     const {selectedText} = this.state;
-    const {children, classes, onMouseEnter, onMouseLeave, onTouchAway} = this.props;
+    const {children, classes, onTouchAway} = this.props;
     return (
       <TouchAwayListener onTouchAway={onTouchAway}>
-        <div ref={ref => this.ref = ref} style={{position: "relative"}} onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} onContextMenu={(e) => (e.preventDefault())}>
+        <div ref={ref => this.ref = ref} style={{position: "relative"}} onContextMenu={(e) => (e.preventDefault())}>
           {children}
           {selectedText.length > 0 &&
             <div className={`${classes.popper} ${classes.popperTop}`}>

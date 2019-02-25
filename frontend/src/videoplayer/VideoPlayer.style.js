@@ -65,13 +65,13 @@ export const style = (theme) => ({
   },
   bottomSubMargin: {
     [theme.breakpoints.down('sm')]: {
-      bottom: 40
+      bottom: 45
     },
     [theme.breakpoints.up('sm')]: {
-      bottom: 45,
+      bottom: 50,
     },
     [theme.breakpoints.up('md')]: {
-      bottom: 50,
+      bottom: 55,
     },
   },
 });

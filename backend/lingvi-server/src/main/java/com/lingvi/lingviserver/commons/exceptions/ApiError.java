@@ -5,6 +5,9 @@ import org.springframework.http.HttpStatus;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Common model of rest errors
+ */
 public class ApiError extends RuntimeException {
 
     private Date timestamp;

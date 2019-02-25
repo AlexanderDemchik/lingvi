@@ -68,43 +68,46 @@ class VideoPlayer extends React.Component {
   onStart = () => {
 
     const duration = this.playerRef.getDuration();
-    this.hlsRef = this.playerRef.getInternalPlayer('hls');
-
     this.setState({duration});
 
-    this.hlsRef.on(window.Hls.Events.ERROR, (event, { details }) => {
-      if (details === window.Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
-        this.setState({loading: true})
-      }
-    });
+    this.hlsRef = this.playerRef.getInternalPlayer('hls');
 
-    this.hlsRef.media.ontimeupdate = () => {
-      this.setState({played: this.hlsRef.media.currentTime})
-    };
+    if(this.hlsRef) {
+      this.hlsRef.on(window.Hls.Events.ERROR, (event, {details}) => {
+        if (details === window.Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
+          this.setState({loading: true})
+        }
+      });
 
-    this.hlsRef.media.onclick = this.onVideoClick;
-    this.hlsRef.media.ontouchend = (e) => {
-      e.preventDefault();
-      this.onVideoClick();
-    };
+      this.hlsRef.media.ontimeupdate = () => {
+        this.setState({played: this.hlsRef.media.currentTime})
+      };
 
-    this.hlsRef.on(window.Hls.Events.FRAG_BUFFERED, () => {
-      this.setState({loading: false})
-    });
+      this.hlsRef.media.onclick = this.onVideoClick;
+      this.hlsRef.media.ontouchend = (e) => {
+        e.preventDefault();
+        this.onVideoClick();
+      };
 
-    this.hlsRef.on(window.Hls.Events.FRAG_CHANGED, () => {
-      this.setState({loading: false})
-    });
+      this.hlsRef.on(window.Hls.Events.FRAG_BUFFERED, () => {
+        this.setState({loading: false})
+      });
+
+      this.hlsRef.on(window.Hls.Events.FRAG_CHANGED, () => {
+        this.setState({loading: false})
+      });
 
 
-    this.hlsRef.on(window.Hls.Events.BUFFER_APPENDED, (e, data) => {
-      let result = [];
-      for(let i = 0; i < data.timeRanges.video.length; i++) {
-        result.push({start: data.timeRanges.video.start(i) / duration, end: data.timeRanges.video.end(i) / duration});
-      }
-      this.setState({buffered: result});
-    });
+      this.hlsRef.on(window.Hls.Events.BUFFER_APPENDED, (e, data) => {
+        let result = [];
+        for (let i = 0; i < data.timeRanges.video.length; i++) {
+          result.push({start: data.timeRanges.video.start(i) / duration, end: data.timeRanges.video.end(i) / duration});
+        }
+        this.setState({buffered: result});
+      });
+    } else {
 
+    }
     this.setState({started: true});
   };
 
@@ -166,8 +169,6 @@ class VideoPlayer extends React.Component {
   onVideoClick = () => {
     if(this.state.mouseActive || !this.state.playing || this.state.paused) {
       this.setState({playing: !(this.state.playing && !this.state.paused), paused: false})
-    } else {
-      this.updateActiveState();
     }
   };
 
@@ -175,24 +176,28 @@ class VideoPlayer extends React.Component {
     this.setState({paused});
   };
 
+  onWrapperClick = () => {
+    this.updateActiveState();
+  };
+
   render() {
     const {classes, spritesUrl, url} = this.props;
-    const {played, playing, loading, initialized, buffered, duration, volume, fullScreen, mouseActive, paused} = this.state;
+    const {played, playing, loading, initialized, buffered, duration, volume, fullScreen, mouseActive, paused, started} = this.state;
     return (
       <div className={`${classes.wrapper} ${!mouseActive && classes.cursorHidden}`} ref={ref => this.wrapperRef = ref} onMouseEnter={this.onWrapperMouseEnter} onMouseLeave={this.onWrapperMouseLeave}
-          onMouseMove={this.onWrapperMouseMove} onTouchEnd={this.updateActiveState} onTouchMove={this.onWrapperMouseMove}
+          onMouseMove={this.onWrapperMouseMove} onTouchEnd={this.updateActiveState} onTouchMove={this.onWrapperMouseMove} onClick={this.onWrapperClick}
       >
         {initialized ? (
           <React.Fragment>
             <ReactPlayer ref={ref => this.playerRef = ref} playing={playing && !paused} url={url} width={"100%"} height={"100%"}
                          style={{position: "absolute", top: 0, left: 0, backgroundColor: "#000"}}
-                         onDuration={this.onDuration} onStart={this.onStart}
+                         onDuration={this.onDuration} onStart={this.onStart} progressInterval={500}
                          volume={volume}
             />
             <div className={`${classes.bottomSubWrapper} ${(this.state.mouseActive || !this.state.playing) && classes.bottomSubMargin}`}>
               <Subtitle data={subList} time={played} paused={paused} changePausedState={this.changePaused}/>
             </div>
-            {loading && <div className={classes.loaderOverlay}>
+            {(loading || !started) && <div className={classes.loaderOverlay}>
               <ClipLoader color={"inherit"} size={70} />
             </div>}
               <Controls played={played} changePlayed = {(v) => {this.playerRef.seekTo(v);}} buffered={buffered} duration={duration}

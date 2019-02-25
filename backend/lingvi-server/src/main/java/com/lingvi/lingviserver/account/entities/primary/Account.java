@@ -6,7 +6,7 @@ import com.lingvi.lingviserver.security.entities.primary.User;
 import javax.persistence.*;
 
 /**
- * Class that contain user info.
+ * Class that contains user info.
  */
 @Entity(name = "accounts")
 public class Account {

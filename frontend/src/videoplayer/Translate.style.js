@@ -16,7 +16,8 @@ export const style = (theme) => ({
   },
   word: {
     color: theme.palette.primary.contrastText,
-    fontSize: "1rem"
+    fontSize: "1rem",
+    userSelect: "none"
   },
   loader: {
     color: theme.palette.primary.main,

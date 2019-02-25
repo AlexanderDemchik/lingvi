@@ -22,15 +22,21 @@ class TranslateableWord extends React.PureComponent {
     this.renderPopper();
   }
 
-  componentWillUpdate(nextState, nextProps, nextSnapshot) {
+  componentDidUpdate(nextState, nextProps, nextSnapshot) {
     if(nextProps.left !== this.props.left || nextProps.right !== this.props.right) {
       this.renderPopper();
     }
   }
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if(nextProps.disabled) {
+      return {isMouseOver: false}
+    } else return null;
+  }
+
   componentWillUnmount() {
     if(this.state.isMouseOver) {
-      this.props.onMouseLeave();
+      this.onMouseLeave();
     }
   };
 
@@ -57,11 +63,11 @@ class TranslateableWord extends React.PureComponent {
   };
 
   onMouseEnter = () => {
-    this.setState({isMouseOver: true}, this.props.onMouseEnter);
+    this.setState({isMouseOver: true});
   };
 
   onMouseLeave = () => {
-    this.setState({isMouseOver: false}, this.props.onMouseLeave);
+    this.setState({isMouseOver: false});
   };
 
   render() {

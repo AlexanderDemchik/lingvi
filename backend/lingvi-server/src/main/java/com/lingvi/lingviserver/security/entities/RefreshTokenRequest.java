@@ -1,5 +1,8 @@
 package com.lingvi.lingviserver.security.entities;
 
+/**
+ * Model of request to refresh token
+ */
 public class RefreshTokenRequest {
 
     public String getRefreshToken() {

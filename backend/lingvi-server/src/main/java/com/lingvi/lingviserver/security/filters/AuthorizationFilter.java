@@ -21,6 +21,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Filter to proceed authorization throw jwt tokens
+ */
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     private Logger logger = LoggerFactory.getLogger(AuthorizationFilter.class);
@@ -34,8 +37,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        logger.info("Auth filter");
 
         Authentication authentication = getAuthFromRequest(request);
         if(authentication != null) {

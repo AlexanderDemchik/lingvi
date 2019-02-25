@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Date;
 
+/**
+ * Model of token in black list
+ */
 @Entity(name = "black_list")
 public class BlackListToken {
 

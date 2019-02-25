@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 public class AccountService {
 
     private Logger logger = LoggerFactory.getLogger(AccountService.class);
-
     private AccountRepository accountRepository;
 
+    /**
+     * @param accountRepository {@link AccountRepository}
+     */
     @Autowired
     public AccountService(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;

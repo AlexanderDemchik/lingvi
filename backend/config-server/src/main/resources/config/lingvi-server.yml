@@ -34,7 +34,7 @@ spring:
       driver-class-name: org.h2.Driver
     jpa:
       hibernate:
-        ddl-auto: create-drop
+        ddl-auto: update
         show_sql: true
 
 #Identity providers
@@ -44,3 +44,23 @@ providers:
     client-secret: 3O2TJnWYNaSbfmL5bDuQppR7
     access-token-uri: https://www.googleapis.com/oauth2/v4/token
     user-info-uri: https://www.googleapis.com/oauth2/v1/userinfo?alt=json
+
+
+#Properties of dictionary module
+dictionary:
+  api:
+    yandex:
+      dictionary:
+        api-key: dict.1.1.20190219T174546Z.65b1ce9dac5922a1.5fc8bad4b4abc2e02b4dc6eb81ed545055825bd2
+        url: https://dictionary.yandex.net/api/v1/dicservice.json/lookup
+      translate:
+        api-key: trnsl.1.1.20190219T171715Z.3f4cb494eadb18aa.924a92e085a253d1b4b94520cb970ccb046f9f99
+        url: https://translate.yandex.net/api/v1.5/tr.json/translate
+    systran:
+      api-key: a2764cc2-7509-47c0-aece-db869e9ca74c
+      dictionaryUrl:
+      translateUrl:
+      lemma-url: https://api-platform.systran.net/nlp/morphology/extract/lemma
+    google:
+      api-key: AIzaSyCCdyhKPsOoP4VtkRHCnzVoHRrfted3SXE
+      text-to-speech-url: https://texttospeech.googleapis.com/v1/text:synthesize

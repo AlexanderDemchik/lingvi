@@ -1,5 +1,8 @@
 package com.lingvi.lingviserver.security.entities;
 
+/**
+ * Used to proceed registration throw social with already received access tokem
+ */
 public class OAuthRequestWithToken {
 
     private String accessToken;

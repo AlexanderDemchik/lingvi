@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Object that will send in error response.
+ * Removes all unnecessary fields from {@link ApiError} such as stacktrace
+ */
 public class ApiErrorResponse {
 
     private Date timestamp;

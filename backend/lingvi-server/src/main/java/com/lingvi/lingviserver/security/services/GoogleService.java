@@ -42,7 +42,7 @@ public class GoogleService implements BaseProviderService {
             throw new ApiError(e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
         }
 
-        if(response.getBody() != null) {
+        if (response.getBody() != null) {
             return response.getBody();
         }
         return null;

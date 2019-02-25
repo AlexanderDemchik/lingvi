@@ -5,6 +5,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.util.Date;
 
+/**
+ * Model of black list token in in-memory db
+ */
 @Entity(name = "black_list")
 public class InMemoryBlackListToken {
 

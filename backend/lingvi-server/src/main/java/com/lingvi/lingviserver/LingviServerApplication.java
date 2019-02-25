@@ -12,6 +12,5 @@ public class LingviServerApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(LingviServerApplication.class, args);
     }
-
 }
 

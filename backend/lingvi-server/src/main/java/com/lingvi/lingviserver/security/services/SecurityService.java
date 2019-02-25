@@ -82,9 +82,9 @@ public class SecurityService {
      */
     public AuthResponse login(AuthRequest loginRequest) {
         User user;
-        if((user = userRepository.findByEmail(loginRequest.getEmail())) != null) {
-            if(passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                if(user.isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
+        if ((user = userRepository.findByEmail(loginRequest.getEmail())) != null) {
+            if (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                if (user.isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
                 return createAuthResponse(user);
             }
         }
@@ -103,8 +103,8 @@ public class SecurityService {
         String email = registerRequest.getEmail();
         String password = registerRequest.getPassword();
 
-        if(email == null) throw new ApiError("Email can not be null", HttpStatus.BAD_REQUEST);
-        if(password == null) throw new ApiError("Password can not be null", HttpStatus.BAD_REQUEST);
+        if (email == null) throw new ApiError("Email can not be null", HttpStatus.BAD_REQUEST);
+        if (password == null) throw new ApiError("Password can not be null", HttpStatus.BAD_REQUEST);
 
         email = email.trim().toLowerCase();
         password = password.trim();
@@ -130,8 +130,8 @@ public class SecurityService {
 
         List<ApiSubError> errors = new LinkedList<>();
 
-        if(!email.equals("")) {
-            if(userRepository.findByEmail(email) != null) {
+        if (!email.equals("")) {
+            if (userRepository.findByEmail(email) != null) {
                 errors.add(new ValidationError("email", "User with this email already exist"));
             }
 
@@ -143,7 +143,7 @@ public class SecurityService {
             errors.add(new ValidationError("email", "Email can no be empty"));
         }
 
-        if(!password.equals("")) {
+        if (!password.equals("")) {
             if (password.length() < 4) errors.add(new ValidationError("password", "Password length must be more than 3"));
             if (password.length() >= 100) errors.add(new ValidationError("password", "Passwords length must be less than 100"));
             if (!password.matches("^[a-zA-Z0-9_-]*"))
@@ -152,7 +152,7 @@ public class SecurityService {
             errors.add(new ValidationError("password", "Password can not be empty"));
         }
 
-        if(errors.size() != 0) throw new ApiError("Validation exception", ErrorCodes.VALIDATION_EXCEPTION, HttpStatus.BAD_REQUEST, errors);
+        if (errors.size() != 0) throw new ApiError("Validation exception", ErrorCodes.VALIDATION_EXCEPTION, HttpStatus.BAD_REQUEST, errors);
     }
 
     /**
@@ -171,12 +171,12 @@ public class SecurityService {
         ProviderUser providerUser = providerService.loadUser(tokenResponse.getAccessToken());
 
         User user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId());
-        if(user == null) {
+        if (user == null) {
             throw new ApiError("Login exception", ErrorCodes.PROVIDER_LOGIN_EXCEPTION, HttpStatus.BAD_REQUEST,
                     Collections.singletonList(new ProviderLoginError(ErrorCodes.USER_NOT_FOUND, tokenResponse.getAccessToken(), tokenResponse.getExpireIn(), provider)));
         }
 
-        if(user.isLocked()) {
+        if (user.isLocked()) {
             throw new ApiError("Account is locked", HttpStatus.BAD_REQUEST);
         }
 
@@ -218,14 +218,14 @@ public class SecurityService {
 
     private User getProviderUser(String provider, ProviderUser providerUser) {
         User user;
-        if((user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId())) == null) {
+        if ((user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId())) == null) {
             user = new User();
             user.setRoles(new ArrayList<>(Arrays.asList(Role.USER)));
             List<UserProvider> providerList = new ArrayList<>();
             providerList.add(new UserProvider(new UserProviderPK(provider, providerUser.getId()), user));
             user.setUserProviders(providerList);
 
-            if(providerUser.getEmail() != null && userRepository.findByEmail(providerUser.getEmail()) == null) {
+            if (providerUser.getEmail() != null && userRepository.findByEmail(providerUser.getEmail()) == null) {
                 user.setEmail(providerUser.getEmail());
             }
 
@@ -243,22 +243,22 @@ public class SecurityService {
      */
     public AuthResponse refreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token);
-        if(refreshToken != null) {
+        if (refreshToken != null) {
 
-            if(refreshToken.getUser() != null && refreshToken.getUser().isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
+            if (refreshToken.getUser() != null && refreshToken.getUser().isLocked()) throw new ApiError("User is locked", HttpStatus.BAD_REQUEST);
 
-            if((System.currentTimeMillis() - refreshToken.getCreationDate().getTime()) > securityProperties.getRefreshTokenLifeTime()) {
+            if ((System.currentTimeMillis() - refreshToken.getCreationDate().getTime()) > securityProperties.getRefreshTokenLifeTime()) {
                 throw new ApiError("Refresh token is expired", HttpStatus.BAD_REQUEST);
             }
 
-            if(refreshToken.getStatus().equals(RefreshToken.Status.ACTIVE)) {
+            if (refreshToken.getStatus().equals(RefreshToken.Status.ACTIVE)) {
                 AuthResponse authResponse = createAuthResponse(refreshToken.getUser());
                 refreshToken.setExchangeDate(new Date());
                 refreshToken.setExchangedToToken(authResponse.getRefreshToken());
                 refreshToken.setStatus(RefreshToken.Status.DISABLED);
                 refreshTokenRepository.save(refreshToken);
                 return authResponse;
-            } else if((new Date().getTime() - refreshToken.getExchangeDate().getTime()) < Constants.ALLOWED_REFRESH_TOKEN_REJECTION_TIME) {
+            } else if ((new Date().getTime() - refreshToken.getExchangeDate().getTime()) < Constants.ALLOWED_REFRESH_TOKEN_REJECTION_TIME) {
                 return createAuthResponseWithRefreshToken(refreshToken.getUser(), refreshToken.getExchangedToToken());
             } else {
                 refreshToken.getUser().getRefreshTokens().clear();

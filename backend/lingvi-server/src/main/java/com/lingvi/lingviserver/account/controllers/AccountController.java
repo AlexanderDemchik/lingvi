@@ -9,6 +9,9 @@ public class AccountController {
 
     private AccountService accountService;
 
+    /**
+     * @param accountService {@link AccountService}
+     */
     @Autowired
     public AccountController(AccountService accountService) {
         this.accountService = accountService;
