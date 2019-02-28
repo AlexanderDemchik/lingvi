@@ -7,6 +7,9 @@ import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 
 import javax.persistence.*;
 
+/**
+ *
+ */
 @Entity(name = "translations")
 public class Translation {
 
@@ -29,10 +32,18 @@ public class Translation {
     private Word word;
 
     @Column
-    private Long popularity = 3L;
+    private Long popularity = 1L;
 
+    @JsonIgnore
     @Column
     private TranslationSource source;
+
+    /**
+     * If added by user is user id, else null
+     */
+    @JsonIgnore
+    @Column
+    private Long addedBy;
 
     public Translation() {
     }
@@ -46,6 +57,13 @@ public class Translation {
         this.language = language;
         this.translation = translation;
         this.source = source;
+    }
+
+    public Translation(Language language, String translation, TranslationSource source, Long popularity) {
+        this.language = language;
+        this.translation = translation;
+        this.source = source;
+        this.popularity = popularity;
     }
 
     public Translation(Language language, String translation, Word word, TranslationSource source) {
@@ -109,6 +127,14 @@ public class Translation {
 
     public void setPartOfSpeech(PartOfSpeech partOfSpeech) {
         this.partOfSpeech = partOfSpeech;
+    }
+
+    public Long getAddedBy() {
+        return addedBy;
+    }
+
+    public void setAddedBy(Long addedBy) {
+        this.addedBy = addedBy;
     }
 
     @Override

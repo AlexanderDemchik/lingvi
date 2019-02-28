@@ -29,9 +29,10 @@ class TranslateableWord extends React.PureComponent {
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if(nextProps.disabled) {
+    if (nextProps.disabled) {
       return {isMouseOver: false}
-    } else return null;
+    }
+    return null;
   }
 
   componentWillUnmount() {

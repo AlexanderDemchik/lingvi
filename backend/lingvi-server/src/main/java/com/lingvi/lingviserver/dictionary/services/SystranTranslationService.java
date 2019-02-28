@@ -41,7 +41,7 @@ public class SystranTranslationService implements TranslationService {
                 .queryParam(TEXT_PARAM_NAME, word);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.toUriString(), HttpMethod.GET, null, JsonNode.class);
+        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
 
         JsonNode response = httpResponse.getBody();
 

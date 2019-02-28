@@ -57,11 +57,11 @@ public class YandexTranslationService implements TranslationService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        YandexTranslateResponse responseBody = restTemplate.exchange(uriComponentsBuilder.toUriString(), HttpMethod.POST, entity, YandexTranslateResponse.class).getBody();
+        YandexTranslateResponse responseBody = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.POST, entity, YandexTranslateResponse.class).getBody();
 
         if(responseBody != null) {
             switch (responseBody.getCode()) {
-                case 200: return new Translation(toLang, responseBody.getText()[0], TranslationSource.TRANSLATOR);
+                case 200: return new Translation(toLang, responseBody.getText()[0], TranslationSource.TRANSLATOR, 0L);
                 case 401: logger.error("Invalid api key"); break;
                 case 402: logger.error("Blocked api key"); break;
                 case 404: logger.error("Exceeded the daily limit on the amount of translated text"); break;
@@ -80,7 +80,7 @@ public class YandexTranslationService implements TranslationService {
                 .queryParam(FLAGS_PARAM_NAME, 13);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.toUriString(), HttpMethod.GET, null, JsonNode.class);
+        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
 
         if(httpResponse.getBody() != null) {
             switch (httpResponse.getStatusCodeValue()) {

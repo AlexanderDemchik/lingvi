@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 ControllerPaths.REGISTER, ControllerPaths.SOCIAL_LOGIN,
                 ControllerPaths.SOCIAL_REGISTER, ControllerPaths.REFRESH_TOKEN,
                 Constants.H2_DB_PATH, ControllerPaths.SOCIAL_REGISTER_WITH_ACCESS_TOKEN).permitAll();
-        http.authorizeRequests().anyRequest().authenticated();
+        http.authorizeRequests().anyRequest().permitAll();
         http.addFilterAfter(new AuthorizationFilter(blackListRepository, securityProperties), BasicAuthenticationFilter.class);
         http.csrf().disable();
         http.cors();

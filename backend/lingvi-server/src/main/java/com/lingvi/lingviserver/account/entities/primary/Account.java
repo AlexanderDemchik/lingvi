@@ -1,9 +1,13 @@
 package com.lingvi.lingviserver.account.entities.primary;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lingvi.lingviserver.dictionary.entities.primary.UserWord;
 import com.lingvi.lingviserver.security.entities.primary.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class that contains user info.
@@ -33,6 +37,10 @@ public class Account {
 
     @Column
     private String gender;
+
+    @JsonIgnore
+    @OneToMany
+    private List<UserWord> userWords = new ArrayList<>();
 
     public Account() {
     }
@@ -121,5 +129,13 @@ public class Account {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<UserWord> getUserWords() {
+        return userWords;
+    }
+
+    public void setUserWords(List<UserWord> userWords) {
+        this.userWords = userWords;
     }
 }
