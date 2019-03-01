@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WordRepository extends CrudRepository<Word, Long> {
-    Word findByWord(String word);
+    Word findByWordIgnoreCase(String word);
 }

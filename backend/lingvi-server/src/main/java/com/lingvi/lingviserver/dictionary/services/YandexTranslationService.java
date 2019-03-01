@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * Used to call yandex translation api
+ * @see TranslationService
  */
 @Service
 public class YandexTranslationService implements TranslationService {
@@ -105,18 +106,18 @@ public class YandexTranslationService implements TranslationService {
 
     private Word parseDictionaryTranslations(JsonNode node, String text, Language fromLang, Language toLang) {
         JsonNode defNode = node.get("def");
-        if(defNode.size() > 0 && defNode.get(0).get("text").textValue().equals(text)) {
+        if(defNode.size() > 0 && defNode.get(0).get("text").textValue().equalsIgnoreCase(text)) {
             List<Translation> translations = new LinkedList<>();
             JsonNode firstDef = defNode.get(0);
             Word word = new Word();
-            word.setWord(text);
+            word.setWord(text.toLowerCase());
             word.setLanguage(fromLang);
             if (firstDef.get("ts") != null) word.setTranscription(firstDef.get("ts").textValue());
 
             for (JsonNode defNodeElement : defNode) {
-                if (defNodeElement.get("text").textValue().equals(text)) {
+                if (defNodeElement.get("text").textValue().equalsIgnoreCase(text)) {
                     for (JsonNode trNode : defNodeElement.get("tr")) {
-                        Translation translation = new Translation(toLang, trNode.get("text").textValue(), word, TranslationSource.DICTIONARY);
+                        Translation translation = new Translation(toLang, trNode.get("text").textValue().toLowerCase(), word, TranslationSource.DICTIONARY);
                         if (trNode.get("pos") != null) {
                             translation.setPartOfSpeech(parsePartOfSpech(trNode.get("pos").textValue()));
                         }
@@ -132,6 +133,10 @@ public class YandexTranslationService implements TranslationService {
         return null;
     }
 
+    /**
+     * @param partOfSpeech part of speech string from yandex api
+     * @return {@link PartOfSpeech} - server part of speech representation
+     */
     private PartOfSpeech parsePartOfSpech(String partOfSpeech) {
         switch (partOfSpeech) {
             case "noun": return PartOfSpeech.NOUN;

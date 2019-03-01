@@ -7,6 +7,7 @@ public class YandexTranslateResponse {
 
     private int code;
     private String lang;
+
     /**
      * Translated text
      */

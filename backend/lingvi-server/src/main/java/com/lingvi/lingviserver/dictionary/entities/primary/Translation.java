@@ -8,7 +8,7 @@ import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 import javax.persistence.*;
 
 /**
- *
+ * Word translation
  */
 @Entity(name = "translations")
 public class Translation {

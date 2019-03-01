@@ -5,14 +5,23 @@ import com.lingvi.lingviserver.dictionary.config.SystranProperties;
 import com.lingvi.lingviserver.dictionary.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 import com.lingvi.lingviserver.dictionary.entities.primary.Word;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+/**
+ * Allows get word lemmas
+ * @see TranslationService
+ */
 @Service
 public class SystranTranslationService implements TranslationService {
+
+    private Logger logger = LoggerFactory.getLogger(SystranTranslationService.class);
 
     private final String KEY_PARAM_NAME = "key";
     private final String TEXT_PARAM_NAME = "input";
@@ -34,6 +43,11 @@ public class SystranTranslationService implements TranslationService {
         return null;
     }
 
+    /**
+     * @param word word
+     * @param lang language
+     * @return lemma word string
+     */
     public String getLemma(String word, Language lang) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(systranProperties.getLemmaUrl())
                 .queryParam(KEY_PARAM_NAME, systranProperties.getApiKey())
@@ -41,19 +55,25 @@ public class SystranTranslationService implements TranslationService {
                 .queryParam(TEXT_PARAM_NAME, word);
 
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
+        try {
+            ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
+            JsonNode response = httpResponse.getBody();
 
-        JsonNode response = httpResponse.getBody();
-
-        if (response != null) {
-            if (response.get("lemmas").size() > 0) {
-                String lemma = response.get("lemmas").get(0).get("lemma").textValue();
-                if (!lemma.equals(word)) {
-                    return response.get("lemmas").get(0).get("lemma").textValue();
+            if (response != null) {
+                if (response.get("lemmas").size() == 1) {
+                    int startI = response.get("lemmas").get(0).get("start").intValue();
+                    int endI = response.get("lemmas").get(0).get("end").intValue();
+                    if (startI == 0 && endI == word.length()) {
+                        String lemma = response.get("lemmas").get(0).get("lemma").textValue();
+                        if (!lemma.equals(word)) {
+                            return response.get("lemmas").get(0).get("lemma").textValue();
+                        }
+                    }
                 }
             }
+        } catch (HttpServerErrorException e) {
+            logger.warn("Systran api responsed with code: " + e.getRawStatusCode());
         }
-
         return null;
     }
 }

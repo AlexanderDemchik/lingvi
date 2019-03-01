@@ -5,6 +5,9 @@ import com.lingvi.lingviserver.dictionary.entities.SoundType;
 
 import javax.persistence.*;
 
+/**
+ * Voice pronunciation of word
+ */
 @Entity
 public class Sound {
 
@@ -40,10 +43,9 @@ public class Sound {
         this.soundType = soundType;
         this.rootUrl = rootUrl;
         this.relativePath = relativePath;
-        this.word = word;
     }
 
-    public Sound(SoundType soundType, String link, Word word) {
+    public Sound(SoundType soundType, Word word) {
         this.soundType = soundType;
         this.word = word;
     }

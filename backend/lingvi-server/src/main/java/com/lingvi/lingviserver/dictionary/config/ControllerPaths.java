@@ -1,7 +1,8 @@
 package com.lingvi.lingviserver.dictionary.config;
 
 public class ControllerPaths {
-    public final static String DICTIONARY = "/dictionary";
-    public final static String TRANSLATION = "/translation";
-    public final static String SOUND_PATH = "/sound/path/{word_id}";
+    public final static String DICTIONARY_PATH = "/dictionary";
+    public final static String TRANSLATION_PATH = "/translation";
+    public final static String SOUND_PATH = "/sound/path";
+    public final static String TRANSLATION_CREATE_PATH = "/translation";
 }

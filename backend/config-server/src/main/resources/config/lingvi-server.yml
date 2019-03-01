@@ -48,6 +48,7 @@ providers:
 
 #Properties of dictionary module
 dictionary:
+  espeak-path: C:\Program Files (x86)\eSpeak\command_line\espeak.exe
   api:
     yandex:
       dictionary:
@@ -64,3 +65,4 @@ dictionary:
     google:
       api-key: AIzaSyCCdyhKPsOoP4VtkRHCnzVoHRrfted3SXE
       text-to-speech-url: https://texttospeech.googleapis.com/v1/text:synthesize
+

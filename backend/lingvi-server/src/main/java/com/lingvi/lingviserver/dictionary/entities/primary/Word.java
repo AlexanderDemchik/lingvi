@@ -6,6 +6,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Common dictionary word
+ */
 @Entity(name = "dictionary")
 public class Word {
 

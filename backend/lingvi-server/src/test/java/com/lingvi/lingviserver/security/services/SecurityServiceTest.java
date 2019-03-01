@@ -1,4 +1,4 @@
-package com.lingvi.lingviserver.services;
+package com.lingvi.lingviserver.security.services;
 
 import com.lingvi.lingviserver.account.entities.primary.Account;
 import com.lingvi.lingviserver.account.repositories.primary.AccountRepository;
@@ -11,8 +11,6 @@ import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListR
 import com.lingvi.lingviserver.security.repositories.primary.BlackListTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.RefreshTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.UserRepository;
-import com.lingvi.lingviserver.security.services.GoogleService;
-import com.lingvi.lingviserver.security.services.SecurityService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

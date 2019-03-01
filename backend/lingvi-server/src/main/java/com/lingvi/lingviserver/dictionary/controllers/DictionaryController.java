@@ -11,7 +11,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(ControllerPaths.DICTIONARY)
+@RequestMapping(ControllerPaths.DICTIONARY_PATH)
 public class DictionaryController {
 
     private DictionaryService dictionaryService;
@@ -21,14 +21,19 @@ public class DictionaryController {
         this.dictionaryService = dictionaryService;
     }
 
-    @GetMapping(ControllerPaths.TRANSLATION)
+    @GetMapping(ControllerPaths.TRANSLATION_PATH)
     public WordResponse getTranslation(@RequestParam String text, @RequestParam Language from, @RequestParam Language to) {
         return dictionaryService.handleUserTranslateRequest(text, from, to);
     }
 
     @GetMapping(ControllerPaths.SOUND_PATH)
-    public SoundResponse getSoundPath(@PathVariable(value = "word_id") long wordId) {
-        return dictionaryService.getSoundByWordId(wordId);
+    public SoundResponse getSoundPath(@RequestParam("text") String text) {
+        return dictionaryService.textToSpeech(text);
+    }
+
+    @PostMapping(ControllerPaths.TRANSLATION_CREATE_PATH)
+    public void createTranslation() {
+
     }
 
     @InitBinder

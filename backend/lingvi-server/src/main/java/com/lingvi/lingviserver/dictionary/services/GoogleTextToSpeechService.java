@@ -2,10 +2,9 @@ package com.lingvi.lingviserver.dictionary.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
-import com.lingvi.lingviserver.commons.utils.StorageUtil;
+import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
 import com.lingvi.lingviserver.dictionary.config.GoogleApiProperties;
 import com.lingvi.lingviserver.dictionary.entities.SoundType;
-import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -14,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.UUID;
 
 /**
  * Helper service to work with google textToSpeech api
@@ -26,16 +23,21 @@ public class GoogleTextToSpeechService {
     private Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechService.class);
 
     private GoogleApiProperties googleApiProperties;
-    private StorageUtil storageUtil;
 
     private final String KEY_PARAM_NAME = "key";
 
     public GoogleTextToSpeechService(GoogleApiProperties googleApiProperties, StorageUtil storageUtil) {
         this.googleApiProperties = googleApiProperties;
-        this.storageUtil = storageUtil;
     }
 
-    public Sound getAudioFromText(String text, SoundType soundType) {
+    /**
+     * Do request to google text-to-speech, get base64 encoded mp3 file and then it to storage
+     *
+     * @param text text
+     * @param soundType sound voice
+     * @return base64EncodedString
+     */
+    public String getAudioFromText(String text, SoundType soundType) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(googleApiProperties.getTextToSpeechUrl())
                 .queryParam(KEY_PARAM_NAME, googleApiProperties.getApiKey());
 
@@ -46,10 +48,7 @@ public class GoogleTextToSpeechService {
         if (response != null && response.get("audioContent") != null) {
             String base64EncodedAudio = response.get("audioContent").textValue();
             try {
-                String path = UUID.randomUUID() + ".mp3";
-                path = "/" + path.substring(0, 1) + "/" + path.substring(1,2) + "/" + path;
-                String pathFromResponse = storageUtil.saveSoundToStorage(path, base64EncodedAudio);
-                return new Sound(soundType, storageUtil.getSTORAGE_URL(), pathFromResponse);
+                return base64EncodedAudio;
             } catch (ApiError e) {
                 logger.error("Error occurred with storage");
                 e.printStackTrace();
@@ -62,6 +61,12 @@ public class GoogleTextToSpeechService {
         return null;
     }
 
+
+    /**
+     * Map server sound types to api types
+     * @param type {@link SoundType}
+     * @return api voice code
+     */
     private String convertSoundType(SoundType type) {
         switch (type) {
             case FEMALE_EN_GB: return "en-GB-Standard-C";
