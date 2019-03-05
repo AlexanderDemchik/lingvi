@@ -74,6 +74,7 @@ public class YandexTranslationService implements TranslationService {
 
     @Override
     public Word loadDictionaryTranslations(String text, Language fromLang, Language toLang) {
+        text = text.toLowerCase();
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexDictionaryProperties.getUrl())
                 .queryParam(KEY_PARAM_NAME, yandexDictionaryProperties.getApiKey())
                 .queryParam(LANG_PARAM_NAME, fromLang.getValue().concat("-").concat(toLang.getValue()))
@@ -110,7 +111,7 @@ public class YandexTranslationService implements TranslationService {
             List<Translation> translations = new LinkedList<>();
             JsonNode firstDef = defNode.get(0);
             Word word = new Word();
-            word.setWord(text.toLowerCase());
+            word.setWord(text);
             word.setLanguage(fromLang);
             if (firstDef.get("ts") != null) word.setTranscription(firstDef.get("ts").textValue());
 
@@ -148,6 +149,7 @@ public class YandexTranslationService implements TranslationService {
             case "adverb": return PartOfSpeech.ADVERB;
             case "adjective": return PartOfSpeech.ADJECTIVE;
             case "pronoun": return PartOfSpeech.PRONOUN;
+            case "particle": return PartOfSpeech.PARTICLE;
             default: return null;
         }
     }

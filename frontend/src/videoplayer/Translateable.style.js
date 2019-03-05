@@ -3,11 +3,10 @@ export const style = {
     fontSize: 15,
     position: "absolute",
     left: "calc(50% - 150px)",
-    width: "300px",
-    paddingBottom: 10
+    minWidth: "200px",
+    paddingBottom: 5
   },
   popperBottom: {
-    marginTop: 10,
     top: "100%"
   },
   popperTop: {

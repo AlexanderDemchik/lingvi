@@ -27,13 +27,18 @@ public class DictionaryController {
     }
 
     @GetMapping(ControllerPaths.SOUND_PATH)
-    public SoundResponse getSoundPath(@RequestParam("text") String text) {
-        return dictionaryService.textToSpeech(text);
+    public SoundResponse getSoundPath(@RequestParam("text") String text, @RequestParam("lang") Language language) {
+        return dictionaryService.textToSpeech(text, language);
     }
 
     @PostMapping(ControllerPaths.TRANSLATION_CREATE_PATH)
     public void createTranslation() {
 
+    }
+
+    @PostMapping("/add")
+    public Object addTranslationToUserDict(@RequestParam("text") String text, @RequestParam("from") Language from, @RequestParam("to") Language to) {
+        return dictionaryService.saveWordToUserDictionary(text, from, to, null);
     }
 
     @InitBinder

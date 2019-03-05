@@ -8,11 +8,17 @@ import history from "./history";
 import Button from "@material-ui/core/Button/Button";
 import {exit} from "./authorization/actions";
 import store from "./store";
+import VideoPlayer from "./videoplayer/VideoPlayer";
 
 export const Routes = ({logged, ...props}) => (
   <Router history={history}>
     <Switch>
-      {logged && <Route exact={true} path={"/"} children={()=>(<Button onClick={()=>store.dispatch(exit())}>exit</Button>)}/>}
+      {logged && <Route exact={true} path={"/"} children={()=>(
+        <React.Fragment>
+          <Button onClick={()=>store.dispatch(exit())}>exit</Button>
+          <VideoPlayer url={"http://localhost/video/gameofthrones/season1/episode1/1080/test.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
+        </React.Fragment>
+      )}/>}
       {!logged &&
         [<Route key={"welcomepage"} exact={true} path={"/"} component={WelcomePage}/>,
         <Route key={"providerlogin"} path={"/login/:provider"} component={SocialLogin}/>,

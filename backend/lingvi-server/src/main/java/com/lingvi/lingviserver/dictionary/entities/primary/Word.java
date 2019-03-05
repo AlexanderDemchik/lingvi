@@ -10,13 +10,13 @@ import java.util.List;
  * Common dictionary word
  */
 @Entity(name = "dictionary")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"word", "language"}))
 public class Word {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
     private String word;
 
     @Column

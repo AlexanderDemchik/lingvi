@@ -12,7 +12,6 @@ import RegisterForm from "./containers/RegisterForm";
 import CreateAccountForm from "./containers/CreateAccountForm";
 import RestoreForm from "./containers/RestoreForm";
 import VideoPlayer from "../videoplayer/VideoPlayer";
-import api from "../api"
 
 class WelcomePage extends Component {
 
@@ -35,8 +34,8 @@ class WelcomePage extends Component {
             <Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>
           </div>
         </div>
-       <VideoPlayer url={"http://192.168.100.94/video/gameofthrones/season1/episode1/1080/test.m3u8"} spritesUrl={"http://192.168.100.94/video/gameofthrones/season1/episode1/sprites"}/>
-       {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
+        <VideoPlayer url={"http://localhost/video/gameofthrones/season1/episode1/1080/test.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
+        {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
        {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
         {/*https://youtu.be/L4K0lxVJweU*/}
         {/*"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"*/}

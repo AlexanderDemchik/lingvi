@@ -7,7 +7,7 @@ export const styles = theme => ({
     fontSize: 15,
     position: "absolute",
     left: "calc(50% - 100px)",
-    width: "200px",
+    minWidth: "300px",
     paddingBottom: 10
   },
   popperBottom: {
@@ -28,10 +28,10 @@ export const styles = theme => ({
     position: "relative",
   },
   word: {
-    "&::selection": {
-      background: theme.palette.primary.main,
-      borderRadius: 5
-    }
+    // "&::selection": {
+    //   background: theme.palette.primary.main,
+    //   borderRadius: 5
+    // }
   },
   active: {
     background: theme.palette.primary.main,

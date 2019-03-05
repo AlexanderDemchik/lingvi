@@ -13,7 +13,8 @@ class Subtitle extends React.PureComponent {
     super(props);
     this.state = {
       content: null,
-      selectionTranslateOpen: false,
+      selectionValue: false,
+      isSelectionProceed: false,
       left: null, //left subtitle position
       right: null //right subtitle position, used to correctly show translate popper
     };
@@ -49,6 +50,7 @@ class Subtitle extends React.PureComponent {
   componentDidUpdate(prevProps, prevState) {
     if(prevState.content !== this.state.content) {
       this.onMouseLeave();
+      clearSelection(this.translateableRef);
     }
   }
 
@@ -65,7 +67,8 @@ class Subtitle extends React.PureComponent {
 
   //divide string to translateable words
   divide(str) {
-    const DIVIDERS = ["?", ",", ".", " ", "<", ">", "\"", "!", "-", "«", "»", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+    const {isSelectionProceed, selectionValue} = this.state;
+    const DIVIDERS = ["?", ",", ".", " ", "<", ">", "\"", "!", "-", "«", "»", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":"];
     let result = [];
     for(let i = 0; i < str.length; i++) {
       if(DIVIDERS.indexOf(str.charAt(i)) === -1) {
@@ -74,7 +77,7 @@ class Subtitle extends React.PureComponent {
             word += str.charAt(i);
             i++;
         } while (str.charAt(i) !== "" && DIVIDERS.indexOf(str.charAt(i)) === -1);
-        result.push(<TranslateableWord key={i} left={this.state.left} right={this.state.right} disabled={this.state.selectionTranslateOpen}>{word}</TranslateableWord>);
+        result.push(<TranslateableWord key={i} left={this.state.left} right={this.state.right} disabled={isSelectionProceed || selectionValue.length > 0}>{word}</TranslateableWord>);
         result.push(str.charAt(i));
       } else {
         result.push(str.charAt(i))
@@ -84,9 +87,12 @@ class Subtitle extends React.PureComponent {
   }
 
   onSelectionChange = (selectionText) => {
-    let state = selectionText !== "";
-    this.setState({selectionTranslateOpen: state});
+    this.setState({selectionValue: selectionText});
     // if(state) this.props.changePausedState(true);
+  };
+
+  onIsSelectionChange = (state) => {
+    this.setState({isSelectionProceed: state});
   };
 
   onMouseEnter = () => {
@@ -95,7 +101,6 @@ class Subtitle extends React.PureComponent {
 
   onMouseLeave = () => {
     this.props.changePausedState(false);
-    clearSelection(this.translateableRef);
   };
 
   onTouchEnd = (e) => {
@@ -108,13 +113,15 @@ class Subtitle extends React.PureComponent {
     const {classes} = this.props;
     return (
       <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onTouchEnd={this.onTouchEnd}>
-        <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}}>
+        <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onIsSelectionChange={this.onIsSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}}>
           <div ref={ref => this.ref = ref} className={classes.subtitle}>
-              {this.state.content && this.state.content.map((el) => (
-                <Typography component={"div"} key={el} color={"inherit"} classes={{root: classes.text}}>
-                  {this.divide(el)}
-                </Typography>
-              ))}
+            {this.state.content &&
+              <Typography component={"div"} color={"inherit"} classes={{root: classes.text}}>
+                {this.state.content.map((el) => (
+                  <React.Fragment key={el}>{this.divide(el)} <br style={{userSelect: "none"}}/></React.Fragment>
+                ))}
+              </Typography>
+            }
           </div>
         </Translateable>
       </div>

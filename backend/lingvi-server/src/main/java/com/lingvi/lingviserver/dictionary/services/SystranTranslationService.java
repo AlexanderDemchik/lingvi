@@ -65,7 +65,7 @@ public class SystranTranslationService implements TranslationService {
                     int endI = response.get("lemmas").get(0).get("end").intValue();
                     if (startI == 0 && endI == word.length()) {
                         String lemma = response.get("lemmas").get(0).get("lemma").textValue();
-                        if (!lemma.equals(word)) {
+                        if (!lemma.equalsIgnoreCase(word)) {
                             return response.get("lemmas").get(0).get("lemma").textValue();
                         }
                     }

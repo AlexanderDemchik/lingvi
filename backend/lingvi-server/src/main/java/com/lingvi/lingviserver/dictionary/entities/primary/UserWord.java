@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.lingvi.lingviserver.account.entities.primary.Account;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -30,15 +29,15 @@ public class UserWord {
     @OneToOne(fetch = FetchType.LAZY)
     private Word word;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Translation> userTranslations = new ArrayList<>();
 
     @CreatedDate
     @Column
     private String createdDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Account account;
+    @Column(nullable = false)
+    private Long accountId;
 
     public Long getId() {
         return id;
@@ -80,11 +79,11 @@ public class UserWord {
         this.createdDate = createdDate;
     }
 
-    public Account getAccount() {
-        return account;
+    public void setAccountId(Long accountId) {
+        this.accountId = accountId;
     }
 
-    public void setAccount(Account account) {
-        this.account = account;
+    public Long getAccountId() {
+        return this.accountId;
     }
 }
