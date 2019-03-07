@@ -1,6 +1,7 @@
 export const style = (theme) => ({
   header: {
     minHeight: 30,
+    width: "100%",
     color: "#DAE8EF"
     // borderBottom: `1px solid ${theme.palette.primary.main}`
   },
@@ -8,7 +9,11 @@ export const style = (theme) => ({
     height: "100%",
     width: "1rem",
     cursor: "pointer",
-    fill: "#DAE8EF"
+    fill: "#DAE8EF",
+    transition: "linear 0.2s fill",
+    "&:hover": {
+      fill: theme.palette.primary.main
+    }
   },
   wrapper: {
     backgroundColor: "rgba(28,28,28,0.99)",
@@ -19,7 +24,11 @@ export const style = (theme) => ({
   word: {
     color: "#DAE8EF",
     fontSize: "1rem",
-    userSelect: "none"
+    userSelect: "none",
+    textOverflow: "ellipsis",
+    minWidth: 0,
+    overflow: "hidden",
+    "white-space": "nowrap"
   },
   loader: {
     color: theme.palette.primary.main,
@@ -49,7 +58,8 @@ export const style = (theme) => ({
     fontWeight: 100,
     fontSize: "0.9rem",
     lineHeight: "0.8rem",
-    textAlign: "left"
+    textAlign: "left",
+    color: "#DAE8EF"
   },
   partOfSpeech: {
     fontWeight: 100,
@@ -57,8 +67,16 @@ export const style = (theme) => ({
   },
   defaultTranslation: {
     fontWeight: 500,
+    color: "#fff",
     fontSize: "1rem",
     display: "flex",
     textAlign: "left",
+  },
+  dictionaryIcon: {
+
+  },
+  inUserDict: {
+    color: theme.palette.success.main,
+    fill: theme.palette.success.main
   }
 });

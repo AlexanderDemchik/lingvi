@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.services;
 
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
+import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.entities.*;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
@@ -14,10 +15,12 @@ import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -39,7 +42,13 @@ public class DictionaryService {
     private StorageUtil storageUtil;
 
     /**
-     * currently it's just mock
+     * Self-autowired class, to use {@link Cacheable} for class methods
+     */
+    @Resource
+    private DictionaryService dictionaryService;
+
+    /**
+     * currently it's just like a mock
      */
     final SoundType soundType = SoundType.FEMALE_EN_GB;
 
@@ -63,7 +72,8 @@ public class DictionaryService {
      * @param from language from which translation
      * @param to language to which translation is
      */
-    private Word translate(String text, Language from, Language to) {
+    @Cacheable("translations")
+    public Word translate(String text, Language from, Language to) {
 
         Word translated;
         if((translated = wordRepository.findByWordIgnoreCaseAndLanguage(text, from)) != null) {
@@ -71,8 +81,8 @@ public class DictionaryService {
         } else {
             CompletableFuture<Translation> translatorResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadTranslation(text, from, to));
             CompletableFuture<Word> dictionaryResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadDictionaryTranslations(text, from, to));
-
-            CompletableFuture.allOf(translatorResponse, dictionaryResponse).join();
+            CompletableFuture<String> transctiptionResponse = CompletableFuture.supplyAsync(() -> espeakTranscriptionService.transcript(text));
+            CompletableFuture.allOf(translatorResponse, dictionaryResponse, transctiptionResponse).join();
 
             try {
                 translated = dictionaryResponse.get();
@@ -86,17 +96,22 @@ public class DictionaryService {
                         logger.error("Something wrong with translator");
                     }
 
-                    //check if lemma for word is exist
+                    //check asynchronously if lemma for word is exist
                     CompletableFuture<String> lemmaResponse = CompletableFuture.supplyAsync(() -> systranTranslationService.getLemma(text, from));
-                    if (lemmaResponse.get() != null) {
-                        Word lemmaWord;
-                        if ((lemmaWord = wordRepository.findByWordIgnoreCaseAndLanguage(lemmaResponse.get(), from)) != null) {
-                            translated.setLemma(lemmaWord);
-                        } else {
-                            lemmaWord = translate(lemmaResponse.get(), from, to);
-                            translated.setLemma(lemmaWord);
+
+                    Word finalTranslated1 = translated;
+                    lemmaResponse.thenApply((lemma -> {
+                        if (lemma != null) {
+                            Word lemmaWord;
+                            if ((lemmaWord = wordRepository.findByWordIgnoreCaseAndLanguage(lemma, from)) != null) {
+                                finalTranslated1.setLemma(lemmaWord);
+                            } else {
+                                lemmaWord = translate(lemma, from, to);
+                                finalTranslated1.setLemma(lemmaWord);
+                            }
                         }
-                    }
+                        return null;
+                    }));
 
                     //save sound asynchronously if it is word but not sequence
                     Word finalTranslated = translated;
@@ -118,8 +133,8 @@ public class DictionaryService {
                     translated.setId(null);
                 }
 
-                if (translated.getTranscription() == null && translated.getLanguage().equals(Language.EN)) {
-                    translated.setTranscription(espeakTranscriptionService.transcript(translated.getWord()));
+                if (translated.getTranscription() == null) {
+                    translated.setTranscription(transctiptionResponse.get());
                 }
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
@@ -184,16 +199,18 @@ public class DictionaryService {
      * @param from language from which translation
      * @param to language to which translation is
      */
+    @LogExecutionTime
     public WordResponse handleUserTranslateRequest(String text, Language from, Language to) {
 
         text = text.trim();
 
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        Word word = translate(text, from, to);
+        Word word = dictionaryService.translate(text, from, to);
         List<Translation> resultTranslations;
         Translation defaultTranslation;
         boolean isInUserDict = false;
 
+        System.out.println(word);
         if (word.getId() != null) { //it's already saved word
             // we need translations only from translator or dictionary, cause in the future i planned add translations from user
             resultTranslations = translationRepository.findByWordAndSourceIn(word, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
@@ -384,7 +401,6 @@ public class DictionaryService {
     private Translation findDefaultTranslation(List<Translation> translations) {
         AtomicReference<Translation> defaultTranslation = new AtomicReference<>();
         defaultTranslation.set(translations.stream().filter((translation -> translation.getSource().equals(TranslationSource.TRANSLATOR))).findFirst().orElse(null));
-        System.out.println(defaultTranslation.get());
         if (defaultTranslation.get() == null) {
             defaultTranslation.set(translations.stream().filter((translation -> translation.getPartOfSpeech() == null)).findFirst().orElse(null));
             if (defaultTranslation.get() == null) defaultTranslation.set(translations.get(0));

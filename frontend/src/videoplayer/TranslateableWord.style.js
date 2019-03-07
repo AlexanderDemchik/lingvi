@@ -6,7 +6,7 @@ export const styles = theme => ({
   popper: {
     fontSize: 15,
     position: "absolute",
-    left: "calc(50% - 100px)",
+    left: "calc(50% - 150px)",
     minWidth: "300px",
     paddingBottom: 10
   },

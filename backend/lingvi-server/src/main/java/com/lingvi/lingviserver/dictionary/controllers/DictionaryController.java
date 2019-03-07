@@ -3,6 +3,7 @@ package com.lingvi.lingviserver.dictionary.controllers;
 import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
 import com.lingvi.lingviserver.dictionary.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.SoundResponse;
+import com.lingvi.lingviserver.dictionary.entities.UserDictionaryAddWordRequest;
 import com.lingvi.lingviserver.dictionary.entities.WordResponse;
 import com.lingvi.lingviserver.dictionary.services.DictionaryService;
 import com.lingvi.lingviserver.dictionary.utils.LanguageConventer;
@@ -36,9 +37,14 @@ public class DictionaryController {
 
     }
 
-    @PostMapping("/add")
-    public Object addTranslationToUserDict(@RequestParam("text") String text, @RequestParam("from") Language from, @RequestParam("to") Language to) {
-        return dictionaryService.saveWordToUserDictionary(text, from, to, null);
+    @PostMapping(ControllerPaths.USER_DICTIONARY_WORD_PATH)
+    public Object addWordToUserDict(@RequestBody UserDictionaryAddWordRequest request) {
+        return dictionaryService.saveWordToUserDictionary(request.getWord(), request.getFrom(), request.getTo(), request.getTranslations());
+    }
+
+    @DeleteMapping(ControllerPaths.USER_DICTIONARY_WORD_PATH + "/{wordId}")
+    public Object removeWordFromUserDict(@PathVariable Long wordId) {
+        return null;
     }
 
     @InitBinder

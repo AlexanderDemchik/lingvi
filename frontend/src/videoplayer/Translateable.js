@@ -3,11 +3,12 @@ import TranslateTooltip from "./TranslateTooltip";
 import {style} from "./Translateable.style";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {debounce} from "lodash";
-import {clearSelection, elementContainsSelection} from "./utils";
+import {clearSelection, elementContainsSelection, getSelectionCoords} from "./utils";
 import TouchAwayListener from "../shared/TouchAwayListener";
 import api from "../api";
 import PropTypes from "prop-types";
 
+const POPPER_WIDTH = 400;
 class Translateable extends React.Component {
 
   constructor(props) {
@@ -17,9 +18,11 @@ class Translateable extends React.Component {
       isSelection: false, // mark if selection currently proceed
       isTranslationRequest: false,
       translationResult: null,
-      isMouseDown: false
+      isMouseDown: false,
+      popperLeftOffset: 0
     };
     this.checkInterval = null;
+    this.prevSelectedText = "";
     this.ref = null;
   }
 
@@ -27,6 +30,7 @@ class Translateable extends React.Component {
     document.addEventListener("selectionchange", this.onSelectionChange);
     document.addEventListener("mouseup", this.onMouseUp);
     document.addEventListener("mouseleave", this.onMouseLeave);
+    window.addEventListener("resize", this.onResize);
     if(this.props.rootRef) {
       this.props.rootRef(this.ref);
     }
@@ -36,6 +40,7 @@ class Translateable extends React.Component {
     document.removeEventListener("selectionchange", this.onSelectionChange);
     document.removeEventListener("mouseup", this.onMouseUp);
     document.removeEventListener("mouseleave", this.onMouseLeave);
+    window.addEventListener("resize", this.onResize);
     clearInterval(this.checkInterval);
   }
 
@@ -61,15 +66,20 @@ class Translateable extends React.Component {
     });
   };
 
+  onResize = debounce(() => {
+    this.setState({left: this.ref.getBoundingClientRect().left});
+    this.setState({right: this.ref.getBoundingClientRect().right});
+  }, 100);
+
   onMouseDown = () => {
-    clearSelection(this.ref);
     this.setState({isMouseDown: true}, () => {
+      this.prevSelectedText = this.state.selectedText;
       this.checkInterval = setInterval(() => {
-        if (this.state.isMouseDown && this.state.selectedText.length > 0) {
+        if (this.state.isMouseDown && (this.state.selectedText.length > 0) && this.state.selectedText !== this.prevSelectedText) {
           clearInterval(this.checkInterval);
           this.onChangeIsSelection(true)
         }
-      }, 500);
+      }, 100);
     });
   };
 
@@ -77,11 +87,17 @@ class Translateable extends React.Component {
     const {selectedText} = this.state;
     this.setState({isMouseDown: false});
     clearInterval(this.checkInterval);
-    this.onChangeIsSelection(false, () => {
-      if (selectedText.length > 0) {
-        this.getTranslation(selectedText);
-      }
-    });
+    // if(selectedText.length === 0) {
+      this.onChangeIsSelection(false, () => {
+        if (selectedText.length > 0 && selectedText !== this.prevSelectedText) {
+          this.getTranslation(selectedText);
+        }
+      });
+    // } else {
+    //   if (selectedText.length > 0) {
+    //     this.getTranslation(selectedText);
+    //   }
+    // }
   };
 
   onMouseLeave = () => {
@@ -96,7 +112,9 @@ class Translateable extends React.Component {
   };
 
   onSelectionChange = debounce(() => {
-    this.setState({selectedText: this.getSelectionText().trim()}, () => {
+    let selectionCoords = getSelectionCoords(window);
+    let resultLeftOffset = (selectionCoords.left + (selectionCoords.right - selectionCoords.left) / 2 - POPPER_WIDTH / 2);
+    this.setState({selectedText: this.getSelectionText().trim(), popperLeftOffset: resultLeftOffset}, () => {
       this.props.onSelectionChange && this.props.onSelectionChange(this.state.selectedText);
     });
   }, 10);
@@ -106,7 +124,7 @@ class Translateable extends React.Component {
     const {children, classes, onTouchAway} = this.props;
     return (
       <TouchAwayListener onTouchAway={onTouchAway}>
-        <div ref={ref => this.ref = ref} style={{position: "relative"}} onContextMenu={(e) => (e.preventDefault())} onMouseDown={this.onMouseDown} onMouseLeave={() => {
+        <div ref={ref => this.ref = ref} style={{position: "relative"}} onMouseDown={this.onMouseDown} onMouseLeave={() => {
           if (!this.state.isSelection) {
             this.setState({isSelection: false});
             clearSelection(this.ref);
@@ -114,7 +132,7 @@ class Translateable extends React.Component {
         }}>
           {children}
           {!isSelection && selectedText.length > 0 &&
-            <div className={`${classes.popper} ${classes.popperTop}`}>
+            <div className={`${classes.popper} ${classes.popperTop}`} style={{left: this.state.popperLeftOffset}}>
                <TranslateTooltip word={selectedText} translatedWord={translationResult} loading={isTranslationRequest}/>
             </div>
             }
@@ -126,7 +144,7 @@ class Translateable extends React.Component {
 
 Translateable.propTypes = {
   onSelectionChange: PropTypes.func,
-  onIsSelectionChange: PropTypes.func
+  onIsSelectionChange: PropTypes.func,
 };
 
 export default withStyles(style)(Translateable);

@@ -8,7 +8,9 @@ import TranslateTooltip from "./TranslateTooltip";
 import TouchAwayListener from "../shared/TouchAwayListener";
 import api from "../api";
 
+const POPPER_WIDTH = 300;
 class TranslateableWord extends React.PureComponent {
+
   constructor(props) {
     super(props);
     this.state = {
@@ -22,12 +24,12 @@ class TranslateableWord extends React.PureComponent {
   }
 
   componentDidMount() {
-    this.renderPopper();
+    this.alignPopper();
   }
 
   componentDidUpdate(nextState, nextProps, nextSnapshot) {
     if(nextProps.left !== this.props.left || nextProps.right !== this.props.right) {
-      this.renderPopper();
+      this.alignPopper();
     }
   }
 
@@ -44,13 +46,13 @@ class TranslateableWord extends React.PureComponent {
     }
   };
 
-  renderPopper = () => {
+  alignPopper = () => {
     if (this.props.right !== null && this.props.left !== null) {
       let isRight = false;
       let isLeft = false;
 
-      if ((this.props.right - this.ref.getBoundingClientRect().right) < 100) isRight = true;
-      if ((this.ref.getBoundingClientRect().left - this.props.left) < 100) isLeft = true;
+      if ((this.props.right - this.ref.getBoundingClientRect().right) < POPPER_WIDTH / 2) isRight = true;
+      if ((this.ref.getBoundingClientRect().left - this.props.left) < POPPER_WIDTH / 2) isLeft = true;
 
       if (!(isRight && isLeft)) {
         this.setState({isLeft: isLeft, isRight: isRight});
@@ -118,7 +120,7 @@ TranslateableWord.defaultProps = {
 };
 
 TranslateableWord.propTypes = {
-  left: PropTypes.number,//left video player edge
+  left: PropTypes.number,//left video player edge, for correctly popper alignment
   right: PropTypes.number,//right video player edge
   classes: PropTypes.object,
   disabled: PropTypes.bool,//show or no translation

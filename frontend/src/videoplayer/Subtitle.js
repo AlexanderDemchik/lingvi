@@ -111,6 +111,7 @@ class Subtitle extends React.PureComponent {
 
   render() {
     const {classes} = this.props;
+    const {left, right} = this.state;
     return (
       <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onTouchEnd={this.onTouchEnd}>
         <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onIsSelectionChange={this.onIsSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}}>

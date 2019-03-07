@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.services;
 
+import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.config.DictionaryProperties;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +25,10 @@ public class EspeakTranscriptionService {
      * @param word word
      * @return IPA transcription
      */
+    @LogExecutionTime
     public String transcript(String word) {
-        String command = "\"" + dictionaryProperties.getEspeakPath() + "\" --ipa -q \"" + word + "\"";
+        String preparedWord = word.replaceAll("[.,!?/-]", "");
+        String command = "\"" + dictionaryProperties.getEspeakPath() + "\" --ipa -q \"" + preparedWord + "\"";
         try {
             Process p = Runtime.getRuntime().exec(command);
             p.waitFor();

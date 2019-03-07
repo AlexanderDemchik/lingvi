@@ -15,6 +15,9 @@ export const theme = createMuiTheme({
       dark: "#c4002d"
       // dark: will be calculated from palette.primary.main,
       // contrastText: will be calculated to contrast with palette.primary.main
+    },
+    success: {
+      main: "#193921"
     }
   },
   typography: {

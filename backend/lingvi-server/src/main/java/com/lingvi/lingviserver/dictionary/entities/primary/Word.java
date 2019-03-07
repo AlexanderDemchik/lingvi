@@ -3,6 +3,7 @@ package com.lingvi.lingviserver.dictionary.entities.primary;
 import com.lingvi.lingviserver.dictionary.entities.Language;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,7 @@ import java.util.List;
  */
 @Entity(name = "dictionary")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"word", "language"}))
-public class Word {
+public class Word implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +40,12 @@ public class Word {
     }
 
     public Word(String word, Language language, List<Translation> translations) {
+        this.word = word;
+        this.language = language;
+        this.translations = translations;
+    }
+
+    public Word(Long id, String word, Language language, List<Translation> translations) {
         this.word = word;
         this.language = language;
         this.translations = translations;

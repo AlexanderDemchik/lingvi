@@ -2,6 +2,7 @@ package com.lingvi.lingviserver.dictionary.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
+import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
 import com.lingvi.lingviserver.dictionary.config.GoogleApiProperties;
 import com.lingvi.lingviserver.dictionary.entities.SoundType;
@@ -37,6 +38,7 @@ public class GoogleTextToSpeechService {
      * @param soundType sound voice
      * @return base64EncodedString
      */
+    @LogExecutionTime
     public String getAudioFromText(String text, SoundType soundType) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(googleApiProperties.getTextToSpeechUrl())
                 .queryParam(KEY_PARAM_NAME, googleApiProperties.getApiKey());

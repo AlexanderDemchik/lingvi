@@ -10,8 +10,10 @@ export const REGISTER_PATH = "/register";
 export const providerRegisterWithTokenPath = (provider) => (
   `${REGISTER_PATH}/${provider}/token`
 );
+
 export const REFRESH_PATH = "/token/refresh";
 export const ME_PATH = "/me";
+
 
 export const TOKEN_FIELD = "token";
 export const REFRESH_TOKEN_FIELD = "refreshToken";

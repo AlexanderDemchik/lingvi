@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.config.YandexTranslationApiProperties;
 import com.lingvi.lingviserver.dictionary.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.PartOfSpeech;
@@ -25,7 +26,7 @@ import java.util.List;
  * @see TranslationService
  */
 @Service
-public class YandexTranslationService implements TranslationService {
+public class YandexTranslationService implements TranslationService { //yandex so slow, maybe because i use free version? @TODO imlement another translation api
 
     private final String KEY_PARAM_NAME = "key";
     private final String LANG_PARAM_NAME = "lang";
@@ -43,6 +44,7 @@ public class YandexTranslationService implements TranslationService {
     }
 
     @Override
+    @LogExecutionTime
     public Translation loadTranslation(String text, Language fromLang, Language toLang) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexTranslateProperties.getUrl())
                 .queryParam(KEY_PARAM_NAME, yandexTranslateProperties.getApiKey())
@@ -73,6 +75,7 @@ public class YandexTranslationService implements TranslationService {
     }
 
     @Override
+    @LogExecutionTime
     public Word loadDictionaryTranslations(String text, Language fromLang, Language toLang) {
         text = text.toLowerCase();
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexDictionaryProperties.getUrl())

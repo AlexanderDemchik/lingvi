@@ -52,3 +52,57 @@ export const clearSelection = (el) => {
     }
   }
 };
+
+//https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page
+//currently throw errors in edge and ie
+export const getSelectionCoords = (win) => {
+  try {
+    win = win || window;
+    let doc = win.document;
+    let sel = doc.selection, range, rects, rect, lastRect;
+    let left = 0, right = 0;
+    if (sel) {
+      if (sel.type !== "Control") {
+        range = sel.createRange();
+        range.collapse(true);
+        left = range.boundingLeft;
+        right = range.boundingRight;
+      }
+    } else if (win.getSelection) {
+      sel = win.getSelection();
+      if (sel.rangeCount) {
+        range = sel.getRangeAt(0).cloneRange();
+        if (range.getClientRects) {
+          rects = range.getClientRects();
+          if (rects.length > 0) {
+            rect = rects[0];
+            lastRect = rects[rects.length - 1]
+          }
+          left = rect.left;
+          right = lastRect.right;
+        }
+        // Fall back to inserting a temporary element
+        if (left === 0 && right === 0) {
+          let span = doc.createElement("span");
+          if (span.getClientRects) {
+            // Ensure span has dimensions and position by
+            // adding a zero-width space character
+            span.appendChild(doc.createTextNode("\u200b"));
+            range.insertNode(span);
+            rect = span.getClientRects()[0];
+            left = rect.left;
+            right = rect.right;
+            let spanParent = span.parentNode;
+            spanParent.removeChild(span);
+
+            // Glue any broken text nodes back together
+            spanParent.normalize();
+          }
+        }
+      }
+    }
+    return {left, right};
+  } catch (e) {
+    return {left: 0, right: 0}
+  }
+};

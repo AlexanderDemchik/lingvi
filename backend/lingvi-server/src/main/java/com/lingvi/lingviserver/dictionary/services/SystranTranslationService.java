@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.config.SystranProperties;
 import com.lingvi.lingviserver.dictionary.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
@@ -48,6 +49,7 @@ public class SystranTranslationService implements TranslationService {
      * @param lang language
      * @return lemma word string
      */
+    @LogExecutionTime
     public String getLemma(String word, Language lang) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(systranProperties.getLemmaUrl())
                 .queryParam(KEY_PARAM_NAME, systranProperties.getApiKey())
