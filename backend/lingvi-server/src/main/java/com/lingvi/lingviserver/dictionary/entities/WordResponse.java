@@ -3,7 +3,6 @@ package com.lingvi.lingviserver.dictionary.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
-import com.lingvi.lingviserver.dictionary.entities.primary.Word;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ public class WordResponse {
     private boolean isInUserDict;
 
     @JsonIgnoreProperties(value = {"translations", "sounds", "lemma"})
-    private Word lemma;
+    private WordDTO lemma;
 
     /**
      * Translations grouped by part of speech
@@ -33,7 +32,7 @@ public class WordResponse {
 
     public WordResponse() {}
 
-    public WordResponse(Word word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict) {
+    public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict) {
         this.id = word.getId();
         this.word = word.getWord();
         this.language = word.getLanguage();
@@ -48,7 +47,7 @@ public class WordResponse {
         }
     }
 
-    public WordResponse(Word word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage) {
+    public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage) {
         this.id = word.getId();
         this.word = word.getWord();
         this.language = word.getLanguage();
@@ -96,14 +95,6 @@ public class WordResponse {
         this.language = language;
     }
 
-    public Word getLemma() {
-        return lemma;
-    }
-
-    public void setLemma(Word lemma) {
-        this.lemma = lemma;
-    }
-
     public String getSoundUrl() {
         return soundUrl;
     }
@@ -138,5 +129,13 @@ public class WordResponse {
 
     public void setTranslationLanguage(Language translationLanguage) {
         this.translationLanguage = translationLanguage;
+    }
+
+    public WordDTO getLemma() {
+        return lemma;
+    }
+
+    public void setLemma(WordDTO lemma) {
+        this.lemma = lemma;
     }
 }

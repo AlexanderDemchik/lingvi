@@ -12,9 +12,11 @@ import com.lingvi.lingviserver.dictionary.repositories.primary.TranslationReposi
 import com.lingvi.lingviserver.dictionary.repositories.primary.UserWordRepository;
 import com.lingvi.lingviserver.dictionary.repositories.primary.WordRepository;
 import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,6 +43,8 @@ public class DictionaryService {
     private EspeakTranscriptionService espeakTranscriptionService;
     private StorageUtil storageUtil;
 
+    private CacheManager cacheManager;
+
     /**
      * Self-autowired class, to use {@link Cacheable} for class methods
      */
@@ -53,7 +57,7 @@ public class DictionaryService {
     final SoundType soundType = SoundType.FEMALE_EN_GB;
 
     @Autowired
-    DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil) {
+    DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil, CacheManager cacheManager) {
         this.yandexTranslationService = yandexTranslationService;
         this.wordRepository = wordRepository;
         this.translationRepository = translationRepository;
@@ -63,6 +67,7 @@ public class DictionaryService {
         this.userWordRepository = userWordRepository;
         this.espeakTranscriptionService = espeakTranscriptionService;
         this.storageUtil = storageUtil;
+        this.cacheManager = cacheManager;
     }
 
     /**
@@ -72,8 +77,7 @@ public class DictionaryService {
      * @param from language from which translation
      * @param to language to which translation is
      */
-    @Cacheable("translations")
-    public Word translate(String text, Language from, Language to) {
+    private Word translate(String text, Language from, Language to) {
 
         Word translated;
         if((translated = wordRepository.findByWordIgnoreCaseAndLanguage(text, from)) != null) {
@@ -144,6 +148,28 @@ public class DictionaryService {
         return translated;
     }
 
+    /**
+     * It's just wrapper around {@link DictionaryService#translate(String, Language, Language)} to allow caching, because cache not correctly work with lazy initialization
+     *
+     * @param text text to be translated
+     * @param from language from which translation
+     * @param to language to which translation is
+     * @return {@link WordDTO}
+     */
+    @Cacheable(value = "dictionary", key = "{#text,#from,#to}")
+    public WordDTO cacheableTranslate(String text, Language from, Language to) {
+        List<Translation> resultTranslations;
+        Word word = translate(text, from, to);
+
+        if (word.getId() != null) { //it's already saved word
+            // we need translations only from translator or dictionary, cause in the future i planned add translations from user
+            resultTranslations = translationRepository.findByWordAndSourceIn(word, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+        } else { //it's not saved sequence
+            resultTranslations = word.getTranslations();
+        }
+
+        return new WordDTO(word, resultTranslations);
+    }
 // May be it's implementation was better but ....
 //    /**
 //     * Map {@link Word} to {@link WordResponse}
@@ -205,23 +231,17 @@ public class DictionaryService {
         text = text.trim();
 
         Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-        Word word = dictionaryService.translate(text, from, to);
+        WordDTO word = dictionaryService.cacheableTranslate(text, from, to);
         List<Translation> resultTranslations;
         Translation defaultTranslation;
         boolean isInUserDict = false;
 
-        System.out.println(word);
-        if (word.getId() != null) { //it's already saved word
-            // we need translations only from translator or dictionary, cause in the future i planned add translations from user
-            resultTranslations = translationRepository.findByWordAndSourceIn(word, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
-        } else { //it's not saved sequence
-            resultTranslations = word.getTranslations();
-        }
+        resultTranslations = word.getTranslations();
         if (resultTranslations.size() == 0) throw new ApiError("Can not get translation", HttpStatus.BAD_REQUEST);
 
         if (word.getId() != null) {
             // check if user already have word in his dictionary
-            if (userWordRepository.findByWordAndAccountId(word, userId) != null) {
+            if (userWordRepository.findByWordIdAndAccountId(word.getId(), userId) != null) {
                 isInUserDict = true;
             }
             defaultTranslation = findDefaultTranslation(resultTranslations);
@@ -286,6 +306,7 @@ public class DictionaryService {
 
             if (w.getId() == null) {
                 wordRepository.save(w);
+                Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(w.getWord() + "," + from + "," + to);
 //                saveSound(w, soundType);
             }
 
@@ -398,6 +419,12 @@ public class DictionaryService {
         return resultTranslations;
     }
 
+    /**
+     * Usually it will be translation from Translator
+     *
+     * @param translations translations in which search will proceed
+     * @return {@link Translation}
+     */
     private Translation findDefaultTranslation(List<Translation> translations) {
         AtomicReference<Translation> defaultTranslation = new AtomicReference<>();
         defaultTranslation.set(translations.stream().filter((translation -> translation.getSource().equals(TranslationSource.TRANSLATOR))).findFirst().orElse(null));
@@ -408,6 +435,10 @@ public class DictionaryService {
         return defaultTranslation.get();
     }
 
+    /**
+     * Helper method to get user id from spring context
+     * @return user id
+     */
     private Long getUserId() {
         return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
     }

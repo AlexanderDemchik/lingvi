@@ -6,12 +6,13 @@ import com.lingvi.lingviserver.dictionary.entities.PartOfSpeech;
 import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Word translation
  */
 @Entity(name = "translations")
-public class Translation {
+public class Translation implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

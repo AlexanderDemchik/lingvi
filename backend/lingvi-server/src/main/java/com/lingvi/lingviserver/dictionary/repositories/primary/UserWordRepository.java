@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserWordRepository extends CrudRepository<UserWord, Long> {
     UserWord findByWordAndAccountId(Word word, Long id);
+    UserWord findByWordIdAndAccountId(Long wordId, Long id);
 }
