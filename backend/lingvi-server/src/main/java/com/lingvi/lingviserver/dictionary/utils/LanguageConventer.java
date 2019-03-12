@@ -1,6 +1,6 @@
 package com.lingvi.lingviserver.dictionary.utils;
 
-import com.lingvi.lingviserver.dictionary.entities.Language;
+import com.lingvi.lingviserver.commons.entities.Language;
 import java.beans.PropertyEditorSupport;
 
 /**

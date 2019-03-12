@@ -30,5 +30,19 @@ export const style = (theme) => ({
     color: "#fff",
     fontSize: "0.7rem",
     userSelect: "none"
+  },
+  controlsMenuWrapper: {
+    transition: "all 0.5s linear",
+    position: "relative"
+  },
+  settingsOpen: {
+    transform: "rotate(30deg)"
+  },
+  subtitlesOpen: {
+    transition: "all 0.5s linear",
+    fill: theme.palette.primary.main,
+    // "&:hover": {
+    //   filter: `drop-shadow( 0 0 6px ${theme.palette.primary.main})`
+    // }
   }
 });

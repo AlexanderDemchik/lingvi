@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 import com.lingvi.lingviserver.dictionary.entities.primary.Word;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * We need to use this DTO instead entity to avoid problems with caching
  */
 public class WordDTO implements Serializable {
 

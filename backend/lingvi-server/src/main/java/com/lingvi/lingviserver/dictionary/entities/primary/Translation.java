@@ -1,7 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.lingvi.lingviserver.dictionary.entities.Language;
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.PartOfSpeech;
 import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 

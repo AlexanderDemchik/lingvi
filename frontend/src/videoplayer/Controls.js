@@ -6,55 +6,89 @@ import {style} from "./Controls.style";
 import {mdiPlay, mdiVolumeHigh, mdiPause, mdiVolumeMedium, mdiVolumeOff, mdiFullscreen, mdiFullscreenExit, mdiSettings, mdiSubtitles} from "@mdi/js";
 import {Icon} from "@mdi/react";
 import VolumeSlider from "./VolumeSlider";
+import Settings from "./Settings";
+import SubtitlesMenu from "./SubtitlesMenu";
+import PropTypes from "prop-types";
 
-const Controls = ({played, changePlayed, buffered, duration, classes, volume, changeVolume, playing, changePlaying, fullScreen,
-                    enterFullScreen, exitFullScreen, className, spritesUrl}) => (
-  <div className={classes.controlsWrapper}>
-    <Grid container direction={"column"} className={`${classes.controls} ${className}`}>
-      <Grid item>
-        <Progress value={played / duration} changeValue={changePlayed} buffered={buffered} convertTooltipValue={(v) => convertSeconds(duration * v)} spritesUrl={spritesUrl} duration={duration}/>
-      </Grid>
-      <Grid item>
-        <Grid container alignItems={"center"} justify={"space-between"} direction={"row"} wrap={"nowrap"}>
+class Controls extends React.Component {
+
+  constructor (props) {
+    super (props);
+    this.state = {
+      settingsOpen: false,
+      subtitlesOpen: false,
+    }
+  }
+
+  changeSettingsOpenState = (state) => {
+    this.setState({settingsOpen: state});
+  };
+
+  changeSubtitlesOpenState = (state) => {
+    this.setState({subtitlesOpen: state});
+  };
+
+  render() {
+    const {played, changePlayed, buffered, duration, classes, volume, changeVolume, playing, changePlaying, fullScreen,
+          enterFullScreen, exitFullScreen, className, spritesUrl, selectedSubtitles, changeSubtitles, availableQualities,
+          changeQuality, currentQuality, qualityAutoSwitch} = this.props;
+    const {settingsOpen, subtitlesOpen} = this.state;
+
+    return (
+      <div className={classes.controlsWrapper}>
+        <Grid container direction={"column"} className={`${classes.controls} ${className}`}>
           <Grid item>
-            <Grid container direction={"row"} alignItems={"center"} justify={"flex-start"} spacing={8}>
-              <Grid item>
-                {<Icon path={!playing ? mdiPlay : mdiPause} className={classes.icon} onClick={() => changePlaying(!playing)} onTouchEnd={() => changePlaying(!playing)}/>}
-              </Grid>
-              <Grid item>
-                <Icon path={volume > 0.5 ? mdiVolumeHigh : volume > 0 ? mdiVolumeMedium : mdiVolumeOff} className={classes.icon}/>
-              </Grid>
-              <Grid item className={classes.volumeSlider}>
-                <VolumeSlider value={volume * 100} changeValue={(val) => changeVolume(val/100)}/>
-              </Grid>
-              <Grid item className={classes.time}>
-                {`${convertSeconds(played)}/${convertSeconds(duration)}`}
-              </Grid>
-            </Grid>
+            <Progress value={played / duration} changeValue={changePlayed} buffered={buffered} convertTooltipValue={(v) => convertSeconds(duration * v)} spritesUrl={spritesUrl} duration={duration}/>
           </Grid>
           <Grid item>
-            <Grid item container direction={"row"} justify={"flex-end"} alignItems={"center"} spacing={8}>
+            <Grid container alignItems={"center"} justify={"space-between"} direction={"row"} wrap={"nowrap"}>
               <Grid item>
-                <Icon path={mdiSubtitles} className={classes.icon}/>
+                <Grid container direction={"row"} alignItems={"center"} justify={"flex-start"} spacing={8}>
+                  <Grid item>
+                    {<Icon path={!playing ? mdiPlay : mdiPause} className={classes.icon} onClick={() => changePlaying(!playing)} onTouchEnd={() => changePlaying(!playing)}/>}
+                  </Grid>
+                  <Grid item>
+                    <Icon path={volume > 0.5 ? mdiVolumeHigh : volume > 0 ? mdiVolumeMedium : mdiVolumeOff} className={classes.icon}/>
+                  </Grid>
+                  <Grid item className={classes.volumeSlider}>
+                    <VolumeSlider value={volume * 100} changeValue={(val) => changeVolume(val/100)}/>
+                  </Grid>
+                  <Grid item className={classes.time}>
+                    {`${convertSeconds(played)}/${convertSeconds(duration)}`}
+                  </Grid>
+                </Grid>
               </Grid>
               <Grid item>
-                <Icon path={mdiSettings} className={classes.icon}/>
-              </Grid>
-              <Grid item>
-                {
-                  fullScreen ? (
-                    <Icon path={mdiFullscreenExit} className={classes.icon} onClick={exitFullScreen} onTouchEnd={exitFullScreen}/>
-                  ) : (
-                    <Icon path={mdiFullscreen} className={classes.icon} onClick={enterFullScreen} onTouchEnd={enterFullScreen}/>
-                  )
-                }
+                <Grid item container direction={"row"} justify={"flex-end"} alignItems={"center"} spacing={8}>
+                  <Grid item className={classes.controlsMenuWrapper}>
+                    <SubtitlesMenu open={subtitlesOpen} changeOpenState={this.changeSubtitlesOpenState} availableSubtitles={["RU", "EN"]} selectedSubtitles={selectedSubtitles} changeSubtitles={changeSubtitles}>
+                      <Icon path={mdiSubtitles} className={`${classes.icon} ${subtitlesOpen && classes.subtitlesOpen}`} onClick={() => this.changeSubtitlesOpenState(!subtitlesOpen)}/>
+                    </SubtitlesMenu>
+                  </Grid>
+                  <Grid item>
+                    <Settings open={settingsOpen} changeOpenState={this.changeSettingsOpenState} availableQualities={availableQualities} currentQuality={currentQuality} changeQuality={changeQuality} qualityAutoSwitch={qualityAutoSwitch}/>
+                  </Grid>
+                  <Grid item>
+                    {
+                      fullScreen ? (
+                        <Icon path={mdiFullscreenExit} className={classes.icon} onClick={exitFullScreen} onTouchEnd={exitFullScreen}/>
+                      ) : (
+                        <Icon path={mdiFullscreen} className={classes.icon} onClick={enterFullScreen} onTouchEnd={enterFullScreen}/>
+                      )
+                    }
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </Grid>
-  </div>
-);
+      </div>
+    )
+  }
+}
+
+Controls.propTypes = {
+  availableQualities: PropTypes.array
+};
 
 export default withStyles(style)(Controls);

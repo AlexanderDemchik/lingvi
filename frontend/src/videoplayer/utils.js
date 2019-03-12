@@ -53,6 +53,17 @@ export const clearSelection = (el) => {
   }
 };
 
+export const getSubtitleAtTime = (subList, currentTime) => {
+  for(let i in subList) {
+    if(subList[i].start <= currentTime && subList[i].end >= currentTime) {
+      return subList[i].content;
+    } else {
+      if(subList[i].end > currentTime) return []
+    }
+  }
+  return [];
+};
+
 //https://stackoverflow.com/questions/6846230/coordinates-of-selected-text-in-browser-page
 //currently throw errors in edge and ie
 export const getSelectionCoords = (win) => {

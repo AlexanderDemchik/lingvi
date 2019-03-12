@@ -1,6 +1,6 @@
 package com.lingvi.lingviserver.dictionary.services;
 
-import com.lingvi.lingviserver.dictionary.entities.Language;
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 import com.lingvi.lingviserver.dictionary.entities.primary.Word;
 

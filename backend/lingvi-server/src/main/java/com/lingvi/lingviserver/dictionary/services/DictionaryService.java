@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.services;
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
 import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.entities.*;
@@ -12,7 +13,6 @@ import com.lingvi.lingviserver.dictionary.repositories.primary.TranslationReposi
 import com.lingvi.lingviserver.dictionary.repositories.primary.UserWordRepository;
 import com.lingvi.lingviserver.dictionary.repositories.primary.WordRepository;
 import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class DictionaryService {
     /**
      * currently it's just like a mock
      */
-    final SoundType soundType = SoundType.FEMALE_EN_GB;
+    private final SoundType soundType = SoundType.FEMALE_EN_GB;
 
     @Autowired
     DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil, CacheManager cacheManager) {
@@ -441,5 +441,47 @@ public class DictionaryService {
      */
     private Long getUserId() {
         return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    /**
+     * Remove word from user dictionary by word id
+     * @param wordId word id
+     */
+    public void removeWordFromUserDictionary(Long wordId) {
+        userWordRepository.deleteById(wordId);
+    }
+
+    /**
+     * @param wordId user word id
+     * @return {@link UserWord}
+     */
+    public UserWord addTranslationToUserDictionaryWord(Long wordId, Translation translation) {
+
+        UserWord userWord = userWordRepository.findById(wordId).orElse(null);
+        if(userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
+
+        if (translation.getId() == null) {
+            translation.setSource(TranslationSource.USER);
+            translation.setWord(userWord.getWord());
+        } else {
+            translation = translationRepository.findById(translation.getId()).orElse(null);
+        }
+
+        userWord.getUserTranslations().add(translation);
+
+        userWord = userWordRepository.save(userWord);
+        return userWord;
+    }
+
+    /**
+     * @param wordId word id
+     * @param translationId translation id
+     */
+    public void removeTranslationFromUserDictionaryWord(Long wordId, Long translationId) {
+        UserWord userWord = userWordRepository.findById(wordId).orElse(null);
+        if(userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
+
+        userWord.getUserTranslations().removeIf(translation -> translation.getId().equals(translationId));
+        userWordRepository.save(userWord);
     }
 }

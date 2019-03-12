@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 
 import java.util.List;
@@ -9,19 +10,19 @@ import java.util.List;
  */
 public class UserDictionaryAddWordRequest {
 
-    private Long id;
+//    private Long id;
     private String word;
     private Language from;
     private Language to;
     private List<Translation> translations = null;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
 
     public Language getFrom() {
         return from;

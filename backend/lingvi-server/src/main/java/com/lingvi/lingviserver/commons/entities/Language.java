@@ -1,4 +1,4 @@
-package com.lingvi.lingviserver.dictionary.entities;
+package com.lingvi.lingviserver.commons.entities;
 
 import java.util.Arrays;
 

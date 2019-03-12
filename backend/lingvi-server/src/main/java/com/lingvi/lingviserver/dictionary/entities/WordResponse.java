@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 

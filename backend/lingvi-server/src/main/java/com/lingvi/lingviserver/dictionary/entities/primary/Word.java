@@ -1,6 +1,6 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
-import com.lingvi.lingviserver.dictionary.entities.Language;
+import com.lingvi.lingviserver.commons.entities.Language;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,6 +18,7 @@ public class Word implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
     private String word;
 
     @Column

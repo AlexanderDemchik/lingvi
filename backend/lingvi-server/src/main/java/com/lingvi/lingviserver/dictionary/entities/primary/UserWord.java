@@ -5,15 +5,18 @@ import com.fasterxml.jackson.annotation.JsonIdentityReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Representation of word in user dictionary
  */
 @Entity(name = "user_dictionary")
+@EntityListeners(AuditingEntityListener.class)
 public class UserWord {
 
     @JsonIgnore
@@ -33,8 +36,9 @@ public class UserWord {
     private List<Translation> userTranslations = new ArrayList<>();
 
     @CreatedDate
+    @Temporal(TemporalType.TIMESTAMP)
     @Column
-    private String createdDate;
+    private Date createdDate;
 
     @Column(nullable = false)
     private Long accountId;
@@ -71,19 +75,19 @@ public class UserWord {
         this.userTranslations = userTranslations;
     }
 
-    public String getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(String createdDate) {
-        this.createdDate = createdDate;
-    }
-
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
     }
 
     public Long getAccountId() {
         return this.accountId;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 }

@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 
 public class TranslationResponse {

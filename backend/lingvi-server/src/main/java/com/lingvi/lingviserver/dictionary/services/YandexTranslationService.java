@@ -3,7 +3,7 @@ package com.lingvi.lingviserver.dictionary.services;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.config.YandexTranslationApiProperties;
-import com.lingvi.lingviserver.dictionary.entities.Language;
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.PartOfSpeech;
 import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 import com.lingvi.lingviserver.dictionary.entities.YandexTranslateResponse;

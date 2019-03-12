@@ -63,7 +63,8 @@ export const style = (theme) => ({
   },
   partOfSpeech: {
     fontWeight: 100,
-    fontSize: "0.7rem"
+    fontSize: "0.7rem",
+    color: "#DAE8EF",
   },
   defaultTranslation: {
     fontWeight: 500,

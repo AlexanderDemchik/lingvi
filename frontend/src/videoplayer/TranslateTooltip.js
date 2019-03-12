@@ -7,7 +7,7 @@ import {Icon} from "@mdi/react";
 import PropTypes from "prop-types";
 import ClipLoader from "react-spinners/ClipLoader";
 import api from "../api";
-import Tooltip from '@material-ui/core/Tooltip';
+import Tooltip from '../shared/Tooltip';
 
 class TranslateTooltip extends React.PureComponent {
 
@@ -59,13 +59,13 @@ class TranslateTooltip extends React.PureComponent {
                   <Tooltip placement={"top"} title={translatedWord.transcription}>
                     <Icon path={mdiVolumeHigh} size={1} className={classes.icon} onClick={this.playSound}/>
                   </Tooltip>
-                  {translatedWord.inUserDict ? (
-                    <Tooltip placement={"top"} title={"Remove from dictionary"}>
-                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
+                  {!translatedWord.inUserDict ? (
+                    <Tooltip placement={"top"} title={"Add to dictionary"}>
+                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.removeFromDictionary}/>
                     </Tooltip>
                   ) : (
-                    <Tooltip placement={"top"} title={"Add to dictionary"}>
-                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
+                    <Tooltip placement={"top"} title={"Remove from dictionary"}>
+                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.addToDictionary}/>
                     </Tooltip>
                   )}
                 </Grid>

@@ -17,7 +17,6 @@ export const style = (theme) => ({
     width: "100%",
     height: "100%",
     backgroundPosition: "center",
-    backgroundImage: `url(${poster})`,
     position: "absolute",
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
