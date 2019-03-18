@@ -14,9 +14,6 @@ export const providerRegisterWithTokenPath = (provider) => (
 export const REFRESH_PATH = "/token/refresh";
 export const ME_PATH = "/me";
 
-export const USER_DICTIONARY_WORD_PATH = "/userdictionary/word";
-export const TRANSLATION_PATH = "/translation";
-
 export const TOKEN_FIELD = "token";
 export const REFRESH_TOKEN_FIELD = "refreshToken";
 export const EXPIRE_IN_FIELD = "expireIn";

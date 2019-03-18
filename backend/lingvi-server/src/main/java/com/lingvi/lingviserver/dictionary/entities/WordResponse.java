@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
@@ -15,12 +16,15 @@ import java.util.Map;
 public class WordResponse {
 
     private Long id;
-    private String word;
+    private String text;
     private String transcription;
     private Language language;
     private Translation defaultTranslation;
     private Language translationLanguage;
     private boolean isInUserDict;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Long userDictId;
 
     @JsonIgnoreProperties(value = {"translations", "sounds", "lemma"})
     private WordDTO lemma;
@@ -35,7 +39,7 @@ public class WordResponse {
 
     public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict) {
         this.id = word.getId();
-        this.word = word.getWord();
+        this.text = word.getText();
         this.language = word.getLanguage();
         this.lemma = word.getLemma();
         this.transcription = word.getTranscription();
@@ -50,7 +54,7 @@ public class WordResponse {
 
     public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage) {
         this.id = word.getId();
-        this.word = word.getWord();
+        this.text = word.getText();
         this.language = word.getLanguage();
         this.lemma = word.getLemma();
         this.transcription = word.getTranscription();
@@ -58,6 +62,23 @@ public class WordResponse {
         this.isInUserDict = isInUserDict;
         this.defaultTranslation = defaultTranslation;
         this.translationLanguage = translationLanguage;
+
+        if (sound != null) {
+            this.soundUrl = sound.getRootUrl() + sound.getRelativePath();
+        }
+    }
+
+    public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage, Long userDictId) {
+        this.id = word.getId();
+        this.text = word.getText();
+        this.language = word.getLanguage();
+        this.lemma = word.getLemma();
+        this.transcription = word.getTranscription();
+        this.translations = translations;
+        this.isInUserDict = isInUserDict;
+        this.defaultTranslation = defaultTranslation;
+        this.translationLanguage = translationLanguage;
+        this.userDictId = userDictId;
 
         if (sound != null) {
             this.soundUrl = sound.getRootUrl() + sound.getRelativePath();
@@ -72,12 +93,12 @@ public class WordResponse {
         this.id = id;
     }
 
-    public String getWord() {
-        return word;
+    public String getText() {
+        return text;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getTranscription() {
@@ -138,5 +159,13 @@ public class WordResponse {
 
     public void setLemma(WordDTO lemma) {
         this.lemma = lemma;
+    }
+
+    public Long getUserDictId() {
+        return userDictId;
+    }
+
+    public void setUserDictId(Long userDictId) {
+        this.userDictId = userDictId;
     }
 }

@@ -33,7 +33,6 @@ export const style = (theme) => ({
   },
   controlsMenuWrapper: {
     transition: "all 0.5s linear",
-    position: "relative"
   },
   settingsOpen: {
     transform: "rotate(30deg)"

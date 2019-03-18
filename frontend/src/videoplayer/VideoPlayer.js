@@ -35,10 +35,11 @@ class VideoPlayer extends React.Component {
       selectedSubtitles: [],
       currentQuality: -1,
       qualityAutoSwitch: true,
-      availableQualities: []
+      availableQualities: [],
+      settingsOpen: false,
+      subtitlesOpen: false,
     }
   }
-  seekValue = 0;
   playerRef = null;
   hlsRef = null;
   wrapperRef = null;
@@ -62,13 +63,30 @@ class VideoPlayer extends React.Component {
     }
   };
 
+  componentWillUnmount() {
+    if (this.playerRef) {
+      let videoEl = this.playerRef.getInternalPlayer();
+      videoEl.onwaiting = null;
+      videoEl.oncanplay = null;
+      videoEl.onseeking = null;
+      videoEl.onseeked = null;
+      videoEl.onerror = null;
+      videoEl.ontimeupdate = null;
+      videoEl.onclick = null;
+    }
+  }
+
   keyDown = (e) => {
+    const {playing, initialized, played} = this.state;
     switch (e.keyCode) {
       case 37:
-        this.playerRef.seekTo(this.seekValue = (this.seekValue - 5)); break;
+        this.playerRef.seekTo(played - 5); break;
       case 39:
-        this.seekValue = (this.seekValue + 5);
-        this.setState({played: this.seekValue}, () => this.playerRef.seekTo(this.seekValue));
+        // this.seekValue = (this.seekValue + 5);
+        this.playerRef.seekTo(played + 5);
+        break;
+      case 32:
+        initialized ? this.changePlaying(!playing) : this.onPosterPlayBtnClick();
         break;
       default:
     }
@@ -100,23 +118,21 @@ class VideoPlayer extends React.Component {
       videoEl.onseeking = () => this.setState({loading: true});
       videoEl.onseeked = () => this.setState({loading: false});
       videoEl.onerror = (e) => console.log(e);
+      videoEl.ontimeupdate = () => {
+        this.setState({played: this.hlsRef.media.currentTime})
+      };
+      videoEl.onclick = this.onVideoClick;
+
+      this.hlsRef.media.ontouchend = (e) => {
+        e.preventDefault();
+        this.onVideoClick();
+      };
 
       // this.hlsRef.on(window.Hls.Events.ERROR, (event, {details}) => {
       //   if (details === window.Hls.ErrorDetails.BUFFER_STALLED_ERROR) {
       //     this.setState({loading: true})
       //   }
       // });
-
-      this.hlsRef.media.ontimeupdate = () => {
-        this.setState({played: this.hlsRef.media.currentTime})
-      };
-
-      this.hlsRef.media.onclick = this.onVideoClick;
-      this.hlsRef.media.ontouchend = (e) => {
-        e.preventDefault();
-        this.onVideoClick();
-      };
-
       // this.hlsRef.on(window.Hls.Events.FRAG_BUFFERED, () => {
       //   this.setState({loading: false})
       // });
@@ -247,9 +263,18 @@ class VideoPlayer extends React.Component {
     }
   };
 
+  changeSettingsOpenState = (state) => {
+    this.setState({settingsOpen: state});
+  };
+
+  changeSubtitlesOpenState = (state) => {
+    this.setState({subtitlesOpen: state});
+  };
+
   render() {
     const {classes, spritesUrl, url, posterUrl} = this.props;
-    const {played, playing, loading, initialized, buffered, duration, volume, fullScreen, mouseActive, paused, started, selectedSubtitles, currentQuality, availableQualities, qualityAutoSwitch} = this.state;
+    const {played, playing, loading, initialized, buffered, duration, volume, fullScreen, mouseActive, paused, started, selectedSubtitles, currentQuality,
+      availableQualities, qualityAutoSwitch, subtitlesOpen, settingsOpen} = this.state;
     return (
       <div className={`${classes.wrapper} ${!mouseActive && classes.cursorHidden}`} ref={ref => this.wrapperRef = ref} onMouseEnter={this.onWrapperMouseEnter} onMouseLeave={this.onWrapperMouseLeave}
           onMouseMove={this.onWrapperMouseMove} onTouchEnd={this.updateActiveState} onTouchMove={this.onWrapperMouseMove} onClick={this.onWrapperClick}
@@ -259,14 +284,14 @@ class VideoPlayer extends React.Component {
             <ReactPlayer ref={ref => this.playerRef = ref} playing={playing && !paused} url={url} width={"100%"} height={"100%"}
                          style={{position: "absolute", top: 0, left: 0, backgroundColor: "#000"}}
                          onDuration={this.onDuration} onStart={this.onStart} progressInterval={500}
-                         volume={volume} config={{file: {hlsOptions: {maxBufferLength: 20}}}}
+                         volume={volume} config={{file: {hlsOptions: {maxBufferLength: 20, maxBufferHole: 0}}}}
             />
             <div className={`${classes.bottomSubWrapper} ${(this.state.mouseActive || !this.state.playing) && classes.bottomSubMargin}`}>
               {selectedSubtitles.map(subLang => (
                 translateableSubtitles.indexOf(subLang) !== -1 ? (
-                  <TranslateableSubtitle data={subList} time={played} paused={paused} changePausedState={this.changePaused} language={subLang}/>
+                  <TranslateableSubtitle data={subList} time={played} paused={paused} changePausedState={this.changePaused} language={subLang} key={subLang}/>
                 ) : (
-                  <Subtitle data={subList} time={played} language={subLang}/>
+                  <Subtitle data={subList} time={played} language={subLang} key={subLang}/>
                 )
               ))}
             </div>
@@ -276,9 +301,11 @@ class VideoPlayer extends React.Component {
               <Controls played={played} changePlayed = {(v) => {this.playerRef.seekTo(v);}} buffered={buffered} duration={duration}
                         changeVolume={this.changeVolume} volume={volume} playing={playing && !paused} changePlaying={this.changePlaying}
                         enterFullScreen={this.enterFullScreen} exitFullScreen={this.exitFullScreen} fullScreen={fullScreen}
-                        className={`${(!mouseActive && playing) && classes.hidden} ${classes.controls}`} spritesUrl={spritesUrl}
+                        className={`${(!mouseActive && playing && !settingsOpen && !subtitlesOpen) && classes.hidden} ${classes.controls}`} spritesUrl={spritesUrl}
                         selectedSubtitles={selectedSubtitles} changeSubtitles={this.changeSubtitles} currentQuality={currentQuality}
                         availableQualities={availableQualities} changeQuality={this.changeQuality} qualityAutoSwitch={qualityAutoSwitch}
+                        subtitlesOpen={subtitlesOpen} settingsOpen={settingsOpen} changeSettingsOpenState={this.changeSettingsOpenState}
+                        changeSubtitlesOpenState={this.changeSubtitlesOpenState}
               />
           </React.Fragment>
         ) : (

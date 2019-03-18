@@ -3,6 +3,7 @@ package com.lingvi.lingviserver.dictionary.services;
 import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
 import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
+import com.lingvi.lingviserver.commons.utils.Utils;
 import com.lingvi.lingviserver.dictionary.entities.*;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
@@ -18,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 public class DictionaryService {
@@ -56,6 +60,8 @@ public class DictionaryService {
      */
     private final SoundType soundType = SoundType.FEMALE_EN_GB;
 
+    private List<Word> soundSaveInProcess = new ArrayList<>();
+
     @Autowired
     DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil, CacheManager cacheManager) {
         this.yandexTranslationService = yandexTranslationService;
@@ -80,7 +86,7 @@ public class DictionaryService {
     private Word translate(String text, Language from, Language to) {
 
         Word translated;
-        if((translated = wordRepository.findByWordIgnoreCaseAndLanguage(text, from)) != null) {
+        if((translated = wordRepository.findByTextIgnoreCaseAndLanguage(text, from)) != null) {
             return translated;
         } else {
             CompletableFuture<Translation> translatorResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadTranslation(text, from, to));
@@ -95,6 +101,7 @@ public class DictionaryService {
 
                     if (translationFromTranslator != null) {
                         translationFromTranslator.setWord(translated);
+                        translationFromTranslator.setTranslation(translationFromTranslator.getTranslation().toLowerCase());
                         translated.getTranslations().add(translationFromTranslator);
                     } else {
                         logger.error("Something wrong with translator");
@@ -107,7 +114,7 @@ public class DictionaryService {
                     lemmaResponse.thenApply((lemma -> {
                         if (lemma != null) {
                             Word lemmaWord;
-                            if ((lemmaWord = wordRepository.findByWordIgnoreCaseAndLanguage(lemma, from)) != null) {
+                            if ((lemmaWord = wordRepository.findByTextIgnoreCaseAndLanguage(lemma, from)) != null) {
                                 finalTranslated1.setLemma(lemmaWord);
                             } else {
                                 lemmaWord = translate(lemma, from, to);
@@ -119,15 +126,21 @@ public class DictionaryService {
 
                     //save sound asynchronously if it is word but not sequence
                     Word finalTranslated = translated;
-                    CompletableFuture<String> audioResponse = CompletableFuture.supplyAsync(() -> googleTextToSpeechService.getAudioFromText(finalTranslated.getWord(), soundType));
+                    CompletableFuture<String> audioResponse = CompletableFuture.supplyAsync(() -> googleTextToSpeechService.getAudioFromText(finalTranslated.getText(), soundType));
+
+                    soundSaveInProcess.add(finalTranslated);
                     audioResponse.thenApply(base64Audio -> {
                         Sound sound = storageUtil.saveSoundToStorage(base64Audio);
                         sound.setWord(finalTranslated);
                         sound.setSoundType(soundType);
                         finalTranslated.getSounds().add(sound);
                         wordRepository.save(finalTranslated);
+                        soundSaveInProcess.remove(finalTranslated);
                         return null;
                     });
+
+                    Utils.setTimeout(() -> soundSaveInProcess.remove(finalTranslated), 3000);
+
                     wordRepository.save(translated);
                 } else { //if translation from dictionary is null, then it's just a sequence, and we not save it to db
                     if (translationFromTranslator == null) throw new ApiError("Error occurred while translate word", HttpStatus.BAD_REQUEST);
@@ -230,19 +243,22 @@ public class DictionaryService {
 
         text = text.trim();
 
-        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        Long userId = getUserId();
         WordDTO word = dictionaryService.cacheableTranslate(text, from, to);
         List<Translation> resultTranslations;
         Translation defaultTranslation;
         boolean isInUserDict = false;
+        Long userDictId = null;
 
         resultTranslations = word.getTranslations();
         if (resultTranslations.size() == 0) throw new ApiError("Can not get translation", HttpStatus.BAD_REQUEST);
 
         if (word.getId() != null) {
             // check if user already have word in his dictionary
-            if (userWordRepository.findByWordIdAndAccountId(word.getId(), userId) != null) {
+            UserWord userWord;
+            if ((userWord = userWordRepository.findByWordIdAndWordLanguageAndAccountId(word.getId(), word.getLanguage(), userId)) != null) {
                 isInUserDict = true;
+                userDictId = userWord.getId();
             }
             defaultTranslation = findDefaultTranslation(resultTranslations);
         } else {
@@ -252,30 +268,42 @@ public class DictionaryService {
 
         if (resultTranslations.size() == 0) resultTranslations = null;
 
-        return new WordResponse(word, soundRepository.findTop1ByWordIdAndSoundType(word.getId(), soundType), groupTranslationsByPartOfSpeech(resultTranslations), defaultTranslation, isInUserDict, to);
+        return new WordResponse(word, soundRepository.findTop1ByWordIdAndSoundType(word.getId(), soundType), groupTranslationsByPartOfSpeech(resultTranslations), defaultTranslation, isInUserDict, to, userDictId);
     }
 
     /**
      * If word present in dictionary return link to mp3 file in storage else return base64 decoded string with mp3
      * If word present in dictionary but link to sound not found, save audio and then return link
      *
-     * @param text text
+     * @param t text
      * @return {@link SoundResponse}
      *
      * @see Word
      * @see Sound
      * @see SoundType
      */
-    public SoundResponse textToSpeech(String text, Language language) {
-        text = text.trim();
+    public SoundResponse textToSpeech(String t, final Language language) {
+        final String text = t.trim();
         final SoundType soundType = SoundType.FEMALE_EN_GB; //@TODO take sound type from user profile
         Sound sound;
         Word word;
-        if ((word = wordRepository.findByWordIgnoreCaseAndLanguage(text, language)) != null) {
+        if ((word = wordRepository.findByTextIgnoreCaseAndLanguage(text, language)) != null) {
             if ((sound = soundRepository.findTop1ByWordIdAndSoundType(word.getId(), soundType)) != null) {
                 return new SoundResponse(sound.getRootUrl() + sound.getRelativePath());
             } else {
-                sound = saveSound(word, soundType);
+                if (soundSaveInProcess.stream().filter((w -> w.getText().equalsIgnoreCase(text) && w.getLanguage().equals(language))).collect(Collectors.toList()).size() >= 1) {
+                    while (true) {
+                        Utils.setTimeoutSync(() -> {}, 200);
+                        if (soundSaveInProcess.stream().filter((w -> w.getText().equalsIgnoreCase(text) && w.getLanguage().equals(language))).collect(Collectors.toList()).size() == 0) {
+                            if ((sound = soundRepository.findTop1ByWordIdAndSoundType(word.getId(), soundType)) == null) {
+                                sound = saveSound(word, soundType);
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    sound = saveSound(word, soundType);
+                }
                 if (sound != null) {
                     return new SoundResponse(sound.getRootUrl() + sound.getRelativePath());
                 }
@@ -301,13 +329,12 @@ public class DictionaryService {
         Long userId = getUserId();
 
         //check if word exist in dictionary
-        if ((w = wordRepository.findByWordIgnoreCaseAndLanguage(text, from)) == null) {
+        if ((w = wordRepository.findByTextIgnoreCaseAndLanguage(text, from)) == null) {
             w = translate(text, from, to);
 
             if (w.getId() == null) {
                 wordRepository.save(w);
-                Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(w.getWord() + "," + from + "," + to);
-//                saveSound(w, soundType);
+                Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(w.getText() + "," + from + "," + to);
             }
 
             List<Translation> userTranslations;
@@ -358,7 +385,7 @@ public class DictionaryService {
      * @return if ok - {@link Sound}, else null
      */
     private Sound saveSound(Word word, SoundType soundType) {
-        Sound sound = storageUtil.saveSoundToStorage(googleTextToSpeechService.getAudioFromText(word.getWord(), soundType));
+        Sound sound = storageUtil.saveSoundToStorage(googleTextToSpeechService.getAudioFromText(word.getText(), soundType));
         if (sound != null) {
             sound.setWord(word);
             sound.setSoundType(soundType);
@@ -456,17 +483,17 @@ public class DictionaryService {
      * @return {@link UserWord}
      */
     public UserWord addTranslationToUserDictionaryWord(Long wordId, Translation translation) {
-
         UserWord userWord = userWordRepository.findById(wordId).orElse(null);
-        if(userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
+        if (userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
 
         if (translation.getId() == null) {
             translation.setSource(TranslationSource.USER);
             translation.setWord(userWord.getWord());
+            translation.setAddedBy(getUserId());
         } else {
             translation = translationRepository.findById(translation.getId()).orElse(null);
+            if (translation == null) throw new ApiError("Translation not exist", HttpStatus.NOT_FOUND);
         }
-
         userWord.getUserTranslations().add(translation);
 
         userWord = userWordRepository.save(userWord);
@@ -481,7 +508,23 @@ public class DictionaryService {
         UserWord userWord = userWordRepository.findById(wordId).orElse(null);
         if(userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
 
-        userWord.getUserTranslations().removeIf(translation -> translation.getId().equals(translationId));
+        Translation translation = userWord.getUserTranslations().stream().filter(tr -> tr.getId().equals(translationId)).findFirst().orElse(null);
+        if (translation == null) throw new ApiError("Unexpected error", HttpStatus.BAD_REQUEST);
+
+        userWord.getUserTranslations().remove(translation);
         userWordRepository.save(userWord);
+
+        //if it is translation added this user, remove translation from common dictionary
+        if (translation.getSource().equals(TranslationSource.USER) && getUserId().equals(translation.getAddedBy())) {
+            translationRepository.delete(translation);
+        }
+    }
+
+    public UserWordSliceResponse getUserDictionaryWords(int page, int limit) {
+        return new UserWordSliceResponse(userWordRepository.findByAccountId(getUserId(), PageRequest.of(page, limit, Sort.by("createdDate"))));
+    }
+
+    public List<Long> getAllUserWordIds() {
+        return userWordRepository.findAllIds();
     }
 }

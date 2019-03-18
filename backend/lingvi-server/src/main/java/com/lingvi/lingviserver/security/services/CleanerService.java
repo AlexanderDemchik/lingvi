@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -39,12 +40,14 @@ public class CleanerService {
     }
 
     @Scheduled(initialDelay = 1000, fixedDelayString = "#{${security.token-lifetime} * 3}")
+    @Transactional
     public void cleanAccessTokens() {
         logger.info("Clean access tokens");
         accessTokenRepository.removeAllByCreationDateBefore(new Date(System.currentTimeMillis() - securityProperties.getTokenLifeTime()));
     }
 
     @Scheduled(initialDelay = 5000, fixedDelayString = "#{${security.refresh-token-lifetime} / 2}")
+    @Transactional
     public void cleanRefreshTokens() {
         logger.info("Clean refresh tokens");
         refreshTokenRepository.removeAllByCreationDateBefore(new Date(System.currentTimeMillis() - securityProperties.getRefreshTokenLifeTime()));
@@ -52,6 +55,7 @@ public class CleanerService {
     }
 
     @Scheduled(initialDelay = 10000, fixedDelayString = "#{${security.token-lifetime} * 10}")
+    @Transactional
     public void cleanBlackList() {
         logger.info("Clean blacklist");
         blackListTokenRepository.removeAllByTypeAndAddingDateBefore(BlackListToken.Type.ACCESS, new Date(System.currentTimeMillis() - securityProperties.getTokenLifeTime()));
@@ -59,6 +63,7 @@ public class CleanerService {
     }
 
     @Scheduled(initialDelay = 10000, fixedDelayString = "#{${security.token-lifetime} * 5}")
+    @Transactional
     public void cleanInMemoryBlackList() {
         logger.info("Clean in-memory blacklist");
         inMemoryBlackListRepository.removeAllByAddingDateBefore(new Date(System.currentTimeMillis() - securityProperties.getTokenLifeTime()));

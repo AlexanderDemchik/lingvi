@@ -10,7 +10,7 @@ class CheckableListItem extends React.Component {
   render() {
     const {checked, onChange, label, classes, value, key, icon} = this.props;
     return (
-      <Grid key={key && key} container direction={"row"} wrap={"nowrap"} justify={"flex-start"} alignItems={"center"} className={classes.wrapper} onClick={() => onChange(value, !checked)}>
+      <Grid key={key && key} container direction={"row"} wrap={"nowrap"} justify={"space-between"} alignItems={"center"} className={classes.wrapper} onClick={() => onChange(value, !checked)}>
         <Grid item className={classes.tick}>
           {checked && (icon ? <div className={classes.tickIcon}>{icon}</div> : <Icon path={mdiCheck} className={classes.tickIcon}/>)}
         </Grid>

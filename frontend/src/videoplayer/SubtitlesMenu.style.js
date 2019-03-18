@@ -1,6 +1,5 @@
 export const style = {
   wrapper: {
-    position: "relative",
   },
   menu: {
     position: "absolute",

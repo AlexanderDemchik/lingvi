@@ -6,21 +6,32 @@ import {mdiVolumeHigh, mdiBookPlus, mdiBookRemove} from "@mdi/js";
 import {Icon} from "@mdi/react";
 import PropTypes from "prop-types";
 import ClipLoader from "react-spinners/ClipLoader";
-import api from "../api";
+import api, {DICTIONARY_SOUND_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
+import {TRANSLATION_PATH} from "../api";
 import Tooltip from '../shared/Tooltip';
 
 class TranslateTooltip extends React.PureComponent {
 
   constructor(props) {
     super (props);
+    this.state = {
+      isTranslationRequest: false,
+      translatedWord: null,
+      isAddToDictionaryRequest: false,
+      isRemoveFromDictionaryRequest: false
+    };
     this.audio = null;
   }
 
+  componentDidMount() {
+    if (this.props.innerRef) this.props.innerRef(this);
+  }
+
   playSound = async () => {
-    const {translatedWord} = this.props;
+    const {translatedWord} = this.state;
     if (this.audio == null) {
       if (translatedWord.soundUrl == null) {
-        let result = await api.get(`/dictionary/sound/path?text=${translatedWord.word}&lang=${translatedWord.language}`);
+        let result = await api.get(`${DICTIONARY_SOUND_PATH}?text=${translatedWord.text}&lang=${translatedWord.language}`);
         this.audio = new Audio(result.data.url);
       } else {
         this.audio = new Audio(translatedWord.soundUrl);
@@ -30,24 +41,48 @@ class TranslateTooltip extends React.PureComponent {
     this.audio.play();
   };
 
-  addToDictionary = async () => {
-    try {
-      console.log("added")
-    } catch (e) {
-      console.error(e);
-    }
+  addToDictionary =  () => {
+    this.setState({isAddToDictionaryRequest: true}, () => {
+      api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.language, to: "RU", word: this.props.word})
+        .then(r => {
+          this.setState({translatedWord: {...this.state.translatedWord, inUserDict: true, userDictId: r.data.id}, isAddToDictionaryRequest: false})
+        })
+        .catch(() => {
+          this.setState({isAddToDictionaryRequest: false})
+        })
+    })
   };
 
-  removeFromDictionary = async () => {
+  getTranslation = (word) => {
+    this.setState({isTranslationRequest: true}, () => {
+      api.get(`${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=RU`)
+        .then((r) => {
+          this.setState({isTranslationRequest: false, translatedWord: r.data});
+        }).catch(() => {
+          this.setState({isTranslationRequest: false});
+      })
+    });
+  };
 
+  removeFromDictionary = () => {
+    this.setState({isRemoveFromDictionaryRequest: true}, () => {
+      api.delete(`${USER_DICTIONARY_WORD_PATH}/${this.state.translatedWord.userDictId}`)
+        .then(() => {
+          this.setState({isRemoveFromDictionaryRequest: false, translatedWord: {...this.state.translatedWord, inUserDict: false}});
+        })
+        .catch(() => {
+          this.setState({isRemoveFromDictionaryRequest: false});
+        })
+    })
   };
 
   render() {
-    const {translatedWord, classes, word, loading} = this.props;
+    const {classes, word} = this.props;
+    const {isTranslationRequest, translatedWord} = this.state;
 
     return (
       <div className={classes.wrapper}>
-        {!loading  && translatedWord ?
+        {!isTranslationRequest  && translatedWord ?
           <React.Fragment>
             <Grid container direction={"row"} wrap={"nowrap"} justify={"space-between"} className={classes.header}
                   alignItems={"center"}>
@@ -61,11 +96,11 @@ class TranslateTooltip extends React.PureComponent {
                   </Tooltip>
                   {!translatedWord.inUserDict ? (
                     <Tooltip placement={"top"} title={"Add to dictionary"}>
-                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.removeFromDictionary}/>
+                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
                     </Tooltip>
                   ) : (
                     <Tooltip placement={"top"} title={"Remove from dictionary"}>
-                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.addToDictionary}/>
+                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
                     </Tooltip>
                   )}
                 </Grid>
@@ -103,8 +138,8 @@ class TranslateTooltip extends React.PureComponent {
 TranslateTooltip.propTypes = {
   classes: PropTypes.object,
   word: PropTypes.string,
-  translatedWord: PropTypes.object,
-  loading: PropTypes.bool
+  innerRef: PropTypes.func,
+  language: PropTypes.string
 };
 
 export default withStyles(style)(TranslateTooltip);

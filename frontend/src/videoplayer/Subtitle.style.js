@@ -17,18 +17,18 @@ export const styles = (theme) => ({
     lineHeight: "1.5rem",
       [theme.breakpoints.up('sm')]: {
       fontSize: 20,
-      paddingTop: 7,
-      paddingBottom: 7,
+      // paddingTop: 7,
+      // paddingBottom: 7,
     },
     [theme.breakpoints.up('md')]: {
       fontSize: 25,
-      paddingTop: 9,
-      paddingBottom: 9
+      // paddingTop: 9,
+      // paddingBottom: 9
     },
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
-      paddingTop: 2,
-      paddingBottom: 2,
+      // paddingTop: 2,
+      // paddingBottom: 2,
       lineHeight: "1.2rem",
     },
     // "&::selection": {

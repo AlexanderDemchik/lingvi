@@ -12,27 +12,10 @@ import PropTypes from "prop-types";
 
 class Controls extends React.Component {
 
-  constructor (props) {
-    super (props);
-    this.state = {
-      settingsOpen: false,
-      subtitlesOpen: false,
-    }
-  }
-
-  changeSettingsOpenState = (state) => {
-    this.setState({settingsOpen: state});
-  };
-
-  changeSubtitlesOpenState = (state) => {
-    this.setState({subtitlesOpen: state});
-  };
-
   render() {
     const {played, changePlayed, buffered, duration, classes, volume, changeVolume, playing, changePlaying, fullScreen,
           enterFullScreen, exitFullScreen, className, spritesUrl, selectedSubtitles, changeSubtitles, availableQualities,
-          changeQuality, currentQuality, qualityAutoSwitch} = this.props;
-    const {settingsOpen, subtitlesOpen} = this.state;
+          changeQuality, currentQuality, qualityAutoSwitch, settingsOpen, subtitlesOpen, changeSettingsOpenState, changeSubtitlesOpenState} = this.props;
 
     return (
       <div className={classes.controlsWrapper}>
@@ -61,12 +44,12 @@ class Controls extends React.Component {
               <Grid item>
                 <Grid item container direction={"row"} justify={"flex-end"} alignItems={"center"} spacing={8}>
                   <Grid item className={classes.controlsMenuWrapper}>
-                    <SubtitlesMenu open={subtitlesOpen} changeOpenState={this.changeSubtitlesOpenState} availableSubtitles={["RU", "EN"]} selectedSubtitles={selectedSubtitles} changeSubtitles={changeSubtitles}>
-                      <Icon path={mdiSubtitles} className={`${classes.icon} ${subtitlesOpen && classes.subtitlesOpen}`} onClick={() => this.changeSubtitlesOpenState(!subtitlesOpen)}/>
+                    <SubtitlesMenu open={subtitlesOpen} changeOpenState={changeSubtitlesOpenState} availableSubtitles={["RU", "EN"]} selectedSubtitles={selectedSubtitles} changeSubtitles={changeSubtitles}>
+                      <Icon path={mdiSubtitles} className={`${classes.icon} ${subtitlesOpen && classes.subtitlesOpen}`} onClick={() => changeSubtitlesOpenState(!subtitlesOpen)}/>
                     </SubtitlesMenu>
                   </Grid>
                   <Grid item>
-                    <Settings open={settingsOpen} changeOpenState={this.changeSettingsOpenState} availableQualities={availableQualities} currentQuality={currentQuality} changeQuality={changeQuality} qualityAutoSwitch={qualityAutoSwitch}/>
+                    <Settings open={settingsOpen} changeOpenState={changeSettingsOpenState} availableQualities={availableQualities} currentQuality={currentQuality} changeQuality={changeQuality} qualityAutoSwitch={qualityAutoSwitch}/>
                   </Grid>
                   <Grid item>
                     {

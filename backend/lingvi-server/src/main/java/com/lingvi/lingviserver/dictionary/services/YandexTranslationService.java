@@ -114,7 +114,7 @@ public class YandexTranslationService implements TranslationService { //yandex s
             List<Translation> translations = new LinkedList<>();
             JsonNode firstDef = defNode.get(0);
             Word word = new Word();
-            word.setWord(text);
+            word.setText(text);
             word.setLanguage(fromLang);
             if (firstDef.get("ts") != null) word.setTranscription(firstDef.get("ts").textValue());
 

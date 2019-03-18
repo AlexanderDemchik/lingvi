@@ -11,9 +11,6 @@ export const style = (theme) => ({
     cursor: "pointer",
     fill: "#DAE8EF",
     transition: "linear 0.2s fill",
-    "&:hover": {
-      fill: theme.palette.primary.main
-    }
   },
   wrapper: {
     backgroundColor: "rgba(28,28,28,0.99)",

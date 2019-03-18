@@ -4,7 +4,6 @@ import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.video.entities.VideoType;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -15,19 +14,13 @@ public class Video {
     private Long id;
 
     @Column
-    private Integer season;
+    private String rootUrl;
 
     @Column
-    private Integer episode;
+    private String relativePath;
 
     @Column
-    private VideoType type = VideoType.FILM;
-
-    @Column
-    private String link;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "video")
-    private List<VideoInfo> videoInfos = new ArrayList<>();
+    private VideoType videoType;
 
     @ElementCollection
     @CollectionTable(name = "video_qualities", joinColumns = @JoinColumn(name="video_id"))
@@ -47,30 +40,6 @@ public class Video {
         this.id = id;
     }
 
-    public Integer getSeason() {
-        return season;
-    }
-
-    public void setSeason(Integer season) {
-        this.season = season;
-    }
-
-    public Integer getEpisode() {
-        return episode;
-    }
-
-    public void setEpisode(Integer episode) {
-        this.episode = episode;
-    }
-
-    public VideoType getType() {
-        return type;
-    }
-
-    public void setType(VideoType type) {
-        this.type = type;
-    }
-
     public List<Integer> getQualities() {
         return qualities;
     }
@@ -87,11 +56,27 @@ public class Video {
         this.subtitles = subtitles;
     }
 
-    public void setLink(String link) {
-        this.link = link;
+    public String getRootUrl() {
+        return rootUrl;
     }
 
-    public String getLink() {
-        return link;
+    public void setRootUrl(String rootUrl) {
+        this.rootUrl = rootUrl;
+    }
+
+    public String getRelativePath() {
+        return relativePath;
+    }
+
+    public void setRelativePath(String relativePath) {
+        this.relativePath = relativePath;
+    }
+
+    public VideoType getVideoType() {
+        return videoType;
+    }
+
+    public void setVideoType(VideoType videoType) {
+        this.videoType = videoType;
     }
 }

@@ -17,7 +17,7 @@ export const theme = createMuiTheme({
       // contrastText: will be calculated to contrast with palette.primary.main
     },
     success: {
-      main: "#193921"
+      main: "#379c4d"
     }
   },
   typography: {

@@ -12,11 +12,12 @@ import RegisterForm from "./containers/RegisterForm";
 import CreateAccountForm from "./containers/CreateAccountForm";
 import RestoreForm from "./containers/RestoreForm";
 import VideoPlayer from "../videoplayer/VideoPlayer";
+import {withTranslation} from "react-i18next";
 
 class WelcomePage extends Component {
 
   render() {
-    const {classes, openLoginForm, openRegisterForm} = this.props;
+    const {classes, openLoginForm, openRegisterForm, t} = this.props;
     return (
       <React.Fragment>
         <RestoreForm/>
@@ -34,6 +35,7 @@ class WelcomePage extends Component {
             <Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>
           </div>
         </div>
+        {t("key")}
         <VideoPlayer url={"http://localhost/video/gameofthrones/season1/episode1/1080/test.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
         {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
        {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
@@ -49,4 +51,4 @@ const mapDispatchToProps = (dispatch) => ({
   openRegisterForm: () => dispatch(openRegisterForm())
 });
 
-export default compose(withStyles(style), connect(null, mapDispatchToProps))(WelcomePage);
+export default compose( withTranslation(), withStyles(style), connect(null, mapDispatchToProps))(WelcomePage);

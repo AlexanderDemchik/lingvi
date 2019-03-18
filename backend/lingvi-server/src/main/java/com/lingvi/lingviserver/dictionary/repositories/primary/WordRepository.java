@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface WordRepository extends CrudRepository<Word, Long> {
-    Word findByWordIgnoreCaseAndLanguage(String word, Language language);
+    Word findByTextIgnoreCaseAndLanguage(String text, Language language);
 }

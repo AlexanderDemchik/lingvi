@@ -17,14 +17,14 @@ class TranslateableWord extends React.PureComponent {
       isMouseOver: false,
       isLeft: false,
       isRight: false,
-      isTranslationRequest: false,
-      translationResult: null
     };
     this.ref = null;
+    this.tooltipRef = null;
   }
 
   componentDidMount() {
     this.alignPopper();
+    console.log(this.tooltipRef)
   }
 
   componentDidUpdate(nextState, nextProps, nextSnapshot) {
@@ -69,12 +69,11 @@ class TranslateableWord extends React.PureComponent {
   };
 
   onMouseEnter = () => {
-    const {isTranslationRequest, translationResult} = this.state;
     const {disabled} = this.props;
 
     this.setState({isMouseOver: true}, () => {
-      if (!isTranslationRequest && (translationResult == null) && !disabled) {
-        this.getTranslation(this.props.children);
+      if (!disabled) {
+        this.tooltipRef.getTranslation(this.props.children);
       }
     });
   };
@@ -83,27 +82,16 @@ class TranslateableWord extends React.PureComponent {
     this.setState({isMouseOver: false});
   };
 
-  getTranslation = (word) => {
-    this.setState({isTranslationRequest: true}, () => {
-      api.get(`http://localhost:8080/dictionary/translation?text=${word}&from=EN&to=RU`)
-        .then((r) => {
-          this.setState({isTranslationRequest: false, translationResult: r.data});
-        }).catch((err) => {
-          this.setState({isTranslationRequest: false});
-        })
-    });
-  };
-
   render() {
-    const {children, classes, disabled} = this.props;
-    const {isMouseOver, isRight, isLeft, isTranslationRequest, translationResult} = this.state;
+    const {children, classes, disabled, language} = this.props;
+    const {isMouseOver, isRight, isLeft} = this.state;
     return (
       <TouchAwayListener onTouchAway={this.onTouchOutside}>
         <span ref={ref => this.ref = ref} onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onTouchEnd={this.onMouseEnter} className={classes.wordWrapper}>
           <span className={`${classes.word} ${isMouseOver && !disabled && classes.active}`}>{children}</span>
           {!this.props.disabled &&
             <div className={classNames({[classes.hidden]: !isMouseOver || disabled}, classes.popper, {[classes.left]: isLeft}, {[classes.right]: isRight}, classes.popperTop)}>
-              {<TranslateTooltip word={children} translatedWord={translationResult} loading={isTranslationRequest}/>}
+              {<TranslateTooltip innerRef={ref => this.tooltipRef = ref} word={children} language={language}/>}
             </div>
           }
         </span>
@@ -125,9 +113,8 @@ TranslateableWord.propTypes = {
   classes: PropTypes.object,
   disabled: PropTypes.bool,//show or no translation
   onMouseEnter: PropTypes.func,//callback,
-  onMouseLeave: PropTypes.func//callback
+  onMouseLeave: PropTypes.func,//callback
+  language: PropTypes.string
 };
-
-
 
 export default withStyles(styles)(TranslateableWord);

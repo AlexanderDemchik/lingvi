@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Common dictionary word
+ * Common dictionary text
  */
 @Entity(name = "dictionary")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"word", "language"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"text", "language"}))
 public class Word implements Serializable {
 
     @Id
@@ -19,7 +19,7 @@ public class Word implements Serializable {
     private Long id;
 
     @Column
-    private String word;
+    private String text;
 
     @Column
     private String transcription;
@@ -40,14 +40,14 @@ public class Word implements Serializable {
     public Word() {
     }
 
-    public Word(String word, Language language, List<Translation> translations) {
-        this.word = word;
+    public Word(String text, Language language, List<Translation> translations) {
+        this.text = text;
         this.language = language;
         this.translations = translations;
     }
 
-    public Word(Long id, String word, Language language, List<Translation> translations) {
-        this.word = word;
+    public Word(Long id, String text, Language language, List<Translation> translations) {
+        this.text = text;
         this.language = language;
         this.translations = translations;
     }
@@ -68,12 +68,12 @@ public class Word implements Serializable {
         this.translations = translations;
     }
 
-    public String getWord() {
-        return word;
+    public String getText() {
+        return text;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getTranscription() {
@@ -96,7 +96,7 @@ public class Word implements Serializable {
     public String toString() {
         return "Word{" +
                 "id=" + id +
-                ", word='" + word + '\'' +
+                ", text='" + text + '\'' +
                 ", transcription='" + transcription + '\'' +
                 ", language=" + language +
                 ", translations=" + translations +

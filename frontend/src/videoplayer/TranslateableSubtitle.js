@@ -57,6 +57,7 @@ class TranslateableSubtitle extends React.PureComponent {
   //divide string to translateable words
   divide(str) {
     const {isSelectionProceed, selectionValue} = this.state;
+    const {language} = this.props;
     const DIVIDERS = ["?", ",", ".", " ", "<", ">", "\"", "!", "-", "«", "»", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":"];
     let result = [];
     for(let i = 0; i < str.length; i++) {
@@ -66,7 +67,7 @@ class TranslateableSubtitle extends React.PureComponent {
           word += str.charAt(i);
           i++;
         } while (str.charAt(i) !== "" && DIVIDERS.indexOf(str.charAt(i)) === -1);
-        result.push(<TranslateableWord key={i} left={this.state.left} right={this.state.right} disabled={isSelectionProceed || selectionValue.length > 0}>{word}</TranslateableWord>);
+        result.push(<TranslateableWord key={i} left={this.state.left} right={this.state.right} disabled={isSelectionProceed || selectionValue.length > 0} language={language}>{word}</TranslateableWord>);
         result.push(str.charAt(i));
       } else {
         result.push(str.charAt(i))
@@ -99,11 +100,11 @@ class TranslateableSubtitle extends React.PureComponent {
   };
 
   render() {
-    const {classes} = this.props;
+    const {classes, language} = this.props;
     const {content} = this.state;
     return (
       <div onMouseEnter={this.onMouseEnter} onMouseLeave={this.onMouseLeave} onTouchEnd={this.onTouchEnd}>
-        <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onIsSelectionChange={this.onIsSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}}>
+        <Translateable rootRef={ref => this.translateableRef = ref} onSelectionChange={this.onSelectionChange} onIsSelectionChange={this.onIsSelectionChange} onTouchAway={() => {clearSelection(this.translateableRef)}} language={language}>
           <div ref={ref => this.ref = ref} className={classes.subtitle}>
             {(content && content.length > 0) &&
               <Typography component={"div"} color={"inherit"} classes={{root: classes.text}}>

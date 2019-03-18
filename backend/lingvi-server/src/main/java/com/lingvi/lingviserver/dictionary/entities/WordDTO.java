@@ -16,7 +16,7 @@ public class WordDTO implements Serializable {
 
     private Long id;
 
-    private String word;
+    private String text;
 
     private String transcription;
 
@@ -28,26 +28,26 @@ public class WordDTO implements Serializable {
 
     private List<Sound> sounds = new ArrayList<>();
 
-    public WordDTO(Word word) {
-        this.id = word.getId();
-        this.word = word.getWord();
-        this.transcription = word.getTranscription();
-        this.language = word.getLanguage();
+    public WordDTO(Word text) {
+        this.id = text.getId();
+        this.text = text.getText();
+        this.transcription = text.getTranscription();
+        this.language = text.getLanguage();
 
-        if (word.getLemma() != null) {
-            lemma = new WordDTO(word.getLemma());
+        if (text.getLemma() != null) {
+            lemma = new WordDTO(text.getLemma());
         }
     }
 
-    public WordDTO(Word word, List<Translation> translations) {
-        this.id = word.getId();
-        this.word = word.getWord();
-        this.transcription = word.getTranscription();
-        this.language = word.getLanguage();
+    public WordDTO(Word text, List<Translation> translations) {
+        this.id = text.getId();
+        this.text = text.getText();
+        this.transcription = text.getTranscription();
+        this.language = text.getLanguage();
         this.translations = translations;
 
-        if (word.getLemma() != null) {
-            lemma = new WordDTO(word.getLemma());
+        if (text.getLemma() != null) {
+            lemma = new WordDTO(text.getLemma());
         }
     }
 
@@ -59,12 +59,12 @@ public class WordDTO implements Serializable {
         this.id = id;
     }
 
-    public String getWord() {
-        return word;
+    public String getText() {
+        return text;
     }
 
-    public void setWord(String word) {
-        this.word = word;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getTranscription() {

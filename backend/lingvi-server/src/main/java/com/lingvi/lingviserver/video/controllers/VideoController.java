@@ -1,9 +1,11 @@
 package com.lingvi.lingviserver.video.controllers;
 
 import com.lingvi.lingviserver.video.config.ControllerPaths;
-import com.lingvi.lingviserver.video.entities.primary.Video;
+import com.lingvi.lingviserver.video.entities.primary.Show;
 import com.lingvi.lingviserver.video.services.VideoService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping(ControllerPaths.VIDEO)
@@ -15,43 +17,18 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @PostMapping
-    public Video createVideo(@RequestBody Video video) {
-        return videoService.createVideo(video);
+    @PostMapping(ControllerPaths.SHOW)
+    public Show createShow(@RequestBody Show show) {
+        return videoService.createShow(show);
     }
 
-    @PutMapping("/{videoId}")
-    public void updateVideo(@PathVariable Long videoId) {
-
+    @GetMapping(ControllerPaths.SHOW)
+    public List<Show> getShows() {
+        return videoService.getShows();
     }
 
-    @DeleteMapping("/{videoId}")
-    public void deleteVideo(@PathVariable Long videoId) {
-
-    }
-
-    @GetMapping("/{videoId}")
-    public void getVideoById(@PathVariable Long videoId) {
-
-    }
-
-    @PostMapping("/{videoId}" + ControllerPaths.QUALITY)
-    public void addQuality() {
-
-    }
-
-    @DeleteMapping("/{videoId}" + ControllerPaths.QUALITY)
-    public void deleteQuality() {
-
-    }
-
-    @PostMapping("/{videoId}" + ControllerPaths.SUBTITLE)
-    public void addSubtitle() {
-
-    }
-
-    @DeleteMapping("/{videoId}" + ControllerPaths.SUBTITLE)
-    public void deleteSubtitle() {
-
+    @GetMapping(ControllerPaths.SHOW + "/{id}")
+    public Show getShowById(@PathVariable Long id) {
+        return videoService.getShowById(id);
     }
 }

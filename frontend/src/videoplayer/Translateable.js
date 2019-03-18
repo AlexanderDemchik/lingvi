@@ -16,14 +16,13 @@ class Translateable extends React.Component {
     this.state = {
       selectedText: "", // currently selected text
       isSelection: false, // mark if selection currently proceed
-      isTranslationRequest: false,
-      translationResult: null,
       isMouseDown: false,
       popperLeftOffset: 0
     };
     this.checkInterval = null;
     this.prevSelectedText = "";
     this.ref = null;
+    this.tooltipRef = null;
   }
 
   componentDidMount() {
@@ -55,17 +54,6 @@ class Translateable extends React.Component {
     return "";
   };
 
-  getTranslation = (word) => {
-    this.setState({isTranslationRequest: true}, () => {
-      api.get(`http://localhost:8080/dictionary/translation?text=${word}&from=EN&to=RU`)
-        .then((r) => {
-          this.setState({isTranslationRequest: false, translationResult: r.data});
-        }).catch(() => {
-          this.setState({isTranslationRequest: false});
-      })
-    });
-  };
-
   onResize = debounce(() => {
     this.setState({left: this.ref.getBoundingClientRect().left});
     this.setState({right: this.ref.getBoundingClientRect().right});
@@ -87,17 +75,11 @@ class Translateable extends React.Component {
     const {selectedText} = this.state;
     this.setState({isMouseDown: false});
     clearInterval(this.checkInterval);
-    // if(selectedText.length === 0) {
       this.onChangeIsSelection(false, () => {
         if (selectedText.length > 0 && selectedText !== this.prevSelectedText) {
-          this.getTranslation(selectedText);
+          this.tooltipRef.getTranslation(selectedText);
         }
       });
-    // } else {
-    //   if (selectedText.length > 0) {
-    //     this.getTranslation(selectedText);
-    //   }
-    // }
   };
 
   onMouseLeave = () => {
@@ -120,8 +102,8 @@ class Translateable extends React.Component {
   }, 10);
 
   render() {
-    const {selectedText, isSelection, isTranslationRequest, translationResult} = this.state;
-    const {children, classes, onTouchAway} = this.props;
+    const {selectedText, isSelection} = this.state;
+    const {children, classes, onTouchAway, language} = this.props;
     return (
       <TouchAwayListener onTouchAway={onTouchAway}>
         <div ref={ref => this.ref = ref} style={{position: "relative"}} onMouseDown={this.onMouseDown} onMouseLeave={() => {
@@ -133,7 +115,7 @@ class Translateable extends React.Component {
           {children}
           {!isSelection && selectedText.length > 0 &&
             <div className={`${classes.popper} ${classes.popperTop}`} style={{left: this.state.popperLeftOffset}}>
-               <TranslateTooltip word={selectedText} translatedWord={translationResult} loading={isTranslationRequest}/>
+               <TranslateTooltip word={selectedText} innerRef={ref => this.tooltipRef = ref} language={language}/>
             </div>
             }
         </div>
@@ -145,6 +127,7 @@ class Translateable extends React.Component {
 Translateable.propTypes = {
   onSelectionChange: PropTypes.func,
   onIsSelectionChange: PropTypes.func,
+  language: PropTypes.string
 };
 
 export default withStyles(style)(Translateable);

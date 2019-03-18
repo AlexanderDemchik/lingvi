@@ -1,9 +1,6 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -19,7 +16,6 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 public class UserWord {
 
-    @JsonIgnore
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,12 +23,11 @@ public class UserWord {
     @Column
     private String context;
 
-    @JsonIdentityInfo(generator= ObjectIdGenerators.PropertyGenerator.class, property="id")
-    @JsonIdentityReference(alwaysAsId=true)
+    @JsonIgnoreProperties({"translations", "lemma", "sounds", "hibernateLazyInitializer"})
     @OneToOne(fetch = FetchType.LAZY)
     private Word word;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Translation> userTranslations = new ArrayList<>();
 
     @CreatedDate
@@ -89,5 +84,17 @@ public class UserWord {
 
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
+    }
+
+    @Override
+    public String toString() {
+        return "UserWord{" +
+                "id=" + id +
+                ", context='" + context + '\'' +
+                ", word=" + word +
+                ", userTranslations=" + userTranslations +
+                ", createdDate=" + createdDate +
+                ", accountId=" + accountId +
+                '}';
     }
 }
