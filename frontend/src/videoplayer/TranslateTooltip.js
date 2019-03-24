@@ -6,7 +6,7 @@ import {mdiVolumeHigh, mdiBookPlus, mdiBookRemove} from "@mdi/js";
 import {Icon} from "@mdi/react";
 import PropTypes from "prop-types";
 import ClipLoader from "react-spinners/ClipLoader";
-import api, {DICTIONARY_SOUND_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
+import api, {DICTIONARY_PATH, DICTIONARY_SOUND_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
 import {TRANSLATION_PATH} from "../api";
 import Tooltip from '../shared/Tooltip';
 
@@ -55,7 +55,7 @@ class TranslateTooltip extends React.PureComponent {
 
   getTranslation = (word) => {
     this.setState({isTranslationRequest: true}, () => {
-      api.get(`${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=RU`)
+      api.get(`${DICTIONARY_PATH}${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=RU`)
         .then((r) => {
           this.setState({isTranslationRequest: false, translatedWord: r.data});
         }).catch(() => {

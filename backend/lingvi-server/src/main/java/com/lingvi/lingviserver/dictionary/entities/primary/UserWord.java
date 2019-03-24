@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.lingvi.lingviserver.commons.entities.Language;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -14,6 +15,7 @@ import java.util.List;
  */
 @Entity(name = "user_dictionary")
 @EntityListeners(AuditingEntityListener.class)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"word_id", "translation_language", "accountid"}))
 public class UserWord {
 
     @Id
@@ -25,6 +27,7 @@ public class UserWord {
 
     @JsonIgnoreProperties({"translations", "lemma", "sounds", "hibernateLazyInitializer"})
     @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "word_id")
     private Word word;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -35,8 +38,11 @@ public class UserWord {
     @Column
     private Date createdDate;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "accountid")
     private Long accountId;
+
+    @Column(name = "translation_language")
+    private Language translationLanguage;
 
     public Long getId() {
         return id;
@@ -84,6 +90,14 @@ public class UserWord {
 
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public Language getTranslationLanguage() {
+        return translationLanguage;
+    }
+
+    public void setTranslationLanguage(Language translationLanguage) {
+        this.translationLanguage = translationLanguage;
     }
 
     @Override

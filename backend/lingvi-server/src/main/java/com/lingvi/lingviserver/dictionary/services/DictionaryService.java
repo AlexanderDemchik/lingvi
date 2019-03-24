@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -87,7 +88,37 @@ public class DictionaryService {
 
         Word translated;
         if((translated = wordRepository.findByTextIgnoreCaseAndLanguage(text, from)) != null) {
-            return translated;
+            List<Translation> translations = translationRepository.findByWordAndLanguageAndSourceIn(translated, to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+            if (translations.size() == 0) {
+                CompletableFuture<Translation> translatorResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadTranslation(text, from, to));
+                CompletableFuture<Word> dictionaryResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadDictionaryTranslations(text, from, to));
+                CompletableFuture.allOf(translatorResponse, dictionaryResponse).join();
+
+                try {
+                    Word translatedWordFromDict = dictionaryResponse.get();
+                    Translation translationFromTranslator = translatorResponse.get();
+                    List<Translation> translationsFromDict;
+
+                    if (translatedWordFromDict != null) {
+                        translationsFromDict = translatedWordFromDict.getTranslations();
+                        for (Translation translation: translationsFromDict) {
+                            translation.setWord(translated);
+                            translationRepository.save(translation);
+                        }
+                    }
+
+                    translationFromTranslator.setWord(translated);
+                    translationRepository.save(translationFromTranslator);
+                    return translated;
+
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                    throw new ApiError("Error", HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
+            } else {
+                return translated;
+            }
         } else {
             CompletableFuture<Translation> translatorResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadTranslation(text, from, to));
             CompletableFuture<Word> dictionaryResponse = CompletableFuture.supplyAsync(() -> yandexTranslationService.loadDictionaryTranslations(text, from, to));
@@ -176,7 +207,7 @@ public class DictionaryService {
 
         if (word.getId() != null) { //it's already saved word
             // we need translations only from translator or dictionary, cause in the future i planned add translations from user
-            resultTranslations = translationRepository.findByWordAndSourceIn(word, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+            resultTranslations = translationRepository.findByWordAndLanguageAndSourceIn(word, to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
         } else { //it's not saved sequence
             resultTranslations = word.getTranslations();
         }
@@ -256,7 +287,7 @@ public class DictionaryService {
         if (word.getId() != null) {
             // check if user already have word in his dictionary
             UserWord userWord;
-            if ((userWord = userWordRepository.findByWordIdAndWordLanguageAndAccountId(word.getId(), word.getLanguage(), userId)) != null) {
+            if ((userWord = userWordRepository.findByWordIdAndWordLanguageAndTranslationLanguageAndAccountId(word.getId(), word.getLanguage(), to, userId)) != null) {
                 isInUserDict = true;
                 userDictId = userWord.getId();
             }
@@ -338,7 +369,7 @@ public class DictionaryService {
             }
 
             List<Translation> userTranslations;
-            List<Translation> wordTranslations = w.getTranslations();
+            List<Translation> wordTranslations = translationRepository.findByWordAndLanguageAndSourceIn(w, to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
 
             if (wordTranslations.size() == 1) {
                 userTranslations = wordTranslations;
@@ -372,6 +403,7 @@ public class DictionaryService {
             userWord.setUserTranslations(userTranslations);
         }
 
+        userWord.setTranslationLanguage(to);
         userWord.setAccountId(userId);
         userWordRepository.save(userWord);
         return userWord;
@@ -474,9 +506,23 @@ public class DictionaryService {
      * Remove word from user dictionary by word id
      * @param wordId word id
      */
+    @Transactional
     public void removeWordFromUserDictionary(Long wordId) {
-        userWordRepository.deleteById(wordId);
+        userWordRepository.deleteByIdAndAccountId(wordId, getUserId());
     }
+
+    /**
+     * Remove collection of words from user dictionary by word id
+     * @param wordIds collection of word ids to be deleted
+     */
+    @Transactional
+    public void bactchRemoveWordsFromUserDictionary(List<Long> wordIds) {
+        Long userId = getUserId();
+        for (Long id: wordIds) {
+            userWordRepository.deleteByIdAndAccountId(id, userId);
+        }
+    }
+
 
     /**
      * @param wordId user word id
@@ -520,11 +566,13 @@ public class DictionaryService {
         }
     }
 
-    public UserWordSliceResponse getUserDictionaryWords(int page, int limit) {
-        return new UserWordSliceResponse(userWordRepository.findByAccountId(getUserId(), PageRequest.of(page, limit, Sort.by("createdDate"))));
+    public UserWordSliceResponse getUserDictionaryWords(int page, int limit, String filter, Language fromLang, Language toLang) {
+        filter = filter.trim();
+        return new UserWordSliceResponse(userWordRepository.findByAccountIdAndWordTextLikeAndWordLanguageAndTranslationLanguage(getUserId(), "%" + filter + "%", fromLang, toLang, PageRequest.of(page, limit, Sort.Direction.DESC, "createdDate")));
     }
 
-    public List<Long> getAllUserWordIds() {
-        return userWordRepository.findAllIds();
+    public List<Long> getAllUserWordIds(String filter, Language fromLang, Language toLang) {
+        filter = filter.trim();
+        return userWordRepository.findAllIds(filter, fromLang, toLang);
     }
 }

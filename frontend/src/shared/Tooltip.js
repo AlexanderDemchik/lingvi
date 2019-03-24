@@ -2,6 +2,7 @@ import React from "react";
 import {Tooltip as MuiTooltip} from "@material-ui/core";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {style} from "./Tooltip.style";
+import PropTypes from "prop-types";
 
 class Tooltip extends React.Component {
   state = {
@@ -50,5 +51,10 @@ class Tooltip extends React.Component {
     )
   }
 }
+
+Tooltip.propTypes = {
+  title: PropTypes.any
+};
+
 
 export default withStyles(style)(Tooltip);

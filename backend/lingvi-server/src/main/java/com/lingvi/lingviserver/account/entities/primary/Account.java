@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.account.entities.primary;
 
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.security.entities.primary.User;
 import javax.persistence.*;
 
@@ -32,6 +33,12 @@ public class Account {
 
     @Column
     private String gender;
+
+    @Column
+    private Language translationLanguage;
+
+    @Column
+    private Language uiLanguage;
 
     public Account() {
     }
@@ -100,6 +107,22 @@ public class Account {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public Language getTranslationLanguage() {
+        return translationLanguage;
+    }
+
+    public void setTranslationLanguage(Language translationLanguage) {
+        this.translationLanguage = translationLanguage;
+    }
+
+    public Language getUiLanguage() {
+        return uiLanguage;
+    }
+
+    public void setUiLanguage(Language uiLanguage) {
+        this.uiLanguage = uiLanguage;
     }
 
     @Override

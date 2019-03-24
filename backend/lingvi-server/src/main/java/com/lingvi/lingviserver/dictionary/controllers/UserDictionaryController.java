@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.dictionary.controllers;
 
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
 import com.lingvi.lingviserver.dictionary.entities.UserDictionaryAddWordRequest;
 import com.lingvi.lingviserver.dictionary.entities.UserWordSliceResponse;
@@ -31,14 +32,19 @@ public class UserDictionaryController {
         dictionaryService.removeWordFromUserDictionary(wordId);
     }
 
+    @DeleteMapping(ControllerPaths.WORD)
+    public void batchRemoveWordsFromUserDict(@RequestParam List<Long> ids) {
+        dictionaryService.bactchRemoveWordsFromUserDictionary(ids);
+    }
+
     @GetMapping(ControllerPaths.WORD + ControllerPaths.ID)
-    public List<Long> getAllUserWordIds() {
-        return dictionaryService.getAllUserWordIds();
+    public List<Long> getAllUserWordIds(@RequestParam(required = false, defaultValue = "") String filter, @RequestParam Language from, @RequestParam Language to) {
+        return dictionaryService.getAllUserWordIds(filter, from, to);
     }
 
     @GetMapping(ControllerPaths.WORD)
-    public UserWordSliceResponse getUserDictionaryWords(@RequestParam int page, @RequestParam int limit) {
-        return dictionaryService.getUserDictionaryWords(page, limit);
+    public UserWordSliceResponse getUserDictionaryWords(@RequestParam int page, @RequestParam int limit, @RequestParam(required = false, defaultValue = "") String filter, @RequestParam Language from, @RequestParam Language to) {
+        return dictionaryService.getUserDictionaryWords(page, limit, filter, from, to);
     }
 
 //    @PutMapping(ControllerPaths.WORD + "/{wordId}" + ControllerPaths.TRANSLATION)

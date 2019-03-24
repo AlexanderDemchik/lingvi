@@ -1,12 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-
 import Backend from 'i18next-xhr-backend';
 import LanguageDetector from 'i18next-browser-languagedetector';
+import {changeUiLanguage} from "./account/actions";
+import store from "./store";
+
 // not like to use this?
 // have a look at the Quick start guide
 // for passing in lng and translations on init
-
 i18n
 // load translation using xhr -> see /public/locales
 // learn more: https://github.com/i18next/i18next-xhr-backend
@@ -31,7 +32,7 @@ i18n
     react: {
       useSuspense: true
     }
-  });
+  }).then(() => store.dispatch(changeUiLanguage(i18n.language)));
 
 
 export default i18n;

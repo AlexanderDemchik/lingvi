@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 import {style} from "./Table.style";
 import withStyles from "@material-ui/core/styles/withStyles";
 import TableRow from "./TableRow";
 import InfiniteScroll from '../../shared/InfiniteScroll';
-import Checkbox from "@material-ui/core/Checkbox/Checkbox";
-import Tooltip from "../../shared/Tooltip";
-import api, {USER_DICTIONARY_WORD_PATH} from "../../api";
+import api, {TRANSLATION_PATH, USER_DICTIONARY_WORD_PATH} from "../../api";
 import TableHeader from "./TableHeader";
+import CardCarousel from "./CardCarousel";
 
 const RECORDS_PER_PAGE = 10;
 
@@ -23,29 +21,37 @@ class Table extends Component {
       allIds: [],
       selected: [],//array of ids
       selectAll: false,
-      isInit: false
+      wordCardOpen: false,
+      wordCardIndex: -1,
+      filter: ""
     };
+    this.ref = null;
   }
 
   componentDidMount() {
-    this.init();
+    this.loadIds(this.state.filter);
   }
 
-  init = async () => {
+  loadIds = async (filter) => { //we need to load all ids, to know user dictionary length, and be able to select all
     try {
-      await this.getAllUserWordIds();
+      await this.getAllUserWordIds(filter);
     } catch (e) {
       console.log("error to load ids")
     }
-    this.setState({isInit: true});
   };
 
-  getUserWords = (page, limit) => {
+  updateAfterFilter = () => {
+    this.setState({records: [], allIds: [], hasMore: true, currentPage: -1}, () => {
+      this.loadIds(this.state.filter);
+    });
+  };
+
+  getUserWords = (page, limit, filter) => {
     let result;
     let currentRecords = this.state.records;
     this.setState({loading: true}, async () => {
       try {
-        result = await api.get(`${USER_DICTIONARY_WORD_PATH}?page=${page}&limit=${limit}`);
+        result = await api.get(`${USER_DICTIONARY_WORD_PATH}?page=${page}&limit=${limit}&filter=${filter}&from=${"EN"}&to=${"RU"}`);
         result = result.data;
         currentRecords.push(...result.content);
         this.setState({records: currentRecords, loading: false, currentPage: result.page, hasMore: !result.last});
@@ -55,8 +61,8 @@ class Table extends Component {
     });
   };
 
-  getAllUserWordIds = () => {
-    return api.get(`${USER_DICTIONARY_WORD_PATH}/id`)
+  getAllUserWordIds = (filter) => {
+    return api.get(`${USER_DICTIONARY_WORD_PATH}/id?filter=${filter}&from=${"EN"}&to=${"RU"}`)
       .then(r => {
         this.setState({allIds: r.data});
       })
@@ -66,9 +72,9 @@ class Table extends Component {
   };
 
   deleteWord = (id) => {
-    const {selected, records} = this.state;
-    return api.delete(`${USER_DICTIONARY_WORD_PATH}/${id}`).then(r => {
-      this.setState({selected: selected.filter((el) => el.id !== id), records: records.filter((el) => el.id !== id)});
+    const {selected, records, allIds} = this.state;
+    return api.delete(`${USER_DICTIONARY_WORD_PATH}/${id}`).then(() => {
+      this.setState({selected: selected.filter((el) => el !== id), records: records.filter((el) => el.id !== id), allIds: allIds.filter((el) => el !== id)});
     });
   };
 
@@ -94,16 +100,47 @@ class Table extends Component {
     }
   };
 
+  onRowClick = (i) => {
+    this.setState({wordCardIndex: i, wordCardOpen: true});
+  };
+
+  onCardIndexChange = (index) => {
+    const {records, currentPage, hasMore, filter} = this.state;
+    this.setState({wordCardIndex: index});
+    if (index === -1) return;
+    if ((records.length - index) <= RECORDS_PER_PAGE && hasMore) {
+      this.getUserWords(currentPage + 1, RECORDS_PER_PAGE, filter);
+    }
+  };
+
+  onFilterChange = (val) => {
+    this.setState({filter: val});
+  };
+
+  removeTranslationFromWord = (wordId, translationId) => {
+    const {records} = this.state;
+    api.delete(`${USER_DICTIONARY_WORD_PATH}/${wordId}${TRANSLATION_PATH}/${translationId}`).then(r => {
+      let values = records;
+      let i = values.findIndex((el) => el.id === wordId);
+      let translations = values[i].userTranslations;
+      values[i].userTranslations = translations.filter((el) => el.id !== translationId);
+      this.setState({records: values});
+    });
+  };
+
   render() {
     const {classes} = this.props;
-    const {selected, records, hasMore, loading, currentPage, isInit, selectAll} = this.state;
+    const {selected, records, hasMore, loading, currentPage, selectAll, wordCardOpen, wordCardIndex, filter, allIds} = this.state;
     return (
       <div className={classes.wrapper}>
-        <TableHeader selected={selected} selectAll={selectAll} onSelectAll={this.onSelectAll} selectAllDisabled={!isInit}/>
-        <InfiniteScroll data={records} loadMore={() => this.getUserWords(currentPage + 1, RECORDS_PER_PAGE)} hasMore={hasMore} isLoading={loading} threshold={300}>
-          {records.map(row => (
-            <TableRow row={row} key={row.id} selected={selected.indexOf(row.id) !== -1} onSelect={() => this.onSelect(row.id)} onDelete={() => this.deleteWord(row.id)}/>
+        <CardCarousel open={wordCardOpen} onClose={() => this.setState({wordCardOpen: false})} values={records} index={wordCardIndex} changeIndex = {this.onCardIndexChange} deleteTranslation={this.removeTranslationFromWord} deleteCard={this.deleteWord}/>
+        <TableHeader selected={selected} selectAll={selectAll} onSelectAll={this.onSelectAll} selectAllDisabled={allIds.length === 0} onFilterChange={this.onFilterChange} filterValue={filter} onSearch={this.updateAfterFilter}/>
+        <InfiniteScroll data={records} loadMore={() => this.getUserWords(currentPage + 1, RECORDS_PER_PAGE, filter)} hasMore={hasMore} isLoading={loading} threshold={300}>
+          <div ref={ref => this.ref = ref}>
+          {records.map((row, i) => (
+            <TableRow row={row} key={row.id} i={i} selected={selected.indexOf(row.id) !== -1} onSelect={() => this.onSelect(row.id)} onDelete={() => this.deleteWord(row.id)} onRowClick={() => this.onRowClick(i)}/>
           ))}
+          </div>
         </InfiniteScroll>
       </div>
     );

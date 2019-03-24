@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Fragment} from "react";
 import Tooltip from "./Tooltip";
 import {style} from "./VoiceTranslation.style";
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -31,13 +31,23 @@ class VoiceTranslation extends React.Component {
     this.audio.play();
   };
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.word.id !== this.props.word.id) {
+      this.clearAudio();
+    }
+  }
+
   componentWillUnmount() {
+    this.clearAudio();
+  };
+
+  clearAudio() {
     if (this.audio) {
       this.audio.onplaying = null;
       this.audio.onended = null;
       this.audio = null;
     }
-  };
+  }
 
   onClick = (e) => {
     e.preventDefault();
@@ -47,22 +57,36 @@ class VoiceTranslation extends React.Component {
 
   render() {
     const {playing} = this.state;
-    const {classes, word, children} = this.props;
+    const {classes, word, children, withLabel} = this.props;
     return (
-      <Tooltip placement={"top"} title={word.transcription}>
-        <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
-          {children ? children : <SvgIcon name={"volume"} size={24}/>}
-        </div>
-      </Tooltip>
+      <Fragment>
+        {withLabel ? (
+          <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
+            {children ? children : <SvgIcon name={"volume"} size={24} style={{marginRight: 5}}/>}
+            <span className={`${playing && classes.playing}`}>[{word.transcription}]</span>
+          </div>
+        ) : (
+          <Tooltip placement={"top"} title={word.transcription}>
+            <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
+              {children ? children : <SvgIcon name={"volume"} size={24}/>}
+            </div>
+          </Tooltip>
+        )}
+      </Fragment>
     )
   }
 }
+
+VoiceTranslation.defaultProps = {
+  withLabel: false
+};
 
 VoiceTranslation.propTypes = {
   word: PropTypes.object,
   children: PropTypes.element,
   classes: PropTypes.object,
-  size: PropTypes.number //default icon size
+  size: PropTypes.number, //default icon size
+  withLabel: PropTypes.bool
 };
 
 export default withStyles(style)(VoiceTranslation);

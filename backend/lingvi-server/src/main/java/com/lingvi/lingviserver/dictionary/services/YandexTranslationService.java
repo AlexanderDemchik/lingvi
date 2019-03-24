@@ -1,9 +1,9 @@
 package com.lingvi.lingviserver.dictionary.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.dictionary.config.YandexTranslationApiProperties;
-import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.entities.PartOfSpeech;
 import com.lingvi.lingviserver.dictionary.entities.TranslationSource;
 import com.lingvi.lingviserver.dictionary.entities.YandexTranslateResponse;
@@ -48,7 +48,7 @@ public class YandexTranslationService implements TranslationService { //yandex s
     public Translation loadTranslation(String text, Language fromLang, Language toLang) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexTranslateProperties.getUrl())
                 .queryParam(KEY_PARAM_NAME, yandexTranslateProperties.getApiKey())
-                .queryParam(LANG_PARAM_NAME, fromLang.getValue().concat("-").concat(toLang.getValue()));
+                .queryParam(LANG_PARAM_NAME, mapLanguage(fromLang).concat("-").concat(mapLanguage(toLang)));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -80,7 +80,7 @@ public class YandexTranslationService implements TranslationService { //yandex s
         text = text.toLowerCase();
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexDictionaryProperties.getUrl())
                 .queryParam(KEY_PARAM_NAME, yandexDictionaryProperties.getApiKey())
-                .queryParam(LANG_PARAM_NAME, fromLang.getValue().concat("-").concat(toLang.getValue()))
+                .queryParam(LANG_PARAM_NAME, mapLanguage(fromLang).concat("-").concat(mapLanguage(toLang)))
                 .queryParam(TEXT_PARAM_NAME, text)
                 .queryParam(FLAGS_PARAM_NAME, 13);
 
@@ -154,6 +154,16 @@ public class YandexTranslationService implements TranslationService { //yandex s
             case "pronoun": return PartOfSpeech.PRONOUN;
             case "particle": return PartOfSpeech.PARTICLE;
             default: return null;
+        }
+    }
+
+    private String mapLanguage(Language language) {
+        switch (language) {
+            case EN: return "en";
+            case FR: return "fr";
+            case RU: return "ru";
+            case UA: return "uk";
+            default: return language.getValue();
         }
     }
 }

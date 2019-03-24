@@ -12,9 +12,9 @@ import java.util.List;
 
 @Repository
 public interface UserWordRepository extends PagingAndSortingRepository<UserWord, Long> {
-    UserWord findByWordIdAndWordLanguageAndAccountId(Long wordId, Language language, Long accId);
-    Slice<UserWord> findByAccountId(Long id, Pageable pageable);
-
-    @Query("select id from user_dictionary")
-    List<Long> findAllIds();
+    UserWord findByWordIdAndWordLanguageAndTranslationLanguageAndAccountId(Long wordId, Language wordLanguage, Language trLanguage, Long accId);
+    Slice<UserWord> findByAccountIdAndWordTextLikeAndWordLanguageAndTranslationLanguage(Long id, String text, Language wordLanguage, Language translationLanguage, Pageable pageable);
+    void deleteByIdAndAccountId(Long id, Long accId);
+    @Query("select id from user_dictionary as d where d.word.text like %?1% and d.word.language = ?2 and d.translationLanguage = ?3")
+    List<Long> findAllIds(String text, Language wordLanguage, Language trLanguage);
 }

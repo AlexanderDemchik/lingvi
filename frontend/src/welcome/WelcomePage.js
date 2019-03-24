@@ -36,7 +36,7 @@ class WelcomePage extends Component {
           </div>
         </div>
         {t("key")}
-        <VideoPlayer url={"http://localhost/video/gameofthrones/season1/episode1/1080/test.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
+        <VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
         {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
        {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
         {/*https://youtu.be/L4K0lxVJweU*/}

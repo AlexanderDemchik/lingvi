@@ -14,6 +14,9 @@ public class Show {
     @Column(unique = true)
     private String key;
 
+    @Column
+    private String previewPosterLink;
+
     @OneToMany(mappedBy = "show", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Season> seasons = new ArrayList<>();
 
@@ -39,5 +42,13 @@ public class Show {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getPreviewPosterLink() {
+        return previewPosterLink;
+    }
+
+    public void setPreviewPosterLink(String previewPosterLink) {
+        this.previewPosterLink = previewPosterLink;
     }
 }

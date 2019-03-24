@@ -27,3 +27,9 @@ export const GOOGLE_REGISTER_REF = `https://accounts.google.com/o/oauth2/v2/auth
 export const PROVIDER_LOGIN_EXCEPTION = "PROVIDER_LOGIN_EXCEPTION";
 export const VALIDATION_EXCEPTION = "VALIDATION_EXCEPTION";
 export const USER_NOT_FOUND = "USER_NOT_FOUND";
+
+export const LANGUAGES = {
+  EN: "EN",
+  RU: "RU",
+  UA: "UA"
+};

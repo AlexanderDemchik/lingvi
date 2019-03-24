@@ -253,11 +253,11 @@ class VideoPlayer extends React.Component {
   changeQuality = (quality) => {
     const {availableQualities} = this.state;
     if (quality === -1) {
-      this.hlsRef.nextLevel = -1;
+      this.hlsRef.currentLevel = -1;
       this.setState({qualityAutoSwitch: true})
     } else {
       if (availableQualities.indexOf(quality) !== -1) {
-        this.hlsRef.nextLevel = this.hlsRef.levels.find((level) => level.height === quality).level;
+        this.hlsRef.currentLevel = this.hlsRef.levels.find((level) => level.height === quality).level;
         this.setState({currentQuality: quality, qualityAutoSwitch: false});
       }
     }
@@ -284,7 +284,7 @@ class VideoPlayer extends React.Component {
             <ReactPlayer ref={ref => this.playerRef = ref} playing={playing && !paused} url={url} width={"100%"} height={"100%"}
                          style={{position: "absolute", top: 0, left: 0, backgroundColor: "#000"}}
                          onDuration={this.onDuration} onStart={this.onStart} progressInterval={500}
-                         volume={volume} config={{file: {hlsOptions: {maxBufferLength: 20, maxBufferHole: 0}}}}
+                         volume={volume} config={{file: {hlsOptions: {maxBufferLength: 20, maxBufferHole: 0}, hlsVersion: "0.12.4"}}}
             />
             <div className={`${classes.bottomSubWrapper} ${(this.state.mouseActive || !this.state.playing) && classes.bottomSubMargin}`}>
               {selectedSubtitles.map(subLang => (

@@ -1,5 +1,7 @@
 package com.lingvi.lingviserver.security.entities;
 
+import com.lingvi.lingviserver.account.entities.primary.Account;
+
 /**
  * Model that will return to user after successfully login and register.
  */
@@ -20,10 +22,19 @@ public class AuthResponse {
      */
     private String refreshToken;
 
+    private Account account;
+
     public AuthResponse(Long expireIn, String token, String refreshToken) {
         this.expireIn = expireIn;
         this.token = token;
         this.refreshToken = refreshToken;
+    }
+
+    public AuthResponse(Long expireIn, String token, String refreshToken, Account account) {
+        this.expireIn = expireIn;
+        this.token = token;
+        this.refreshToken = refreshToken;
+        this.account = account;
     }
 
     public Long getExpireIn() {
@@ -48,5 +59,13 @@ public class AuthResponse {
 
     public void setRefreshToken(String refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public Account getAccount() {
+        return account;
+    }
+
+    public void setAccount(Account account) {
+        this.account = account;
     }
 }

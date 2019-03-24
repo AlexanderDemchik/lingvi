@@ -4,7 +4,9 @@ const style = (theme) => ({
     width: "100%",
     minHeight: "60px",
     paddingLeft: "10px",
-    paddingRight: "10px"
+    paddingRight: "10px",
+    // backgroundColor: theme.palette.background.dark,
+    // boxShadow: theme.shadows[3]
   },
   logo: {
     padding: 5,

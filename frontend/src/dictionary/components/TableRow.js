@@ -13,11 +13,12 @@ class TableRow extends Component {
     if (this.props.row === undefined || this.props.row === null) return true;
     if ((nextProps.row.id !== this.props.row.id)) return true;
     if (nextProps.selected !== this.props.selected) return true;
+    if (nextProps.i !== this.props.i) return true;
     return false;
   }
 
   render() {
-    const {classes, row, onSelect, selected, onDelete} = this.props;
+    const {classes, row, onSelect, selected, onDelete, onRowClick} = this.props;
     return (
       <div className={classes.row}>
         <div className={classes.column}>
@@ -26,14 +27,16 @@ class TableRow extends Component {
         <div className={`${classes.column} ${classes.volume}`}>
           <VoiceTranslation word={row.word}/>
         </div>
-        <div className={`${classes.column} ${classes.word}`}>
-          {row.word.text}
-        </div>
-        <div className={`${classes.column} ${classes.delimiter}`}>
-          —
-        </div>
-        <div className={`${classes.column} ${classes.translation}`}>
-          {row.userTranslations.map(tr => tr.translation).join(", ")}
+        <div style={{cursor: "pointer", display: "flex", flexDirection: "row", flexWrap: "nowrap"}} onClick={onRowClick}>
+          <div className={`${classes.column} ${classes.word}`}>
+            {row.word.text}
+          </div>
+          <div className={`${classes.column} ${classes.delimiter}`}>
+            —
+          </div>
+          <div className={`${classes.column} ${classes.translation}`}>
+            {row.userTranslations.map(tr => tr.translation).join(", ")}
+          </div>
         </div>
         <div className={`${classes.column} ${classes.delete}`}>
           <Icon path={mdiDelete} size={1} className={classes.deleteIcon} onClick={onDelete}/>

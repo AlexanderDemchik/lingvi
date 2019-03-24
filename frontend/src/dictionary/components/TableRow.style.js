@@ -4,7 +4,7 @@ export const style = (theme) => ({
     flexWrap: "nowrap",
     height: 50,
     width: "100%",
-    borderBottom: "1px solid rgba(150,150,150)",
+    borderBottom: "1px solid rgba(200,200,200)",
     "&:hover": {
       boxShadow: "1px 3px 19px 0 rgba(150,150,150,1)"
     }

@@ -1,12 +1,10 @@
 import React from "react";
 import classNames from "classnames";
 import withStyles from "@material-ui/core/styles/withStyles";
-import {debounce} from "lodash";
 import PropTypes from "prop-types";
 import {styles} from "./TranslateableWord.style";
 import TranslateTooltip from "./TranslateTooltip";
 import TouchAwayListener from "../shared/TouchAwayListener";
-import api from "../api";
 
 const POPPER_WIDTH = 300;
 class TranslateableWord extends React.PureComponent {
@@ -27,13 +25,13 @@ class TranslateableWord extends React.PureComponent {
     console.log(this.tooltipRef)
   }
 
-  componentDidUpdate(nextState, nextProps, nextSnapshot) {
+  componentDidUpdate(nextState, nextProps) {
     if(nextProps.left !== this.props.left || nextProps.right !== this.props.right) {
       this.alignPopper();
     }
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
+  static getDerivedStateFromProps(nextProps) {
     if (nextProps.disabled) {
       return {isMouseOver: false}
     }

@@ -5,15 +5,17 @@ import {style} from "./Dictionary.style";
 // import {connect} from "react-redux";
 // import {clearUserWords, getAllUserWordIds, getUserWords} from "./actions";
 import Table from "./components/Table";
+import CssBaseline from "@material-ui/core/CssBaseline/CssBaseline";
 
 
 class Dictionary extends Component {
 
   render() {
     return (
-      <div>
+      <>
+        <CssBaseline/>
         <Table/>
-      </div>
+      </>
     );
   }
 }

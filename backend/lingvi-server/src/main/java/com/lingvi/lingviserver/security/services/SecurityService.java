@@ -251,6 +251,10 @@ public class SecurityService {
                 throw new ApiError("Refresh token is expired", HttpStatus.BAD_REQUEST);
             }
 
+            if (refreshToken.getStatus().equals(RefreshToken.Status.DISABLED)) {
+                throw new ApiError("Incorrect token", HttpStatus.BAD_REQUEST);
+            }
+
             if (refreshToken.getStatus().equals(RefreshToken.Status.ACTIVE)) {
                 AuthResponse authResponse = createAuthResponse(refreshToken.getUser());
                 refreshToken.setExchangeDate(new Date());
@@ -283,7 +287,7 @@ public class SecurityService {
         user.getRefreshTokens().add(new RefreshToken(refreshToken, new Date(), user));
         userRepository.save(user);
 
-        return new AuthResponse(expireIn, token, refreshToken);
+        return new AuthResponse(expireIn, token, refreshToken, accountRepository.findById(user.getId()).orElse(null));
     }
 
     /**
@@ -300,7 +304,7 @@ public class SecurityService {
         user.getAccessTokens().add(new AccessToken(token, new Date(), user));
         userRepository.save(user);
 
-        return new AuthResponse(expireIn, token, refreshToken);
+        return new AuthResponse(expireIn, token, refreshToken, accountRepository.findById(user.getId()).orElse(null));
     }
 
     /**

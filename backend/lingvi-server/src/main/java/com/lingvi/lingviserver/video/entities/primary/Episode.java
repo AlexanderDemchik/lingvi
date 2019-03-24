@@ -18,6 +18,9 @@ public class Episode {
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Video video;
 
+    @Column
+    private String videoPosterLink;
+
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "season_id")
@@ -53,5 +56,13 @@ public class Episode {
 
     public void setSeason(Season season) {
         this.season = season;
+    }
+
+    public String getVideoPosterLink() {
+        return videoPosterLink;
+    }
+
+    public void setVideoPosterLink(String videoPosterLink) {
+        this.videoPosterLink = videoPosterLink;
     }
 }

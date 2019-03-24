@@ -12,6 +12,12 @@ public class Film {
     @Column(unique = true)
     private String key;
 
+    @Column
+    private String previewPosterLink;
+
+    @Column
+    private String videoPosterLink;
+
     @OneToOne
     private Video video;
 
@@ -37,5 +43,21 @@ public class Film {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getPreviewPosterLink() {
+        return previewPosterLink;
+    }
+
+    public void setPreviewPosterLink(String previewPosterLink) {
+        this.previewPosterLink = previewPosterLink;
+    }
+
+    public String getVideoPosterLink() {
+        return videoPosterLink;
+    }
+
+    public void setVideoPosterLink(String videoPosterLink) {
+        this.videoPosterLink = videoPosterLink;
     }
 }

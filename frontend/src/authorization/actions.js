@@ -148,12 +148,14 @@ export const providerRegisterWithToken = (token, provider) => (
   }
 );
 
-export function exit() {
-  clearAuthLocalStorage();
-  return {
-    type: EXIT
+export const exit = () => (
+  (dispatch) => {
+    clearAuthLocalStorage();
+    dispatch({type: EXIT});
+    history.push("/");
   }
-}
+);
+
 
 export function me() {
   return api.get( ME_PATH);
