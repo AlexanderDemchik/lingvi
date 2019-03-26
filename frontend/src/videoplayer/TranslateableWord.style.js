@@ -34,7 +34,7 @@ export const styles = theme => ({
     // }
   },
   active: {
-    background: theme.palette.primary.main,
+    background: theme.palette.secondary.main,
     borderRadius: 2
   }
 });

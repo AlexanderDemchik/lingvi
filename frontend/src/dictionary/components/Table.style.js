@@ -1,8 +1,8 @@
 export const style = (theme) => ({
   wrapper: {
     backgroundColor: "#fff",
-    margin: 50,
     borderRadius: 5,
+    width: "100%",
     boxShadow: theme.shadows[1]
   },
 });

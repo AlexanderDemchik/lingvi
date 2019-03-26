@@ -21,6 +21,7 @@
     "react-dom": "^16.8.4",
     "react-i18next": "^10.5.1",
     "react-infinite-scroll-component": "^4.5.1",
+    "react-jss": "^8.6.1",
     "react-player": "^1.9.3",
     "react-redux": "^6.0.0",
     "react-responsive": "latest",
@@ -29,7 +30,8 @@
     "react-scripts": "2.1.8",
     "react-spinners": "^0.5.1",
     "redux": "^4.0.1",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "jss": "latest"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -15,7 +15,7 @@ export const style = (theme) => ({
     outline: "none",
     paddingRight: "58px",
     "&:focus": {
-      boxShadow: `0 0 0 0.2rem ${fade(theme.palette.primary.main, 0.25)}`,
+      boxShadow: `0 0 0 0.2rem ${fade(theme.palette.secondary.main, 0.25)}`,
     }
   },
   wrapper :{

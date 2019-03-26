@@ -22,7 +22,7 @@ const TableHeader = ({selectAllDisabled, selectAll, classes, selected, onSelectA
         <>
           <Grid container alignItems={"center"}>
             <span className={classes.selected}>Выбрано: {selected.length}</span>
-            <Button variant={"contained"} color={"primary"}>Удалить</Button>
+            <Button variant={"contained"} color={"secondary"}>Удалить</Button>
           </Grid>
         </>
       ) : (

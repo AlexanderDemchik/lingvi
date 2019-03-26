@@ -26,12 +26,12 @@ export const style = (theme) => ({
     boxShadow: "inset 0 0 300px 2px #282a2d",
   },
   posterPlayBtn: {
-    fill: theme.palette.primary.main,
+    fill: theme.palette.secondary.main,
     display: "flex",
     cursor: "pointer",
     transition: "fill .15s linear",
     "&:hover": {
-      fill: fade(theme.palette.primary.main, 0.5)
+      fill: fade(theme.palette.secondary.main, 0.5)
     }
   },
   loaderOverlay: {
@@ -42,7 +42,7 @@ export const style = (theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: theme.palette.primary.main
+    color: theme.palette.secondary.main
   },
   hidden: {
     visibility: "hidden",

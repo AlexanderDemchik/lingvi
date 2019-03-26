@@ -39,7 +39,7 @@ export const style = (theme) => ({
   deleteIcon: {
     cursor: "pointer",
     "&:hover": {
-      fill: theme.palette.primary.main
+      fill: theme.palette.secondary.main
     }
   },
   icon: {

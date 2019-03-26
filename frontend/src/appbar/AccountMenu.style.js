@@ -67,5 +67,11 @@ export const style = (theme) => ({
   name: {
     color: "#fff",
     paddingLeft: 5
+  },
+  listItem: {
+    "&:hover svg": {
+      fill: theme.palette.primary.main + "!important",
+      color: theme.palette.primary.main
+    }
   }
 });

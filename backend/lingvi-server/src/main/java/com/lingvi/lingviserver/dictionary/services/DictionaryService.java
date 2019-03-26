@@ -523,7 +523,6 @@ public class DictionaryService {
         }
     }
 
-
     /**
      * @param wordId user word id
      * @return {@link UserWord}
@@ -566,6 +565,14 @@ public class DictionaryService {
         }
     }
 
+    /**
+     * return user dictionaries and number of words in it (ex. EN -> RU (20 words))
+     * @return List of {@link UserDictMeta}
+     */
+    public List<UserDictMeta> getUserDictionaryMeta() {
+        return userWordRepository.getDictionaryMeta(getUserId());
+    }
+
     public UserWordSliceResponse getUserDictionaryWords(int page, int limit, String filter, Language fromLang, Language toLang) {
         filter = filter.trim();
         return new UserWordSliceResponse(userWordRepository.findByAccountIdAndWordTextLikeAndWordLanguageAndTranslationLanguage(getUserId(), "%" + filter + "%", fromLang, toLang, PageRequest.of(page, limit, Sort.Direction.DESC, "createdDate")));
@@ -573,6 +580,6 @@ public class DictionaryService {
 
     public List<Long> getAllUserWordIds(String filter, Language fromLang, Language toLang) {
         filter = filter.trim();
-        return userWordRepository.findAllIds(filter, fromLang, toLang);
+        return userWordRepository.findAllIds(filter, fromLang, toLang, getUserId());
     }
 }

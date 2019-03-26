@@ -10,19 +10,19 @@ export const style = (theme) => ({
     width: "fit-content",
     transition: "all .2s linear",
     "&:hover": {
-      backgroundColor: "rgb(55, 57, 64)",
+      backgroundColor: theme.palette.primary.light,
       color: "#fff"
     }
   },
   line: {
     height: "3px",
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.secondary.main,
     position: "absolute",
     width: "100%",
     bottom: 0,
     left: 0
   },
   active: {
-    color: theme.palette.primary.main
+    color: theme.palette.secondary.main
   }
 });

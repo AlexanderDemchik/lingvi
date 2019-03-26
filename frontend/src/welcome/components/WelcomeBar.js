@@ -9,8 +9,7 @@ const WelcomeBar = ({classes, ...props}) => (
   <Grid className={classes.wrapper} container alignItems={"center"} justify={"space-between"} wrap={"nowrap"}>
     <Grid item>
       <div className={classes.logo}>
-        <img width={80} height={30} src={require("../../assets/logov2.png")}/>
-        {/*<img width={50} height={65} src={require("../../assets/logo.png")}/>*/}
+        Lingvi
       </div>
     </Grid>
     <Grid item>

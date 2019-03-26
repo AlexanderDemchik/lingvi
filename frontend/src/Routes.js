@@ -11,6 +11,7 @@ import VideoPlayer from "./videoplayer/VideoPlayer";
 import Dictionary from "./dictionary/Dictionary";
 import AppBar from "./appbar/AppBar";
 import WithAppBar from "./layout/WithAppBar";
+import Home from "./home/Home";
 
 export const Routes = ({logged, ...props}) => (
   <Router history={history}>
@@ -18,10 +19,7 @@ export const Routes = ({logged, ...props}) => (
       <>
         <AppBar/>
         <Switch>
-          <Route exact path={"/"} children={() => (
-            <VideoPlayer url={"http://localhost/video/gameofthrones/season1/episode1/master.m3u8"}
-                         spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}
-                         posterUrl={"https://www.hbo.com/content/dam/hbodata/series/game-of-thrones/episodes/1/game-of-thrones-1-1920x1080.jpg/_jcr_content/renditions/cq5dam.web.1200.675.jpeg"}/>)}/>
+          <Route exact path={"/"} children={() => <Home/>}/>
           <Route path={"/dictionary"} component={Dictionary}/>
           <Route path={"*"} exact={true} children={() => (<span>not found</span>)}/>
         </Switch>

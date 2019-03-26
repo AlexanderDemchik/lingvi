@@ -3,7 +3,7 @@ export const style = (theme) => ({
     display: "flex", alignItems: "center", cursor: "pointer"
   },
   playing: {
-    fill: theme.palette.primary.main + "!important",
-    color: theme.palette.primary.main + "!important"
+    fill: theme.palette.secondary.main + "!important",
+    color: theme.palette.secondary.main + "!important"
   }
 });

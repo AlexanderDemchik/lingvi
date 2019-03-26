@@ -2,6 +2,7 @@ package com.lingvi.lingviserver.dictionary.controllers;
 
 import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
+import com.lingvi.lingviserver.dictionary.entities.UserDictMeta;
 import com.lingvi.lingviserver.dictionary.entities.UserDictionaryAddWordRequest;
 import com.lingvi.lingviserver.dictionary.entities.UserWordSliceResponse;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
@@ -62,5 +63,9 @@ public class UserDictionaryController {
         dictionaryService.removeTranslationFromUserDictionaryWord(wordId, translationId);
     }
 
+    @GetMapping(ControllerPaths.META)
+    public List<UserDictMeta> getDictMeta() {
+        return dictionaryService.getUserDictionaryMeta();
+    }
 
 }

@@ -24,14 +24,14 @@ const AccountMenu = ({classes, name, exit}) => {
         <div className={`${classes.menu} ${!active && classes.hidden}`}>
           <span className={classes.arrow}/>
           <List>
-            <ListItem button>
+            <ListItem button className={classes.listItem}>
               <ListItemIcon>
                 <Icon path={mdiSettings} size={1} className={classes.icon}/>
               </ListItemIcon>
               <span>Настройки</span>
             </ListItem>
             <Divider/>
-            <ListItem button onClick={exit}>
+            <ListItem button onClick={exit} className={classes.listItem}>
               <ListItemIcon>
                 <Icon path={mdiLogout} size={1} className={classes.icon}/>
               </ListItemIcon>

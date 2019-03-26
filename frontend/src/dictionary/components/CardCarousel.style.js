@@ -1,6 +1,4 @@
-import {theme} from "../../theme";
-
-export const style = {
+export const style = (theme) => ({
   modalCover: {
     position: "fixed",
     "background": "rgba(0,0,0, 0.5)",
@@ -107,4 +105,4 @@ export const style = {
     fill: "rgba(150,150,150,0.5)",
     cursor: "not-allowed"
   }
-};
+});

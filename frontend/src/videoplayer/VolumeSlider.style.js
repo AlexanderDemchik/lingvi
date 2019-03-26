@@ -23,7 +23,7 @@ export const styles = (theme) => ({
     position: "absolute",
     height: "100%",
     width: 0,
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.secondary.main
   },
   thumb: {
     opacity: 1,
@@ -32,7 +32,7 @@ export const styles = (theme) => ({
     borderRadius: "50%",
     position: "absolute",
     transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.secondary.main
   },
   hidden: {
     visibility: "hidden",

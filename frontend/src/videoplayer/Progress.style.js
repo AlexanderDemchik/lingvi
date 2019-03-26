@@ -25,7 +25,7 @@ export const styles = (theme) => ({
     height: "100%",
     width: 0,
     zIndex: 2,
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.secondary.main
   },
   thumb: {
     userSelect: "none",
@@ -36,7 +36,7 @@ export const styles = (theme) => ({
     zIndex: 3,
     transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
     opacity: 1,
-    backgroundColor: theme.palette.primary.main
+    backgroundColor: theme.palette.secondary.main
   },
   tooltip: {
     opacity: 1,
@@ -52,7 +52,7 @@ export const styles = (theme) => ({
     alignItems: "flex-end",
     justifyContent: "center",
     backgroundColor: "hsla(0, 0%, 6.7%, .8)",
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.secondary.contrastText,
     // "&:after": {
     //   position: "absolute",
     //   content: "' '",
@@ -87,6 +87,6 @@ export const styles = (theme) => ({
     height: "100%",
     width: 0,
     transition: "width .2s linear",
-    backgroundColor: fade(theme.palette.primary.main, 0.3)
+    backgroundColor: fade(theme.palette.secondary.main, 0.3)
   }
 });

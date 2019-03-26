@@ -5,8 +5,8 @@ const style = (theme) => ({
     minHeight: "60px",
     paddingLeft: "10px",
     paddingRight: "10px",
-    // backgroundColor: theme.palette.background.dark,
-    // boxShadow: theme.shadows[3]
+    backgroundColor: "#fff",
+    boxShadow: theme.shadows[6]
   },
   logo: {
     padding: 5,

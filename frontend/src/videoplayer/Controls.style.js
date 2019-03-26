@@ -39,7 +39,7 @@ export const style = (theme) => ({
   },
   subtitlesOpen: {
     transition: "all 0.5s linear",
-    fill: theme.palette.primary.main,
+    fill: theme.palette.secondary.main,
     // "&:hover": {
     //   filter: `drop-shadow( 0 0 6px ${theme.palette.primary.main})`
     // }

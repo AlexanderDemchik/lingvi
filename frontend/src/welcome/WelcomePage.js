@@ -25,18 +25,18 @@ class WelcomePage extends Component {
         <LoginForm/>
         <RegisterForm/>
         <WelcomeBar openLoginForm={openLoginForm} openRegisterForm={openRegisterForm}/>
-        <div className={classes.first}>
-          <div className={classes.tagWrapper}>
-            <span className={classes.title}>Английский с удовольствием!</span>
-            <span className={classes.subtitle}>Смотрите видео в оригинале, наслаждайтесь, учите язык</span>
-          </div>
-          <div className={classes.howItWork}>
-            <span>Как это работает?</span>
-            <Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>
-          </div>
-        </div>
+        {/*<div className={classes.first}>*/}
+          {/*<div className={classes.tagWrapper}>*/}
+            {/*<span className={classes.title}>Английский с удовольствием!</span>*/}
+            {/*<span className={classes.subtitle}>Смотрите видео в оригинале, наслаждайтесь, учите язык</span>*/}
+          {/*</div>*/}
+          {/*<div className={classes.howItWork}>*/}
+            {/*<span>Как это работает?</span>*/}
+            {/*<Icon path={ChevronDoubleDown} size={1} color={"inherit"}/>*/}
+          {/*</div>*/}
+        {/*</div>*/}
         {t("key")}
-        <VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>
+        {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"} spritesUrl={"http://localhost/video/gameofthrones/season1/episode1/sprites"}/>*/}
         {/*<VideoPlayer url={"https://video-dev.github.io/streams/x36xhzz/x36xhzz.m3u8"}/>*/}
        {/*<VideoPlayer url={"http://pushzone-f13d.kxcdn.com/stream/test.m3u8"}/>*/}
         {/*https://youtu.be/L4K0lxVJweU*/}

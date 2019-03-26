@@ -28,7 +28,7 @@ export const style = (theme) => ({
     "white-space": "nowrap"
   },
   loader: {
-    color: theme.palette.primary.main,
+    color: theme.palette.secondary.main,
     display: "flex",
     alignSelf: "center",
   },
