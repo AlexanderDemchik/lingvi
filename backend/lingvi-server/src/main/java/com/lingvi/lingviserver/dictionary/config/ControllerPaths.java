@@ -9,5 +9,6 @@ public class ControllerPaths {
     public final static String WORD = "/word";
     public final static String ID = "/id";
     public final static String META = "/meta";
+    public final static String IMAGE = "/image";
     public final static String USER_DICTIONARY_WORD = ControllerPaths.USER_DICTIONARY + "/word";
 }

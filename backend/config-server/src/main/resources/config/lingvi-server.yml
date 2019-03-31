@@ -23,7 +23,7 @@ spring:
     hibernate:
       ddl-auto: update
       dialect: org.hibernate.dialect.PostgreSQL9Dialect
-      show_sql: true
+#      show_sql: true
     properties:
       hibernate:
         temp.use_jdbc_metadata_defaults: false
@@ -69,4 +69,10 @@ dictionary:
     google:
       api-key: AIzaSyCCdyhKPsOoP4VtkRHCnzVoHRrfted3SXE
       text-to-speech-url: https://texttospeech.googleapis.com/v1/text:synthesize
+    azure:
+      cognitive-services:
+        image-search:
+          api-key: 0a21870502ce47c886d0dbafd2d1c494
+          search-url: https://api.cognitive.microsoft.com/bing/v7.0/images/search
+          authorization-header-name: Ocp-Apim-Subscription-Key
 

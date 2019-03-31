@@ -43,7 +43,7 @@ class TranslateTooltip extends React.PureComponent {
 
   addToDictionary =  () => {
     this.setState({isAddToDictionaryRequest: true}, () => {
-      api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.language, to: "RU", word: this.props.word})
+      api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.language, to: "UA", word: this.props.word})
         .then(r => {
           this.setState({translatedWord: {...this.state.translatedWord, inUserDict: true, userDictId: r.data.id}, isAddToDictionaryRequest: false})
         })
@@ -55,7 +55,7 @@ class TranslateTooltip extends React.PureComponent {
 
   getTranslation = (word) => {
     this.setState({isTranslationRequest: true}, () => {
-      api.get(`${DICTIONARY_PATH}${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=RU`)
+      api.get(`${DICTIONARY_PATH}${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=UA`)
         .then((r) => {
           this.setState({isTranslationRequest: false, translatedWord: r.data});
         }).catch(() => {

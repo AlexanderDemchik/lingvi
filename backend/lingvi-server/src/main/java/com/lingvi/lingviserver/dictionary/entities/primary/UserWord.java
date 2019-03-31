@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.lingvi.lingviserver.commons.entities.Language;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -43,6 +44,11 @@ public class UserWord {
 
     @Column(name = "translation_language")
     private Language translationLanguage;
+
+    @OneToOne
+    @JoinColumn(name="image_id")
+    @JsonProperty("image")
+    private Image selectedImage;
 
     public Long getId() {
         return id;
@@ -110,5 +116,13 @@ public class UserWord {
                 ", createdDate=" + createdDate +
                 ", accountId=" + accountId +
                 '}';
+    }
+
+    public Image getSelectedImage() {
+        return selectedImage;
+    }
+
+    public void setSelectedImage(Image selectedImage) {
+        this.selectedImage = selectedImage;
     }
 }

@@ -38,7 +38,7 @@ export const style = (theme) => ({
   wordImg: {
     position: "absolute",
     top: -30,
-    backgroundColor: theme.palette.background.dark,
+    backgroundColor: "#fff",
     left: "50%",
     transform: "translate(-50%, 0)",
     width: "160px",
@@ -53,7 +53,7 @@ export const style = (theme) => ({
     width: "300px",
     left: "50%",
     transform: "translate(-50%, 0)",
-    backgroundColor: theme.palette.background.dark,
+    backgroundColor: "#fff",
   },
   cutImg: {
     position: "absolute",

@@ -5,14 +5,8 @@ import com.lingvi.lingviserver.commons.exceptions.ApiError;
 import com.lingvi.lingviserver.commons.utils.LogExecutionTime;
 import com.lingvi.lingviserver.commons.utils.Utils;
 import com.lingvi.lingviserver.dictionary.entities.*;
-import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
-import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
-import com.lingvi.lingviserver.dictionary.entities.primary.UserWord;
-import com.lingvi.lingviserver.dictionary.entities.primary.Word;
-import com.lingvi.lingviserver.dictionary.repositories.primary.SoundRepository;
-import com.lingvi.lingviserver.dictionary.repositories.primary.TranslationRepository;
-import com.lingvi.lingviserver.dictionary.repositories.primary.UserWordRepository;
-import com.lingvi.lingviserver.dictionary.repositories.primary.WordRepository;
+import com.lingvi.lingviserver.dictionary.entities.primary.*;
+import com.lingvi.lingviserver.dictionary.repositories.primary.*;
 import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +39,10 @@ public class DictionaryService {
     private SystranTranslationService systranTranslationService;
     private SoundRepository soundRepository;
     private UserWordRepository userWordRepository;
+    private BingImageSearchService bingImageSearchService;
     private EspeakTranscriptionService espeakTranscriptionService;
+    private ImageService imageService;
+    private ImageRepository imageRepository;
     private StorageUtil storageUtil;
 
     private CacheManager cacheManager;
@@ -61,10 +58,11 @@ public class DictionaryService {
      */
     private final SoundType soundType = SoundType.FEMALE_EN_GB;
 
-    private List<Word> soundSaveInProcess = new ArrayList<>();
+    private List<Word> soundSaveInProcess = Collections.synchronizedList(new ArrayList<>());
+    private List<Word> imageSaveInProcess = Collections.synchronizedList(new ArrayList<>());
 
     @Autowired
-    DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil, CacheManager cacheManager) {
+    DictionaryService(YandexTranslationService yandexTranslationService, WordRepository wordRepository, TranslationRepository translationRepository, GoogleTextToSpeechService googleTextToSpeechService, SystranTranslationService systranTranslationService, SoundRepository soundRepository, UserWordRepository userWordRepository, EspeakTranscriptionService espeakTranscriptionService, StorageUtil storageUtil, CacheManager cacheManager, ImageRepository imageRepository, BingImageSearchService bingImageSearchService, ImageService imageService, ImageRepository imageRepository1) {
         this.yandexTranslationService = yandexTranslationService;
         this.wordRepository = wordRepository;
         this.translationRepository = translationRepository;
@@ -75,6 +73,9 @@ public class DictionaryService {
         this.espeakTranscriptionService = espeakTranscriptionService;
         this.storageUtil = storageUtil;
         this.cacheManager = cacheManager;
+        this.bingImageSearchService = bingImageSearchService;
+        this.imageService = imageService;
+        this.imageRepository = imageRepository1;
     }
 
     /**
@@ -141,22 +142,21 @@ public class DictionaryService {
                     //check asynchronously if lemma for word is exist
                     CompletableFuture<String> lemmaResponse = CompletableFuture.supplyAsync(() -> systranTranslationService.getLemma(text, from));
 
-                    Word finalTranslated1 = translated;
+                    Word finalTranslated = translated;
                     lemmaResponse.thenApply((lemma -> {
                         if (lemma != null) {
                             Word lemmaWord;
                             if ((lemmaWord = wordRepository.findByTextIgnoreCaseAndLanguage(lemma, from)) != null) {
-                                finalTranslated1.setLemma(lemmaWord);
+                                finalTranslated.setLemma(lemmaWord);
                             } else {
                                 lemmaWord = translate(lemma, from, to);
-                                finalTranslated1.setLemma(lemmaWord);
+                                finalTranslated.setLemma(lemmaWord);
                             }
                         }
                         return null;
                     }));
 
                     //save sound asynchronously if it is word but not sequence
-                    Word finalTranslated = translated;
                     CompletableFuture<String> audioResponse = CompletableFuture.supplyAsync(() -> googleTextToSpeechService.getAudioFromText(finalTranslated.getText(), soundType));
 
                     soundSaveInProcess.add(finalTranslated);
@@ -170,7 +170,21 @@ public class DictionaryService {
                         return null;
                     });
 
+                    CompletableFuture<List<ImageSearchResult>> imageSearchResponse = CompletableFuture.supplyAsync(() -> bingImageSearchService.findImage(text));
+                    imageSaveInProcess.add(finalTranslated);
+                    imageSearchResponse.thenApply(imageSearchResult -> {
+                        if (imageSearchResult != null) {
+                            for (ImageSearchResult searchResult: imageSearchResult) {
+                                imageService.create(finalTranslated, searchResult.getContent(), searchResult.getExtension(), -1L);
+                            }
+                            imageSaveInProcess.remove(finalTranslated);
+                            Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(finalTranslated.getText() + "," + from + "," + to);
+                        }
+                        return null;
+                    });
+
                     Utils.setTimeout(() -> soundSaveInProcess.remove(finalTranslated), 3000);
+                    Utils.setTimeout(() -> imageSaveInProcess.remove(finalTranslated), 3000);
 
                     wordRepository.save(translated);
                 } else { //if translation from dictionary is null, then it's just a sequence, and we not save it to db
@@ -204,15 +218,16 @@ public class DictionaryService {
     public WordDTO cacheableTranslate(String text, Language from, Language to) {
         List<Translation> resultTranslations;
         Word word = translate(text, from, to);
-
+        Image image = null;
         if (word.getId() != null) { //it's already saved word
             // we need translations only from translator or dictionary, cause in the future i planned add translations from user
+            image = imageRepository.findFirstByWord(word);
             resultTranslations = translationRepository.findByWordAndLanguageAndSourceIn(word, to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
         } else { //it's not saved sequence
             resultTranslations = word.getTranslations();
         }
 
-        return new WordDTO(word, resultTranslations);
+        return new WordDTO(word, resultTranslations, image);
     }
 // May be it's implementation was better but ....
 //    /**
@@ -259,7 +274,7 @@ public class DictionaryService {
 //        }
 //
 //        return new WordResponse(word, soundRepository.findTop1ByWordIdAndSoundType(word.getId(), SoundType.FEMALE_EN_GB), resultTranslations);
-//    }
+//    }            CompletableFuture<ImageSearchResult> imageSearchResponse = CompletableFuture.supplyAsync(() -> bingImageSearchService.findImage(text));
 
     /**
      * Map {@link Word} to {@link WordResponse}
@@ -374,7 +389,7 @@ public class DictionaryService {
             if (wordTranslations.size() == 1) {
                 userTranslations = wordTranslations;
             } else {
-                userTranslations = filterTranslationsBeforeSaveToUserDictionary(groupTranslationsByPartOfSpeech(w.getTranslations()), findDefaultTranslation(w.getTranslations()));
+                userTranslations = filterTranslationsBeforeSaveToUserDictionary(groupTranslationsByPartOfSpeech(wordTranslations), findDefaultTranslation(wordTranslations));
             }
 
             userWord = new UserWord();
@@ -393,7 +408,7 @@ public class DictionaryService {
                     }
                 }
             } else {
-                List<Translation> wordTranslations = translationRepository.findByWordAndSourceIn(w, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+                List<Translation> wordTranslations = translationRepository.findByWordAndLanguageAndSourceIn(w, to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
                 Map<PartOfSpeech, List<Translation>> groupedTranslations = groupTranslationsByPartOfSpeech(wordTranslations);
                 userTranslations = filterTranslationsBeforeSaveToUserDictionary(groupedTranslations, findDefaultTranslation(wordTranslations));
             }
@@ -405,6 +420,7 @@ public class DictionaryService {
 
         userWord.setTranslationLanguage(to);
         userWord.setAccountId(userId);
+        userWord.setSelectedImage(imageRepository.findFirstByWord(w));
         userWordRepository.save(userWord);
         return userWord;
     }
@@ -516,7 +532,7 @@ public class DictionaryService {
      * @param wordIds collection of word ids to be deleted
      */
     @Transactional
-    public void bactchRemoveWordsFromUserDictionary(List<Long> wordIds) {
+    public void batchRemoveWordsFromUserDictionary(List<Long> wordIds) {
         Long userId = getUserId();
         for (Long id: wordIds) {
             userWordRepository.deleteByIdAndAccountId(id, userId);

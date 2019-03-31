@@ -35,7 +35,7 @@ public class UserDictionaryController {
 
     @DeleteMapping(ControllerPaths.WORD)
     public void batchRemoveWordsFromUserDict(@RequestParam List<Long> ids) {
-        dictionaryService.bactchRemoveWordsFromUserDictionary(ids);
+        dictionaryService.batchRemoveWordsFromUserDictionary(ids);
     }
 
     @GetMapping(ControllerPaths.WORD + ControllerPaths.ID)

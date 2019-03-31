@@ -3,6 +3,7 @@ package com.lingvi.lingviserver.dictionary.entities;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.lingvi.lingviserver.commons.entities.Language;
+import com.lingvi.lingviserver.dictionary.entities.primary.Image;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 
@@ -34,39 +35,9 @@ public class WordResponse {
      */
     private Map<PartOfSpeech, List<Translation>> translations = new HashMap<>();
     private String soundUrl;
+    private Image image;
 
     public WordResponse() {}
-
-    public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict) {
-        this.id = word.getId();
-        this.text = word.getText();
-        this.language = word.getLanguage();
-        this.lemma = word.getLemma();
-        this.transcription = word.getTranscription();
-        this.translations = translations;
-        this.isInUserDict = isInUserDict;
-        this.defaultTranslation = defaultTranslation;
-
-        if (sound != null) {
-            this.soundUrl = sound.getRootUrl() + sound.getRelativePath();
-        }
-    }
-
-    public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage) {
-        this.id = word.getId();
-        this.text = word.getText();
-        this.language = word.getLanguage();
-        this.lemma = word.getLemma();
-        this.transcription = word.getTranscription();
-        this.translations = translations;
-        this.isInUserDict = isInUserDict;
-        this.defaultTranslation = defaultTranslation;
-        this.translationLanguage = translationLanguage;
-
-        if (sound != null) {
-            this.soundUrl = sound.getRootUrl() + sound.getRelativePath();
-        }
-    }
 
     public WordResponse(WordDTO word, Sound sound, Map<PartOfSpeech, List<Translation>> translations, Translation defaultTranslation, boolean isInUserDict, Language translationLanguage, Long userDictId) {
         this.id = word.getId();
@@ -76,6 +47,7 @@ public class WordResponse {
         this.transcription = word.getTranscription();
         this.translations = translations;
         this.isInUserDict = isInUserDict;
+        this.image = word.getImage();
         this.defaultTranslation = defaultTranslation;
         this.translationLanguage = translationLanguage;
         this.userDictId = userDictId;
@@ -167,5 +139,17 @@ public class WordResponse {
 
     public void setUserDictId(Long userDictId) {
         this.userDictId = userDictId;
+    }
+
+    public void setDefaultTranslation(Translation defaultTranslation) {
+        this.defaultTranslation = defaultTranslation;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 }

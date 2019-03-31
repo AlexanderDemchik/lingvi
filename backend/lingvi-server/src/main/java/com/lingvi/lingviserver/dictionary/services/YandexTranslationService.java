@@ -15,6 +15,8 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -60,37 +62,14 @@ public class YandexTranslationService implements TranslationService { //yandex s
 
         RestTemplate restTemplate = new RestTemplate();
 
-        YandexTranslateResponse responseBody = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.POST, entity, YandexTranslateResponse.class).getBody();
+        try {
+            YandexTranslateResponse responseBody = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.POST, entity, YandexTranslateResponse.class).getBody();
 
-        if(responseBody != null) {
-            switch (responseBody.getCode()) {
-                case 200: return new Translation(toLang, responseBody.getText()[0], TranslationSource.TRANSLATOR, 0L);
-                case 401: logger.error("Invalid api key"); break;
-                case 402: logger.error("Blocked api key"); break;
-                case 404: logger.error("Exceeded the daily limit on the amount of translated text"); break;
-                case 413: logger.error("Exceeded the maximum text size");
+            if (responseBody != null) {
+                return new Translation(toLang, responseBody.getText()[0], TranslationSource.TRANSLATOR, 0L);
             }
-        }
-        return null;
-    }
-
-    @Override
-    @LogExecutionTime
-    public Word loadDictionaryTranslations(String text, Language fromLang, Language toLang) {
-        text = text.toLowerCase();
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexDictionaryProperties.getUrl())
-                .queryParam(KEY_PARAM_NAME, yandexDictionaryProperties.getApiKey())
-                .queryParam(LANG_PARAM_NAME, mapLanguage(fromLang).concat("-").concat(mapLanguage(toLang)))
-                .queryParam(TEXT_PARAM_NAME, text)
-                .queryParam(FLAGS_PARAM_NAME, 13);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<JsonNode> httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
-
-        if(httpResponse.getBody() != null) {
-            switch (httpResponse.getStatusCodeValue()) {
-                case 200:
-                    return parseDictionaryTranslations(httpResponse.getBody(), text, fromLang, toLang);
+        } catch (HttpClientErrorException e) {
+            switch (e.getRawStatusCode()) {
                 case 401:
                     logger.error("Invalid api key");
                     break;
@@ -105,6 +84,45 @@ public class YandexTranslationService implements TranslationService { //yandex s
             }
         }
 
+        return null;
+    }
+
+    @Override
+    @LogExecutionTime
+    public Word loadDictionaryTranslations(String text, Language fromLang, Language toLang) {
+        text = text.toLowerCase();
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(yandexDictionaryProperties.getUrl())
+                .queryParam(KEY_PARAM_NAME, yandexDictionaryProperties.getApiKey())
+                .queryParam(LANG_PARAM_NAME, mapLanguage(fromLang).concat("-").concat(mapLanguage(toLang)))
+                .queryParam(TEXT_PARAM_NAME, text)
+                .queryParam(FLAGS_PARAM_NAME, 13);
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<JsonNode> httpResponse;
+        try {
+            httpResponse = restTemplate.exchange(uriComponentsBuilder.build().toUri(), HttpMethod.GET, null, JsonNode.class);
+        } catch (HttpClientErrorException e) {
+            switch (e.getRawStatusCode()) {
+                case 401:
+                    logger.error("Invalid api key");
+                    break;
+                case 402:
+                    logger.error("Blocked api key");
+                    break;
+                case 404:
+                    logger.error("Exceeded the daily limit on the amount of translated text");
+                    break;
+                case 413:
+                    logger.error("Exceeded the maximum text size");
+                    break;
+            }
+            return null;
+        } catch (HttpServerErrorException e) {
+            logger.error("Api server error " + e.getRawStatusCode());
+            return null;
+        }
+
+        if (httpResponse.getBody() != null) return parseDictionaryTranslations(httpResponse.getBody(), text, fromLang, toLang);
         return null;
     }
 

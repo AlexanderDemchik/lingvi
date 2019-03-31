@@ -19,7 +19,7 @@ const Card = ({classes, word, deleteTranslation, deleteCard, ...props}) => {
     <Grid container direction={"column"} className={classes.wrapper}>
 
       <div className={classes.wordImg}>
-        <img height={"100%"} width={"100%"} src={placeholderImg}/>
+        <img height={"100%"} width={"100%"} src={word.image ? (word.image.rootPath + word.image.relativePath) : placeholderImg}/>
         <div className={classes.cut}>
           <img src={cutImg} className={classes.cutImg}/>
         </div>

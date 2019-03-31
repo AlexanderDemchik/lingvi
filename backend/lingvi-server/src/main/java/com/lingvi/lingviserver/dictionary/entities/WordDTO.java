@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.dictionary.entities;
 
 import com.lingvi.lingviserver.commons.entities.Language;
+import com.lingvi.lingviserver.dictionary.entities.primary.Image;
 import com.lingvi.lingviserver.dictionary.entities.primary.Sound;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
 import com.lingvi.lingviserver.dictionary.entities.primary.Word;
@@ -23,6 +24,8 @@ public class WordDTO implements Serializable {
     private Language language;
 
     private WordDTO lemma;
+
+    private Image image;
 
     private List<Translation> translations = new ArrayList<>();
 
@@ -51,6 +54,19 @@ public class WordDTO implements Serializable {
         }
     }
 
+    public WordDTO(Word text, List<Translation> translations, Image image) {
+        this.id = text.getId();
+        this.text = text.getText();
+        this.transcription = text.getTranscription();
+        this.language = text.getLanguage();
+        this.translations = translations;
+        this.image = image;
+
+        if (text.getLemma() != null) {
+            lemma = new WordDTO(text.getLemma());
+        }
+    }
+
     public Long getId() {
         return id;
     }
@@ -73,6 +89,14 @@ public class WordDTO implements Serializable {
 
     public void setTranscription(String transcription) {
         this.transcription = transcription;
+    }
+
+    public Image getImage() {
+        return image;
+    }
+
+    public void setImage(Image image) {
+        this.image = image;
     }
 
     public Language getLanguage() {

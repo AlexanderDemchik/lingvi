@@ -1,7 +1,7 @@
 package com.lingvi.lingviserver.dictionary.controllers;
 
-import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
 import com.lingvi.lingviserver.commons.entities.Language;
+import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
 import com.lingvi.lingviserver.dictionary.entities.SoundResponse;
 import com.lingvi.lingviserver.dictionary.entities.WordResponse;
 import com.lingvi.lingviserver.dictionary.services.DictionaryService;
@@ -35,7 +35,6 @@ public class DictionaryController {
     public void createTranslation() {
 
     }
-
 
     @InitBinder
     public void initBinder(final WebDataBinder webdataBinder) {

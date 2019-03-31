@@ -37,6 +37,9 @@ public class Word implements Serializable {
     @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Sound> sounds = new ArrayList<>();
 
+    @OneToMany(mappedBy = "word", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Image> images = new ArrayList<>();
+
     public Word() {
     }
 
@@ -117,5 +120,13 @@ public class Word implements Serializable {
 
     public void setSounds(List<Sound> sounds) {
         this.sounds = sounds;
+    }
+
+    public List<Image> getImages() {
+        return images;
+    }
+
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }

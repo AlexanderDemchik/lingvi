@@ -6,6 +6,7 @@ import com.lingvi.lingviserver.dictionary.entities.primary.Word;
 
 /**
  * @see YandexTranslationService
+ * @see SystranTranslationService
  */
 public interface TranslationService {
 

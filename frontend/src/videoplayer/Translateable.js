@@ -39,7 +39,7 @@ class Translateable extends React.Component {
     document.removeEventListener("selectionchange", this.onSelectionChange);
     document.removeEventListener("mouseup", this.onMouseUp);
     document.removeEventListener("mouseleave", this.onMouseLeave);
-    window.addEventListener("resize", this.onResize);
+    window.removeEventListener("resize", this.onResize);
     clearInterval(this.checkInterval);
   }
 
