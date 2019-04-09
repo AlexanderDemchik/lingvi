@@ -15,7 +15,7 @@ import TranslateableSubtitle from "./TranslateableSubtitle";
 const MOUSE_DOWNTIME = 5000;
 
 const translateableSubtitles = ["EN"]; //now it hardcoded
-class VideoPlayer extends React.Component {
+class VideoPlayer extends React.PureComponent {
 
   constructor(props) {
     super(props);
@@ -56,6 +56,7 @@ class VideoPlayer extends React.Component {
   }
 
   componentDidUpdate() {
+    console.log("updated")
     if(this.state.initialized && this.state.started) {
       if(this.state.playing && !this.state.paused) {
         this.playerRef.getInternalPlayer().play();
@@ -80,10 +81,7 @@ class VideoPlayer extends React.Component {
     const {playing, initialized, played} = this.state;
     switch (e.keyCode) {
       case 37:
-        this.playerRef.seekTo(played - 5); break;
       case 39:
-        // this.seekValue = (this.seekValue + 5);
-        this.playerRef.seekTo(played + 5);
         break;
       case 32:
         initialized ? this.changePlaying(!playing) : this.onPosterPlayBtnClick();

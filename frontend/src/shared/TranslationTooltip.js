@@ -21,6 +21,7 @@ class TranslationTooltip extends React.Component {
       isRemoveFromDictionaryRequest: false
     };
     this.audio = null;
+    this.wrapperRef = null;
   }
 
   playSound = async () => {
@@ -89,7 +90,7 @@ class TranslationTooltip extends React.Component {
     return (
       <Popper placement={"bottom"} open={open} anchorEl={anchorEl}>
         <ClickAwayListener onClickAway={onClickAway}>
-          <div className={classes.wrapper}>
+          <div className={classes.wrapper} ref={ref => this.wrapperRef = ref}>
             {!isTranslationRequest  && translatedWord ?
               <React.Fragment>
                 <Grid container direction={"row"} wrap={"nowrap"} justify={"space-between"} className={classes.header}
@@ -103,11 +104,11 @@ class TranslationTooltip extends React.Component {
                         <Icon path={mdiVolumeHigh} size={1} className={classes.icon} onClick={this.playSound}/>
                       </Tooltip>
                       {!translatedWord.inUserDict ? (
-                        <Tooltip placement={"top"} title={"Add to dictionaryt"}>
+                        <Tooltip placement={"top"} title={"Add to dictionary"} popperProps={{container: this.wrapperRef}}>
                           <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
                         </Tooltip>
                       ) : (
-                        <Tooltip placement={"top"} title={"Remove from dictionary"}>
+                        <Tooltip placement={"top"} title={"Remove from dictionary"}  popperProps={{container: this.wrapperRef}}>
                           <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
                         </Tooltip>
                       )}
