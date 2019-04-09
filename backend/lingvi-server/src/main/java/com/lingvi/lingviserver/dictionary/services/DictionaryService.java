@@ -170,21 +170,9 @@ public class DictionaryService {
                         return null;
                     });
 
-                    CompletableFuture<List<ImageSearchResult>> imageSearchResponse = CompletableFuture.supplyAsync(() -> bingImageSearchService.findImage(text));
-                    imageSaveInProcess.add(finalTranslated);
-                    imageSearchResponse.thenApply(imageSearchResult -> {
-                        if (imageSearchResult != null) {
-                            for (ImageSearchResult searchResult: imageSearchResult) {
-                                imageService.create(finalTranslated, searchResult.getContent(), searchResult.getExtension(), -1L);
-                            }
-                            imageSaveInProcess.remove(finalTranslated);
-                            Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(finalTranslated.getText() + "," + from + "," + to);
-                        }
-                        return null;
-                    });
+                    saveWordImageAsync(finalTranslated, from, to);
 
                     Utils.setTimeout(() -> soundSaveInProcess.remove(finalTranslated), 3000);
-                    Utils.setTimeout(() -> imageSaveInProcess.remove(finalTranslated), 3000);
 
                     wordRepository.save(translated);
                 } else { //if translation from dictionary is null, then it's just a sequence, and we not save it to db
@@ -229,52 +217,91 @@ public class DictionaryService {
 
         return new WordDTO(word, resultTranslations, image);
     }
+
+    private void saveWordImageAsync(Word word, Language from, Language to) {
+        CompletableFuture<List<ImageSearchResult>> imageSearchResponse = CompletableFuture.supplyAsync(() -> bingImageSearchService.findImage(word.getText()));
+        imageSaveInProcess.add(word);
+        imageSearchResponse.thenApply(imageSearchResult -> {
+            if (imageSearchResult != null) {
+                for (ImageSearchResult searchResult: imageSearchResult) {
+                    imageService.create(word, searchResult.getContent(), searchResult.getExtension(), -1L);
+                }
+                imageSaveInProcess.remove(word);
+                Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(word.getText() + "," + from + "," + to);
+            }
+            return null;
+        });
+        Utils.setTimeout(() -> imageSaveInProcess.remove(word), 3000);
+    }
+
+    private List<Image> saveWordImageSync(Word word, Language from, Language to) {
+        imageSaveInProcess.add(word);
+        List<ImageSearchResult> imageSearchResults = bingImageSearchService.findImage(word.getText());
+        List<Image> savedImages = new LinkedList<>();
+        if (imageSearchResults != null) {
+            for (ImageSearchResult searchResult: imageSearchResults) {
+                savedImages.add(imageService.create(word, searchResult.getContent(), searchResult.getExtension(), -1L));
+            }
+            imageSaveInProcess.remove(word);
+            Objects.requireNonNull(cacheManager.getCache("dictionary")).evict(word.getText() + "," + from + "," + to);
+        }
+        return savedImages;
+    }
 // May be it's implementation was better but ....
-//    /**
-//     * Map {@link Word} to {@link WordResponse}
-//     *
-//     * @param text text to be translated
-//     * @param from language from which translation
-//     * @param to language to which translation is
-//     */
-//    public WordResponse handleUserTranslateRequest(String text, Language from, Language to) {
-//
-//        text = text.trim();
-//
-//        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
-//        Word word = translate(text, from, to);
-//        List<TranslationResponse> resultTranslations;
-//
-//        if (word.getId() != null) {
-//            UserWord wordFromUserDict = userWordRepository.findByWordAndAccountId(word, userId);
-//
-//            List<Translation> translationsFromUserDict = null;
-//            List<Long> translationsFromUserDictIds = null;
-//            if (wordFromUserDict != null) {
-//                translationsFromUserDict = wordFromUserDict.getUserTranslations();
-//                translationsFromUserDictIds = translationsFromUserDict.stream().map(Translation::getId).collect(Collectors.toList());
-//            }
-//
-//            List<Translation> translationsFromCommonDict = translationRepository.findTop5ByWordOrderByPopularityDesc(word);
-//
-//            if (translationsFromUserDict != null) {
-//                resultTranslations = translationsFromUserDict.stream().map(t -> new TranslationResponse(t, true)).collect(Collectors.toList());
-//                for (Translation translation : translationsFromCommonDict) {
-//                    if (!translationsFromUserDictIds.contains(translation.getId())) {
-//                        resultTranslations.add(new TranslationResponse(translation, false));
-//                    }
-//                }
-//            } else if (translationsFromCommonDict != null) {
-//                resultTranslations = translationsFromCommonDict.stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
-//            } else {
-//                resultTranslations = word.getTranslations().stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
-//            }
-//        } else {
-//            resultTranslations = word.getTranslations().stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
-//        }
-//
-//        return new WordResponse(word, soundRepository.findTop1ByWordIdAndSoundType(word.getId(), SoundType.FEMALE_EN_GB), resultTranslations);
-//    }            CompletableFuture<ImageSearchResult> imageSearchResponse = CompletableFuture.supplyAsync(() -> bingImageSearchService.findImage(text));
+    /**
+     * Map {@link Word} to {@link WordResponse}
+     *
+     * @param text text to be translated
+     * @param from language from which translation
+     * @param to language to which translation is
+     */
+    public WordResponseV2 handleUserTranslateRequestV2(String text, Language from, Language to) {
+
+        text = text.trim();
+
+        Long userId = Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+        WordDTO word = cacheableTranslate(text, from, to);
+        List<TranslationResponse> resultTranslations = null;
+        Image image = null;
+        String soundUrl = null;
+
+        if (word.getId() != null) {
+            UserWord wordFromUserDict = userWordRepository.findByWordIdAndWordLanguageAndTranslationLanguageAndAccountId(word.getId(), from, to, userId);
+
+            List<Translation> translationsFromUserDict = null;
+            List<Long> translationsFromUserDictIds = null;
+
+            Sound sound = soundRepository.findTop1ByWordIdAndSoundType(word.getId(), SoundType.FEMALE_EN_GB);
+            if (sound != null) {
+                soundUrl = sound.getRootUrl() + sound.getRelativePath();
+            }
+
+            if (wordFromUserDict != null) {
+                translationsFromUserDict = wordFromUserDict.getUserTranslations();
+                translationsFromUserDictIds = translationsFromUserDict.stream().map(Translation::getId).collect(Collectors.toList());
+                image = wordFromUserDict.getSelectedImage();
+            } else {
+                image = imageRepository.findFirstByWordId(word.getId());
+            }
+
+            List<Translation> translationsFromCommonDict = translationRepository.findByWordIdAndLanguageAndSourceInOrderByPopularityDesc(word.getId(), to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+
+            if (translationsFromUserDict != null) {
+                resultTranslations = translationsFromUserDict.stream().map(t -> new TranslationResponse(t, true)).collect(Collectors.toList());
+                for (Translation translation : translationsFromCommonDict) {
+                    if (!translationsFromUserDictIds.contains(translation.getId())) {
+                        resultTranslations.add(new TranslationResponse(translation, false));
+                    }
+                }
+            } else if (translationsFromCommonDict != null) {
+                resultTranslations = translationsFromCommonDict.stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
+            }
+        } else {
+            resultTranslations = word.getTranslations().stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
+        }
+
+        return new WordResponseV2(word, resultTranslations, to, image, soundUrl);
+    }
 
     /**
      * Map {@link Word} to {@link WordResponse}
@@ -420,8 +447,33 @@ public class DictionaryService {
 
         userWord.setTranslationLanguage(to);
         userWord.setAccountId(userId);
-        userWord.setSelectedImage(imageRepository.findFirstByWord(w));
+        Image image = imageRepository.findFirstByWord(w);
+        userWord.setSelectedImage(image);
         userWordRepository.save(userWord);
+
+        //save image async
+        if (image == null && w.getText().split(" ").length < 5) {
+            Word finalW = w;
+            if (imageSaveInProcess.stream().noneMatch(word -> word.getText().equals(finalW.getText()) && word.getLanguage().equals(finalW.getLanguage()))) {
+                CompletableFuture<List<Image>> completableFuture = CompletableFuture.supplyAsync(() -> saveWordImageSync(finalW, from, to));
+                completableFuture.thenApply(images -> {
+                    userWordRepository.findById(userWord.getId()).ifPresent((uWord) -> {
+                        uWord.setSelectedImage(imageRepository.findById(images.get(0).getId()).orElse(null));
+                        userWordRepository.save(uWord);
+                    });
+                    return null;
+                });
+            } else {
+                //in the future it will be good to change this implementation to observable
+                Utils.setTimeout(() -> {
+                    userWordRepository.findById(userWord.getId()).ifPresent((uWord) -> {
+                        uWord.setSelectedImage(imageRepository.findFirstByWord(finalW));
+                        userWordRepository.save(uWord);
+                    });
+                }, 5000);
+            }
+        }
+
         return userWord;
     }
 

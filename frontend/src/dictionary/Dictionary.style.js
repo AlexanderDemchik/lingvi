@@ -7,6 +7,7 @@ export const style = (theme) => ({
   },
   dictionary: {
     flexGrow: 1,
+    flexBasis: "70%"
   },
   meta: {
     paddingRight: 70,

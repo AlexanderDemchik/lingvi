@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,8 +37,13 @@ public class BingImageSearchService implements ImageSearchService {
 
         RestTemplate restTemplate = new RestTemplate();
 
-        ResponseEntity<JsonNode> responseEntity = restTemplate.exchange(uriComponentsBuilder.toUriString(), HttpMethod.GET, buildRequestEntity(), JsonNode.class);
-        responseEntity.getHeaders().getContentType();
+        ResponseEntity<JsonNode> responseEntity;
+        try {
+            responseEntity = restTemplate.exchange(URI.create(uriComponentsBuilder.toUriString()), HttpMethod.GET, buildRequestEntity(), JsonNode.class); //just uri string don't work, but URI object do - what a fuck???
+        } catch (HttpClientErrorException e) {
+            e.printStackTrace();
+            return null;
+        }
         JsonNode body;
         if (responseEntity.getStatusCodeValue() == 200 && (body = responseEntity.getBody()) != null) {
             JsonNode value = body.get("value");
@@ -68,6 +74,7 @@ public class BingImageSearchService implements ImageSearchService {
     private HttpEntity buildRequestEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.add(bingSearchProperties.getAuthorizationHeaderName(), bingSearchProperties.getApiKey());
+        headers.add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0");
         return new HttpEntity(headers);
     }
 }

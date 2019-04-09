@@ -2,25 +2,25 @@ export const style = (theme) => ({
   header: {
     minHeight: 30,
     width: "100%",
-    color: "#DAE8EF"
+    color: "#000"
     // borderBottom: `1px solid ${theme.palette.primary.main}`
   },
   icon: {
     height: "100%",
     width: "1rem",
     cursor: "pointer",
-    fill: "#DAE8EF",
+    fill: theme.palette.grey[700],
     transition: "linear 0.2s fill",
   },
   wrapper: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.background.paper,
     // backgroundColor: "rgba(28,28,28,0.99)",
     borderRadius: 5,
     userSelect: "none",
     padding: 17,
   },
   word: {
-    color: "#DAE8EF",
+    color: "#000",
     fontSize: "1rem",
     userSelect: "none",
     textOverflow: "ellipsis",
@@ -57,16 +57,16 @@ export const style = (theme) => ({
     fontSize: "0.9rem",
     lineHeight: "0.8rem",
     textAlign: "left",
-    color: "#DAE8EF"
+    color: "#000"
   },
   partOfSpeech: {
     fontWeight: 100,
     fontSize: "0.7rem",
-    color: "#DAE8EF",
+    color: "#000",
   },
   defaultTranslation: {
     fontWeight: 500,
-    color: "#fff",
+    color: theme.palette.grey[700],
     fontSize: "1rem",
     display: "flex",
     textAlign: "left",

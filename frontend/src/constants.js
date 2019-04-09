@@ -1,6 +1,6 @@
 /*Common constants*/
-export const ROOT = "http://localhost:3000";
-export const API_ROOT = "http://localhost:8080";
+export const ROOT = "192.168.100.94:3000";
+export const API_ROOT = "192.168.100.94:8080";
 
 export const GOOGLE = "google";
 export const PROJECT_NAME = "lingvi";

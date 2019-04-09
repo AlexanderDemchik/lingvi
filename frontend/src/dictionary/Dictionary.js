@@ -8,11 +8,12 @@ import Table from "./components/Table";
 import CssBaseline from "@material-ui/core/CssBaseline/CssBaseline";
 import Grid from "@material-ui/core/Grid/Grid";
 import {Typography} from "@material-ui/core";
-import {TRANSLATION_PATH, USER_DICTIONARY_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
+import {TRANSLATION_PATH, USER_DICTIONARY_PATH, USER_DICTIONARY_WORD_PATH, WORD_PATH} from "../api";
 import api from "../api";
 import Select from "../shared/Select";
 import MenuItem from "@material-ui/core/MenuItem/MenuItem";
 import CardCarousel from "./components/CardCarousel";
+import {debounce} from "lodash";
 
 const RECORDS_PER_PAGE = 10;
 
@@ -108,7 +109,7 @@ class Dictionary extends Component {
     }
   };
 
-  updateAfterFilter = () => {
+  resetWords = () => {
     this.setState({records: [], allIds: [], hasMore: true, currentPage: -1}, () => {
       this.getAllUserWordIds(this.state.filter).then((r) => {
         this.setState({allIds: r.data})
@@ -146,7 +147,12 @@ class Dictionary extends Component {
 
   onFilterChange = (val) => {
     this.setState({filter: val});
+    this.updateAfterFilter();
   };
+
+  updateAfterFilter = debounce(() => {
+    this.resetWords();
+  }, 1000);
 
   removeTranslationFromWord = (wordId, translationId) => {
     const {records} = this.state;
@@ -160,9 +166,21 @@ class Dictionary extends Component {
   };
 
   onDictionaryChange = (newDict) => {
-    this.setState({currentDict: newDict}, () => {
+    this.setState({currentDict: newDict, wordCardIndex: -1}, () => {
       localStorage.setItem("selectedDict", `${newDict.from}-${newDict.to}`);
-      this.updateAfterFilter();
+      this.resetWords();
+    });
+  };
+
+  onChangeUserWordImage = (wordId, image) => {
+    const {records} = this.state;
+    console.log(wordId);
+    console.log(records);
+    return api.post(`${USER_DICTIONARY_PATH}${WORD_PATH}/${wordId}/image`, {id: image.id}).then(response => {
+      let values = records;
+      let i = values.findIndex((el) => el.id === wordId);
+      values[i].image = response.data;
+      this.setState({records: values});
     });
   };
 
@@ -172,7 +190,7 @@ class Dictionary extends Component {
     return (
       <>
         <CssBaseline/>
-        <CardCarousel open={wordCardOpen} onClose={() => this.setState({wordCardOpen: false})} values={records} index={wordCardIndex} changeIndex = {this.onCardIndexChange} deleteTranslation={this.onDeleteTranslation} deleteCard={this.deleteWord}/>
+        <CardCarousel open={wordCardOpen} onClose={() => this.setState({wordCardOpen: false})} values={records} index={wordCardIndex} changeIndex = {this.onCardIndexChange} deleteTranslation={this.removeTranslationFromWord} deleteCard={this.deleteWord} onChangeUserWordImage={this.onChangeUserWordImage}/>
         <Grid container direction={"row"} className={`${classes.wrapper} ${classes.container}`} justify={"space-between"}>
           <Grid item className={classes.meta}>
             <Grid container direction={"column"}>
@@ -187,7 +205,7 @@ class Dictionary extends Component {
           <Grid item className={classes.dictionary}>
             <Table hasMore={hasMore} currentPage={currentPage} getUserWords={this.getUserWords} allIds={allIds} filter={filter}
                    records={records} loading={loading} recordsPerPage={RECORDS_PER_PAGE} onDelete={this.deleteWord} onFilterChange={this.onFilterChange}
-                   updateAfterFilter={this.updateAfterFilter} onDeleteTranslation={this.removeTranslationFromWord} onSelect={this.onSelect} onSelectAll={this.onSelectAll}
+                   onDeleteTranslation={this.removeTranslationFromWord} onSelect={this.onSelect} onSelectAll={this.onSelectAll}
                    selected={selected} onRowClick={this.onRowClick} selectAll={selectAll}/>
           </Grid>
         </Grid>

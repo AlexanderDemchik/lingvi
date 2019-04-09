@@ -24,7 +24,7 @@ class CardCarousel extends Component {
 
   componentDidMount() {
     this.props.open && document.getElementsByTagName("body")[0].classList.add(this.props.classes.bodyOverflowHidden);
-    this.setState({card1Data: this.props.values[1], card2Data: this.props.values[0], card3Data: this.props.values[3]});
+    this.setState({card1Data: this.props.values[1], card2Data: this.props.values[0], card3Data: this.props.values[2]});
     this.cards.push(this.card1);
     this.cards.push(this.card2);
     this.cards.push(this.card3);
@@ -92,21 +92,21 @@ class CardCarousel extends Component {
 
   setValueForCard(cardRef, value) {
     if (this.card1 === cardRef) {
-      this.setState({card1Data: value})
+      this.setState({card1Data: value, card2Data: null, card3Data: null})
     } else if (this.card2 === cardRef) {
-      this.setState({card2Data: value})
+      this.setState({card2Data: value, card1Data: null, card3Data: null})
     } else if (this.card3 === cardRef) {
-      this.setState({card3Data: value})
+      this.setState({card3Data: value, card1Data: null, card2Data: null})
     }
   }
 
   render() {
-    const {classes, open, onClose, index, deleteTranslation, deleteCard} = this.props;
+    const {classes, open, onClose, index, deleteTranslation, deleteCard, onChangeUserWordImage} = this.props;
     const {card1Data, card2Data, card3Data} = this.state;
     return (
       <Fragment>
       {ReactDOM.createPortal(
-        <div style={{position: "fixed", top: 0, left: 0, right: 0, bottom: 0}} className={`${!open && classes.containerHidden}`}>
+        <div className={`${classes.wrapper} ${!open && classes.containerHidden}`}>
           <div className={`${classes.modalCover} ${!open && classes.coverHidden}`} />
           <div className={classes.modalContainer} onClick={onClose}>
               <div className={`${classes.modal} ${!open && classes.modalHidden}`} onClick={(e) => e.stopPropagation()}>
@@ -114,13 +114,13 @@ class CardCarousel extends Component {
                 <div className={`${classes.arrowRight} ${(index >= (this.props.values.length - 1)) && classes.disabledArrow}`} onClick={() => {(index < (this.props.values.length - 1)) && this.handleArrowRightClick()}}><Icon path={mdiArrowRightBoldCircle} size={3}/></div>
 
                 <div className={`${classes.card} ${classes.positionLeft}`} ref={ref => this.card1 = ref}>
-                  {card1Data && <Card word={card1Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard}/>}
+                  {card1Data && <Card word={card1Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
                 </div>
                 <div className={`${classes.card}`} ref={ref => this.card2 = ref}>
-                  {card2Data && <Card word={card2Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard}/>}
+                  {card2Data && <Card word={card2Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
                 </div>
                 <div className={`${classes.card} ${classes.positionRight}`} ref={ref => this.card3 = ref}>
-                  {card3Data && <Card word={card3Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard}/>}
+                  {card3Data && <Card word={card3Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
                 </div>
               </div>
           </div>

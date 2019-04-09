@@ -4,7 +4,7 @@ export const style = (theme) => ({
   },
   menu: {
     position: "absolute",
-    backgroundColor: "rgba(28,28,28,0.99)",
+    backgroundColor: theme.palette.primary.main,
     transition: "all .2s linear",
     opacity: 1,
     bottom: "100%"
@@ -36,7 +36,7 @@ export const style = (theme) => ({
     fontSize: "0.8rem",
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: "rgba(35,35,35,0.99)",
+      backgroundColor: theme.palette.primary.light,
     }
   }
 });

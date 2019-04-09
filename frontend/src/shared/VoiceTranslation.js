@@ -34,6 +34,7 @@ class VoiceTranslation extends React.Component {
   componentDidUpdate(prevProps) {
     if (prevProps.word.id !== this.props.word.id) {
       this.clearAudio();
+      this.setState({playing: false});
     }
   }
 
@@ -66,11 +67,19 @@ class VoiceTranslation extends React.Component {
             <span className={`${playing && classes.playing}`}>[{word.transcription}]</span>
           </div>
         ) : (
-          <Tooltip placement={"top"} title={word.transcription}>
-            <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
-              {children ? children : <SvgIcon name={"volume"} size={24}/>}
-            </div>
-          </Tooltip>
+          <Fragment>
+            {word.transcription ? (
+              <Tooltip placement={"top"} title={word.transcription}>
+                <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
+                  {children ? children : <SvgIcon name={"volume"} size={24}/>}
+                </div>
+              </Tooltip>
+            ) : (
+              <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
+                {children ? children : <SvgIcon name={"volume"} size={24}/>}
+              </div>
+            )}
+          </Fragment>
         )}
       </Fragment>
     )

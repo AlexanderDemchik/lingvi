@@ -16,7 +16,7 @@ class Tooltip extends React.Component {
   };
 
   render() {
-    const {classes, title, children, ...other} = this.props;
+    const {classes, title, children, popperProps, ...other} = this.props;
 
     return (
       <MuiTooltip
@@ -43,6 +43,7 @@ class Tooltip extends React.Component {
               },
             },
           },
+          ...popperProps
         }}
         {...other}
       >

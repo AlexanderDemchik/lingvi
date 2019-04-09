@@ -9,6 +9,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import api, {DICTIONARY_PATH, DICTIONARY_SOUND_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
 import {TRANSLATION_PATH} from "../api";
 import Tooltip from '../shared/Tooltip';
+import TooltipV2 from "../shared/TooltipV2";
 
 class TranslateTooltip extends React.PureComponent {
 
@@ -94,15 +95,16 @@ class TranslateTooltip extends React.PureComponent {
                   <Tooltip placement={"top"} title={translatedWord.transcription}>
                     <Icon path={mdiVolumeHigh} size={1} className={classes.icon} onClick={this.playSound}/>
                   </Tooltip>
-                  {!translatedWord.inUserDict ? (
-                    <Tooltip placement={"top"} title={"Add to dictionary"}>
-                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
+
+                    <Tooltip placement={"top"} title={!translatedWord.inUserDict ? "Add to dictionary" : "Remove from dictionary"}>
+                      <div>
+                        {!translatedWord.inUserDict ? (
+                          <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
+                        ) : (
+                          <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
+                        )}
+                      </div>
                     </Tooltip>
-                  ) : (
-                    <Tooltip placement={"top"} title={"Remove from dictionary"}>
-                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
-                    </Tooltip>
-                  )}
                 </Grid>
               </Grid>
             </Grid>

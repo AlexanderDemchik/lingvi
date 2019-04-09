@@ -4,6 +4,7 @@ import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
 import com.lingvi.lingviserver.dictionary.entities.SoundResponse;
 import com.lingvi.lingviserver.dictionary.entities.WordResponse;
+import com.lingvi.lingviserver.dictionary.entities.WordResponseV2;
 import com.lingvi.lingviserver.dictionary.services.DictionaryService;
 import com.lingvi.lingviserver.dictionary.utils.LanguageConventer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,11 @@ public class DictionaryController {
     @GetMapping(ControllerPaths.TRANSLATION)
     public WordResponse getTranslation(@RequestParam String text, @RequestParam Language from, @RequestParam Language to) {
         return dictionaryService.handleUserTranslateRequest(text, from, to);
+    }
+
+    @GetMapping(ControllerPaths.TRANSLATION + "/v2")
+    public WordResponseV2 getTranslationV2(@RequestParam String text, @RequestParam Language from, @RequestParam Language to) {
+        return dictionaryService.handleUserTranslateRequestV2(text, from, to);
     }
 
     @GetMapping(ControllerPaths.SOUND_PATH)

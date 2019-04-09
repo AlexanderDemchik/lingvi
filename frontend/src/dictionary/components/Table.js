@@ -18,10 +18,10 @@ class Table extends Component {
   }
 
   render() {
-    const {classes, allIds, records, hasMore, loading, currentPage, filter, recordsPerPage, onFilterChange, selectAll, onDelete, updateAfterFilter, getUserWords, onSelectAll, onSelect, selected, onRowClick} = this.props;
+    const {classes, allIds, records, hasMore, loading, currentPage, filter, recordsPerPage, onFilterChange, selectAll, onDelete, getUserWords, onSelectAll, onSelect, selected, onRowClick} = this.props;
     return (
       <div className={classes.wrapper}>
-        <TableHeader selected={selected} selectAll={selectAll} onSelectAll={onSelectAll} selectAllDisabled={allIds.length === 0} onFilterChange={onFilterChange} filterValue={filter} onSearch={updateAfterFilter}/>
+        <TableHeader selected={selected} selectAll={selectAll} onSelectAll={onSelectAll} selectAllDisabled={allIds.length === 0} onFilterChange={onFilterChange} filterValue={filter}/>
         <InfiniteScroll data={records} loadMore={() => getUserWords(currentPage + 1, recordsPerPage, filter)} hasMore={hasMore} isLoading={loading} threshold={300}>
           <div ref={ref => this.ref = ref}>
           {records.map((row, i) => (
@@ -44,7 +44,6 @@ Table.propTypes = {
   loading: PropTypes.bool,
   recordsPerPage: PropTypes.number,
   onFilterChange: PropTypes.func,
-  updateAfterFilter: PropTypes.func,
   onDelete: PropTypes.func,
   onDeleteTranslation: PropTypes.func,
   selected: PropTypes.array,

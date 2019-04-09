@@ -38,7 +38,7 @@ export const style = (theme) => ({
   modal: {
     position: "relative",
     transform: "scale(1)",
-    width: "400px",
+    width: "350px",
     margin: "auto",
     display: "inline-block",
     verticalAlign: "middle",
@@ -58,7 +58,7 @@ export const style = (theme) => ({
     left: "-100px",
     top: "50%",
     transform: "translateY(-50%)",
-    zIndex: 2000
+    zIndex: theme.zIndex.modal
   },
   arrowRight: {
     cursor: "pointer",
@@ -67,7 +67,7 @@ export const style = (theme) => ({
     right: "-100px",
     top: "50%",
     transform: "translateY(-50%)",
-    zIndex: 2000
+    zIndex: theme.zIndex.modal
   },
   leaveLeft: {
     transform: "translateX(-100%)",
@@ -104,5 +104,9 @@ export const style = (theme) => ({
   disabledArrow: {
     fill: "rgba(150,150,150,0.5)",
     cursor: "not-allowed"
-  }
+  },
+  wrapper: {
+    position: "fixed", top: 0, left: 0, right: 0, bottom: 0, zIndex: theme.zIndex.modal
+  },
+
 });

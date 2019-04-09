@@ -4,7 +4,7 @@ export const style = (theme) => ({
     padding: "7px 9px",
     cursor: "pointer",
     "&:hover": {
-      backgroundColor: "rgba(35,35,35,0.99)"
+      backgroundColor: theme.palette.primary.light,
     }
   },
   tick: {

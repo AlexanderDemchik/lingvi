@@ -68,7 +68,6 @@ class TranslateableWord extends React.PureComponent {
 
   onMouseEnter = () => {
     const {disabled} = this.props;
-
     this.setState({isMouseOver: true}, () => {
       if (!disabled) {
         this.tooltipRef.getTranslation(this.props.children);

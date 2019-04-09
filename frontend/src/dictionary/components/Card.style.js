@@ -8,14 +8,15 @@ export const style = (theme) => ({
     justifyContent: "center",
     padding: 50,
     paddingTop: 150,
+    marginTop: 20
   },
   word: {
     fontSize: "1.8rem",
     marginBottom: "7px",
-    color: "#995B36"
+    color: "#000"
   },
   deleteIcon: {
-    fill: "rgba(200,200,200,1)",
+    fill: theme.palette.grey[600],
     position: "absolute",
     bottom: "10px",
     right: "20px",
@@ -61,7 +62,10 @@ export const style = (theme) => ({
     transform: "translate(-50%, 0)",
   },
   sound: {
-    color: "rgb(200,200,200)",
-    fill: "rgb(200,200,200)"
+    color: theme.palette.grey[600],
+    fill: theme.palette.grey[600]
+  },
+  wordSmallFontSize: {
+    fontSize: "1.2rem"
   }
 });

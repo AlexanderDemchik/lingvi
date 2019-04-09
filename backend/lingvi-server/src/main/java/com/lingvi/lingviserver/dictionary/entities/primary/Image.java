@@ -1,11 +1,11 @@
 package com.lingvi.lingviserver.dictionary.entities.primary;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "word_images")
 public class Image implements Serializable {
@@ -28,6 +28,11 @@ public class Image implements Serializable {
     @JsonIdentityReference(alwaysAsId = true)
     @JoinColumn(name = "word_id")
     private Word word;
+
+    @JsonIgnore
+    @JsonIgnoreProperties({"image"})
+    @OneToMany(mappedBy = "image")
+    private List<Blame> blames = new ArrayList<>();
 
     public Image() {
     }
@@ -75,5 +80,13 @@ public class Image implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public List<Blame> getBlames() {
+        return blames;
+    }
+
+    public void setBlames(List<Blame> blames) {
+        this.blames = blames;
     }
 }

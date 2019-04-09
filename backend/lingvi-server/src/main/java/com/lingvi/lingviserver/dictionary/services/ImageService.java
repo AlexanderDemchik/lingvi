@@ -7,6 +7,8 @@ import com.lingvi.lingviserver.dictionary.repositories.primary.WordRepository;
 import com.lingvi.lingviserver.dictionary.utils.StorageUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,5 +51,15 @@ public class ImageService {
             logger.error("Error occurred while save image to storage");
             return null;
         }
+    }
+
+    public Slice<Image> getImages(Long wordId, int page, Integer limit) {
+        final int DEFAULT_LIMIT = 20;
+        if (limit == null) limit = DEFAULT_LIMIT;
+        return imageRepository.findAllByWordId(wordId, PageRequest.of(page, limit));
+    }
+
+    public Image getImageById(Long id) {
+        return imageRepository.findById(id).orElse(null);
     }
 }

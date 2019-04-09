@@ -2,7 +2,7 @@ export const style = (theme) => ({
   row: {
     display: "flex",
     flexWrap: "nowrap",
-    height: 50,
+    minHeight: 50,
     width: "100%",
     borderBottom: "1px solid rgba(200,200,200)",
     "&:hover": {
