@@ -4,8 +4,11 @@ import {style} from "./VoiceTranslation.style";
 import withStyles from "@material-ui/core/styles/withStyles";
 import SvgIcon from "./icons/SvgIcon";
 import {DICTIONARY_SOUND_PATH} from "../api";
+import {mdiVolumeHigh} from "@mdi/js";
+import {Icon} from "@mdi/react";
 import api from "../api";
 import PropTypes from "prop-types";
+import Volume from "./icons/Volume";
 
 class VoiceTranslation extends React.Component {
   constructor(props) {
@@ -63,7 +66,7 @@ class VoiceTranslation extends React.Component {
       <Fragment>
         {withLabel ? (
           <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
-            {children ? children : <SvgIcon name={"volume"} size={24} style={{marginRight: 5}}/>}
+            {children ? children : <Icon path={mdiVolumeHigh} size={1} color={"inherit"} style={{marginRight: 5}}/>}
             <span className={`${playing && classes.playing}`}>[{word.transcription}]</span>
           </div>
         ) : (
@@ -71,12 +74,12 @@ class VoiceTranslation extends React.Component {
             {word.transcription ? (
               <Tooltip placement={"top"} title={word.transcription}>
                 <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
-                  {children ? children : <SvgIcon name={"volume"} size={24}/>}
+                  {children ? children : <Icon path={mdiVolumeHigh} size={1} color={"inherit"}/>}
                 </div>
               </Tooltip>
             ) : (
               <div className={`${classes.icon} ${playing && classes.playing}`} onClick={this.onClick}>
-                {children ? children : <SvgIcon name={"volume"} size={24}/>}
+                {children ? children : <Icon path={mdiVolumeHigh} size={1} color={"inherit"}/>}
               </div>
             )}
           </Fragment>

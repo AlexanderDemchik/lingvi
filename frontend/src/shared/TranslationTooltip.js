@@ -42,10 +42,11 @@ class TranslationTooltip extends React.Component {
     this.setState({isAddToDictionaryRequest: true}, () => {
       api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.from, to: this.props.to, word: this.props.text})
         .then(r => {
-          this.setState({translatedWord: {...this.state.translatedWord, inUserDict: true, userDictId: r.data.id}, isAddToDictionaryRequest: false})
+          this.setState({translatedWord: {...this.state.translatedWord, inUserDict: true, userDictId: r.data.id}, isAddToDictionaryRequest: false});
+          if (this.props.postAdd) this.props.postAdd(r.data);
         })
         .catch(() => {
-          this.setState({isAddToDictionaryRequest: false})
+          this.setState({isAddToDictionaryRequest: false});
         })
     })
   };
@@ -56,16 +57,18 @@ class TranslationTooltip extends React.Component {
         .then((r) => {
           this.setState({isTranslationRequest: false, translatedWord: r.data});
         }).catch(() => {
-        this.setState({isTranslationRequest: false});
-      })
+          this.setState({isTranslationRequest: false});
+        })
     });
   };
 
   removeFromDictionary = () => {
     this.setState({isRemoveFromDictionaryRequest: true}, () => {
-      api.delete(`${USER_DICTIONARY_WORD_PATH}/${this.state.translatedWord.userDictId}`)
+      const id = this.state.translatedWord.userDictId;
+      api.delete(`${USER_DICTIONARY_WORD_PATH}/${id}`)
         .then(() => {
           this.setState({isRemoveFromDictionaryRequest: false, translatedWord: {...this.state.translatedWord, inUserDict: false}});
+          if (this.props.postDelete) this.props.postDelete(id);
         })
         .catch(() => {
           this.setState({isRemoveFromDictionaryRequest: false});
@@ -100,7 +103,7 @@ class TranslationTooltip extends React.Component {
                   </Grid>
                   <Grid item style={{alignSelf: "start"}}>
                     <Grid container direction={"row"} alignItems={"center"} wrap={"nowrap"}>
-                      <Tooltip placement={"top"} title={translatedWord.transcription} tooltipPosition={"top-center"}>
+                      <Tooltip placement={"top"} title={translatedWord.transcription}>
                         <Icon path={mdiVolumeHigh} size={1} className={classes.icon} onClick={this.playSound}/>
                       </Tooltip>
                       {!translatedWord.inUserDict ? (
@@ -152,6 +155,7 @@ TranslationTooltip.propTypes = {
   text: PropTypes.string,
   from: PropTypes.string,
   to: PropTypes.string,
+  postAdd: PropTypes.func,
 };
 
 

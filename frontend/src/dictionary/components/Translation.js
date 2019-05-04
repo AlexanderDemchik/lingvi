@@ -11,7 +11,7 @@ const Translation = ({classes, value, onDelete, deletable}) => {
   const [hover, setHover] = useState(false);
 
   return (
-    <div className={`${classes.wrapper} ${classes.translation}`} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div className={`${classes.wrapper} ${classes.translation}`} onMouseOver={() => setHover(true)} onMouseLeave={() => setHover(false)}>
       <span style={{position: "relative"}} >
         <span >{value}</span>
         {

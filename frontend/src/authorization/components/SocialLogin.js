@@ -5,7 +5,7 @@ import Grid from "../../../node_modules/@material-ui/core/Grid/Grid";
 import SyncLoader from "react-spinners/BeatLoader";
 import history from "../../history";
 import {socialLogin} from "../actions";
-import {ROOT} from "../../constants";
+import {ROOT} from "../../api";
 import {withTheme} from "@material-ui/core";
 
 class SocialLogin extends React.Component {

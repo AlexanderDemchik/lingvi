@@ -4,7 +4,7 @@ import {withStyles, Grid} from "@material-ui/core";
 import ButtonBase from "@material-ui/core/es/ButtonBase/ButtonBase";
 import {ArrowDropDown} from "@material-ui/icons";
 import {ClickAwayListener, Grow, MenuItem, MenuList, Paper, Popper} from "@material-ui/core";
-import {changeUiLanguage} from "../../account/actions";
+import {changeUiLanguage} from "../../settings/actions";
 import {connect} from "react-redux";
 
 const Locale = (props) => {
@@ -29,8 +29,8 @@ const Locale = (props) => {
             <Paper>
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <MenuList>
-                  <MenuItem onClick={() => props.changeUiLanguage("ru")}>RU</MenuItem>
-                  <MenuItem onClick={() => props.changeUiLanguage("en")}>EN</MenuItem>
+                  <MenuItem onClick={() => props.changeUiLanguage("RU")}>RU</MenuItem>
+                  <MenuItem onClick={() => props.changeUiLanguage("EN")}>EN</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>
@@ -42,7 +42,7 @@ const Locale = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-  uiLanguage: state.account.uiLanguage
+  uiLanguage: state.settings.uiLanguage
 });
 
 const mapDispatchToProps = (dispatch) => ({

@@ -2,7 +2,7 @@ import {fade} from "@material-ui/core/styles/colorManipulator";
 
 export const style = (theme) => ({
   textField: {
-    height: 30,
+    height: 40,
     border: "none",
     backgroundColor: "#f0f1f1",
     color: "#58585a",
@@ -10,7 +10,7 @@ export const style = (theme) => ({
     boxShadow: "none",
     padding: "6px 8px",
     width: "100%",
-    borderRadius: "6px",
+    borderRadius: "6px 6px 0 0",
     boxSizing: "border-box",
     outline: "none",
     paddingRight: "58px",
@@ -32,6 +32,6 @@ export const style = (theme) => ({
     width: "50px",
     minWidth: 0,
     padding: 0,
-    borderRadius: "0 6px 6px 0"
+    borderRadius: "0 6px 0 0"
   }
 });

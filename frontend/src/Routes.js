@@ -10,8 +10,9 @@ import store from "./store";
 import VideoPlayer from "./videoplayer/VideoPlayer";
 import Dictionary from "./dictionary/Dictionary";
 import AppBar from "./appbar/AppBar";
-import WithAppBar from "./layout/WithAppBar";
 import Home from "./home/Home";
+import Settings from "./settings/Settings";
+import AdminPage from "./admin/AdminPage";
 
 export const Routes = ({logged, ...props}) => (
   <Router history={history}>
@@ -21,17 +22,17 @@ export const Routes = ({logged, ...props}) => (
         <Switch>
           <Route exact path={"/"} children={() => <Home/>}/>
           <Route path={"/dictionary"} component={Dictionary}/>
+          <Route path={"/settings"} component={Settings}/>
+          <Route path={"/admin"} component={AdminPage}/>
           <Route path={"*"} exact={true} children={() => (<span>not found</span>)}/>
         </Switch>
       </>
     }
     {!logged &&
       <Switch>
-        {console.log("here")}
         <Route key={"welcomepage"} exact={true} path={"/"} component={WelcomePage}/>
         <Route key={"providerlogin"} path={"/login/:provider"} component={SocialLogin}/>
         <Route key={"providerregister"} path={"/register/:provider"} component={SocialRegister}/>
-        {console.log("here2")}
         <Route path={"*"} exact={true} children={() => (<span>not found</span>)}/>
       </Switch>
     }

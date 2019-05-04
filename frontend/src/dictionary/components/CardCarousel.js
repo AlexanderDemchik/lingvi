@@ -101,7 +101,7 @@ class CardCarousel extends Component {
   }
 
   render() {
-    const {classes, open, onClose, index, deleteTranslation, deleteCard, onChangeUserWordImage} = this.props;
+    const {classes, open, onClose, index, deleteTranslation, deleteCard, onChangeUserWordImage, addTranslation} = this.props;
     const {card1Data, card2Data, card3Data} = this.state;
     return (
       <Fragment>
@@ -114,13 +114,13 @@ class CardCarousel extends Component {
                 <div className={`${classes.arrowRight} ${(index >= (this.props.values.length - 1)) && classes.disabledArrow}`} onClick={() => {(index < (this.props.values.length - 1)) && this.handleArrowRightClick()}}><Icon path={mdiArrowRightBoldCircle} size={3}/></div>
 
                 <div className={`${classes.card} ${classes.positionLeft}`} ref={ref => this.card1 = ref}>
-                  {card1Data && <Card word={card1Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
+                  {card1Data && <Card word={card1Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage} addTranslation={addTranslation}/>}
                 </div>
                 <div className={`${classes.card}`} ref={ref => this.card2 = ref}>
-                  {card2Data && <Card word={card2Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
+                  {card2Data && <Card word={card2Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage} addTranslation={addTranslation}/>}
                 </div>
                 <div className={`${classes.card} ${classes.positionRight}`} ref={ref => this.card3 = ref}>
-                  {card3Data && <Card word={card3Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage}/>}
+                  {card3Data && <Card word={card3Data} deleteTranslation={deleteTranslation} deleteCard={deleteCard} onChangeUserWordImage={onChangeUserWordImage} addTranslation={addTranslation}/>}
                 </div>
               </div>
           </div>

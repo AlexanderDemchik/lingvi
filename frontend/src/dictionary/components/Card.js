@@ -12,7 +12,7 @@ import placeholderImg from "../../assets/placeholder.png";
 import AddTranslation from "./AddTranslation";
 import CardImage from "./CardImage";
 
-const Card = ({classes, word, deleteTranslation, deleteCard, onChangeUserWordImage, ...props}) => {
+const Card = ({classes, word, deleteTranslation, deleteCard, onChangeUserWordImage, addTranslation, ...props}) => {
 
   const [hover, setHover] = useState(false);
 
@@ -42,7 +42,7 @@ const Card = ({classes, word, deleteTranslation, deleteCard, onChangeUserWordIma
           ))}
         </Grid>
 
-        <AddTranslation hover={hover}/>
+        <AddTranslation hover={hover} word={word} addTranslation={addTranslation} deleteTranslation={deleteTranslation}/>
       </Grid>
 
       <div>

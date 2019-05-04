@@ -34,10 +34,18 @@ class InfiniteScroll extends React.Component {
   }
 
   render () {
+    const {isLoading, loaderComponent, showLoader} = this.props;
     return (
-      this.props.children
+      <React.Fragment>
+        {this.props.children}
+        {showLoader && isLoading && loaderComponent}
+      </React.Fragment>
     )
   }
 }
+
+InfiniteScroll.defaultProps = {
+  showLoader: false
+};
 
 export default InfiniteScroll;

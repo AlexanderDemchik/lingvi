@@ -9,7 +9,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import api, {DICTIONARY_PATH, DICTIONARY_SOUND_PATH, USER_DICTIONARY_WORD_PATH} from "../api";
 import {TRANSLATION_PATH} from "../api";
 import Tooltip from '../shared/Tooltip';
-import TooltipV2 from "../shared/TooltipV2";
+import {connect} from "react-redux";
 
 class TranslateTooltip extends React.PureComponent {
 
@@ -22,6 +22,7 @@ class TranslateTooltip extends React.PureComponent {
       isRemoveFromDictionaryRequest: false
     };
     this.audio = null;
+    this.wrapperRef = null;
   }
 
   componentDidMount() {
@@ -44,7 +45,7 @@ class TranslateTooltip extends React.PureComponent {
 
   addToDictionary =  () => {
     this.setState({isAddToDictionaryRequest: true}, () => {
-      api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.language, to: "UA", word: this.props.word})
+      api.post(`${USER_DICTIONARY_WORD_PATH}`, {from: this.props.language, to: this.props.translationLanguage, word: this.props.word})
         .then(r => {
           this.setState({translatedWord: {...this.state.translatedWord, inUserDict: true, userDictId: r.data.id}, isAddToDictionaryRequest: false})
         })
@@ -56,7 +57,7 @@ class TranslateTooltip extends React.PureComponent {
 
   getTranslation = (word) => {
     this.setState({isTranslationRequest: true}, () => {
-      api.get(`${DICTIONARY_PATH}${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=UA`)
+      api.get(`${DICTIONARY_PATH}${TRANSLATION_PATH}?text=${word}&from=${this.props.language}&to=${this.props.translationLanguage}`)
         .then((r) => {
           this.setState({isTranslationRequest: false, translatedWord: r.data});
         }).catch(() => {
@@ -82,7 +83,7 @@ class TranslateTooltip extends React.PureComponent {
     const {isTranslationRequest, translatedWord} = this.state;
 
     return (
-      <div className={classes.wrapper}>
+      <div className={classes.wrapper} ref={ref => this.wrapperRef = ref}>
         {!isTranslationRequest  && translatedWord ?
           <React.Fragment>
             <Grid container direction={"row"} wrap={"nowrap"} justify={"space-between"} className={classes.header}
@@ -92,19 +93,17 @@ class TranslateTooltip extends React.PureComponent {
               </Grid>
               <Grid item style={{alignSelf: "start"}}>
                 <Grid container direction={"row"} alignItems={"center"} wrap={"nowrap"}>
-                  <Tooltip placement={"top"} title={translatedWord.transcription}>
+                  <Tooltip placement={"top"} title={translatedWord.transcription} popperProps={{container: this.wrapperRef}}>
                     <Icon path={mdiVolumeHigh} size={1} className={classes.icon} onClick={this.playSound}/>
                   </Tooltip>
 
-                    <Tooltip placement={"top"} title={!translatedWord.inUserDict ? "Add to dictionary" : "Remove from dictionary"}>
-                      <div>
-                        {!translatedWord.inUserDict ? (
-                          <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
-                        ) : (
-                          <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
-                        )}
-                      </div>
-                    </Tooltip>
+                  <Tooltip placement={"top"} title={!translatedWord.inUserDict ? "Add to dictionary" : "Remove from dictionary"} popperProps={{container: this.wrapperRef}}>
+                    {!translatedWord.inUserDict ? (
+                      <Icon path={mdiBookPlus} size={1} className={`${classes.icon} ${classes.dictionaryIcon}`} onClick={this.addToDictionary}/>
+                    ) : (
+                      <Icon path={mdiBookRemove} size={1} className={`${classes.icon} ${classes.dictionaryIcon} ${classes.inUserDict}`} onClick={this.removeFromDictionary}/>
+                    )}
+                  </Tooltip>
                 </Grid>
               </Grid>
             </Grid>
@@ -141,7 +140,12 @@ TranslateTooltip.propTypes = {
   classes: PropTypes.object,
   word: PropTypes.string,
   innerRef: PropTypes.func,
-  language: PropTypes.string
+  language: PropTypes.string,
+  translationLanguage: PropTypes.string
 };
 
-export default withStyles(style)(TranslateTooltip);
+const mapStateToProps = (state) => ({
+  translationLanguage: state.settings.translationLanguage
+});
+
+export default connect(mapStateToProps, null)(withStyles(style)(TranslateTooltip));

@@ -21,6 +21,8 @@
     "react-addons-css-transition-group": "^15.6.2",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.4",
+    "react-flip-move": "^3.0.3",
+    "react-flip-toolkit": "^6.5.9",
     "react-i18next": "^10.5.1",
     "react-infinite-scroll-component": "^4.5.1",
     "react-jss": "^8.6.1",
@@ -32,7 +34,9 @@
     "react-scripts": "2.1.8",
     "react-spinners": "^0.5.1",
     "redux": "^4.0.1",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "tus-js-client": "^1.8.0-0",
+    "perfect-scrollbar": "latest"
   },
   "scripts": {
     "start": "react-scripts start",

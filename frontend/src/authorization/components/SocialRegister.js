@@ -4,7 +4,7 @@ import {connect} from "react-redux";
 import Grid from "@material-ui/core/Grid/Grid";
 import {socialRegister} from "../actions";
 import history from "../../history";
-import {ROOT} from "../../constants";
+import {ROOT} from "../../api";
 import {SyncLoader} from "react-spinners";
 import withTheme from "@material-ui/core/styles/withTheme";
 

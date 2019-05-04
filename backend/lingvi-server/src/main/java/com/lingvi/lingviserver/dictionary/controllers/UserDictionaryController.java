@@ -2,12 +2,10 @@ package com.lingvi.lingviserver.dictionary.controllers;
 
 import com.lingvi.lingviserver.commons.entities.Language;
 import com.lingvi.lingviserver.dictionary.config.ControllerPaths;
-import com.lingvi.lingviserver.dictionary.entities.UserDictMeta;
-import com.lingvi.lingviserver.dictionary.entities.UserDictionaryAddWordRequest;
-import com.lingvi.lingviserver.dictionary.entities.UserWordSliceResponse;
+import com.lingvi.lingviserver.dictionary.entities.*;
+import com.lingvi.lingviserver.dictionary.entities.primary.DictionaryMeta;
 import com.lingvi.lingviserver.dictionary.entities.primary.Image;
 import com.lingvi.lingviserver.dictionary.entities.primary.Translation;
-import com.lingvi.lingviserver.dictionary.entities.primary.UserWord;
 import com.lingvi.lingviserver.dictionary.services.DictionaryService;
 import com.lingvi.lingviserver.dictionary.services.UserDictionaryService;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +36,8 @@ public class UserDictionaryController {
     }
 
     @DeleteMapping(ControllerPaths.WORD)
-    public void batchRemoveWordsFromUserDict(@RequestParam List<Long> ids) {
-        dictionaryService.batchRemoveWordsFromUserDictionary(ids);
+    public void batchRemoveWordsFromUserDict(@RequestBody BatchDeleteWordsRequest request) {
+        dictionaryService.batchRemoveWordsFromUserDictionary(request.getIds());
     }
 
     @GetMapping(ControllerPaths.WORD + ControllerPaths.ID)
@@ -58,7 +56,7 @@ public class UserDictionaryController {
 //    }
 
     @PostMapping(ControllerPaths.WORD + "/{wordId}" + ControllerPaths.TRANSLATION)
-    public UserWord addTranslation(@PathVariable Long wordId, @RequestBody Translation translation) {
+    public TranslationResponse addTranslation(@PathVariable Long wordId, @RequestBody Translation translation) {
         return dictionaryService.addTranslationToUserDictionaryWord(wordId, translation);
     }
 
@@ -68,13 +66,23 @@ public class UserDictionaryController {
     }
 
     @GetMapping(ControllerPaths.META)
-    public List<UserDictMeta> getDictMeta() {
-        return dictionaryService.getUserDictionaryMeta();
+    public List<UserDictMetaImpl> getDictMeta() {
+        return userDictionaryService.getUserDictionaryMeta();
     }
 
     @PostMapping(ControllerPaths.WORD + "/{wordId}" + ControllerPaths.IMAGE)
     public Image setImage(@PathVariable Long wordId, @RequestBody Image image) {
         return userDictionaryService.changeSelectedImage(wordId, image);
+    }
+
+    @PostMapping
+    public DictionaryMeta addDictionary(@RequestBody DictionaryMeta dictionaryMeta) {
+        return userDictionaryService.addNewDictionaryMeta(dictionaryMeta);
+    }
+
+    @DeleteMapping
+    public void removeDictionary(@RequestBody DictionaryMeta dictionaryMeta) {
+        userDictionaryService.deleteDictionary(dictionaryMeta);
     }
 
 }

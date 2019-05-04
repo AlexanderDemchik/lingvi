@@ -9,6 +9,7 @@ import {ClickAwayListener, List, ListItem, ListItemIcon, Divider} from "@materia
 import {mdiLogout} from "@mdi/js";
 import {exit} from "../authorization/actions";
 import {connect} from "react-redux";
+import history from "../history";
 
 const AccountMenu = ({classes, name, exit}) => {
   const [active, setActive] = useState(false);
@@ -24,7 +25,7 @@ const AccountMenu = ({classes, name, exit}) => {
         <div className={`${classes.menu} ${!active && classes.hidden}`}>
           <span className={classes.arrow}/>
           <List>
-            <ListItem button className={classes.listItem}>
+            <ListItem button className={classes.listItem} onClick={() => {history.push("/settings"); setActive(false)}}>
               <ListItemIcon>
                 <Icon path={mdiSettings} size={1} className={classes.icon}/>
               </ListItemIcon>

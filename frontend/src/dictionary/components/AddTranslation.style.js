@@ -13,7 +13,20 @@ export const style = (theme) => ({
     zIndex: theme.zIndex.modal
   },
   popperBody: {
-    padding: 30,
     backgroundColor: "#fff"
-  }
+  },
+  translation: {
+    padding: 10,
+    cursor: "pointer",
+    "&:hover": {
+      backgroundColor: theme.palette.grey[200]
+    }
+  },
+  inUserDict: {
+    backgroundColor: theme.palette.success.main,
+    color: "#fff",
+    "&:hover": {
+      backgroundColor: theme.palette.success.main
+    }
+  },
 });

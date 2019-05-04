@@ -6,7 +6,12 @@ security:
   refresh-token-life-time: 30000000000L
   claims-role-field: roles
 
+local-storage:
+  path: C:\Users\alexa\Documents\Projects\lingvi\backend\storage
+
 spring:
+  mvc:
+    dispatch-options-request: true
   cache:
     type: redis
   redis:

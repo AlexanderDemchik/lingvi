@@ -2,6 +2,8 @@ package com.lingvi.lingviserver.commons.utils;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import javax.servlet.http.HttpServletRequest;
+
 public class Utils {
 
     public static void setTimeout(Runnable runnable, int delay){
@@ -41,6 +43,19 @@ public class Utils {
      */
     public static Long getUserId() {
         return Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
+    public static String getRootUrl(HttpServletRequest request) {
+        return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
+    }
+
+    public static String getExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i+1);
+        }
+        return extension;
     }
 }
 

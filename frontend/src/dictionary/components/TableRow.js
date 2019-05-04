@@ -9,13 +9,13 @@ import VoiceTranslation from "../../shared/VoiceTranslation";
 
 class TableRow extends Component {
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.row === undefined || this.props.row === null) return true;
-    if ((nextProps.row.id !== this.props.row.id)) return true;
-    if (nextProps.selected !== this.props.selected) return true;
-    if (nextProps.i !== this.props.i) return true;
-    return false;
-  }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (this.props.row === undefined || this.props.row === null) return true;
+  //   if ((nextProps.row.id !== this.props.row.id)) return true;
+  //   if (nextProps.selected !== this.props.selected) return true;
+  //   if (nextProps.i !== this.props.i) return true;
+  //   return false;
+  // }
 
   render() {
     const {classes, row, onSelect, selected, onDelete, onRowClick} = this.props;

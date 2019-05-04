@@ -18,6 +18,7 @@ export const style = (theme) => ({
     borderRadius: 5,
     userSelect: "none",
     padding: 17,
+    minWidth: 300
   },
   word: {
     color: "#000",

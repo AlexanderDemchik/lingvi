@@ -20,7 +20,7 @@ class Popper extends React.Component {
   };
 
   render() {
-    const {open, classes, placement, children, anchorEl, disablePortal} = this.props;
+    const {open, classes, placement, children, anchorEl, disablePortal, className, flip} = this.props;
     const {arrowRef} = this.state;
     return (
       <MuiPopper
@@ -39,12 +39,12 @@ class Popper extends React.Component {
             boundariesElement: 'window',
           },
           flip: {
-            enabled: false,
+            enabled: flip,
           },
         }}
       >
         <span className={classes.arrow} ref={this.handleArrowRef} />
-        <Paper className={classes.paper}>
+        <Paper className={`${classes.paper} ${className}`}>
           {children}
         </Paper>
       </MuiPopper>
@@ -52,11 +52,17 @@ class Popper extends React.Component {
   }
 }
 
+Popper.defaultProps = {
+  flip: false
+};
+
 Popper.propTypes = {
   open: PropTypes.bool,
   classes: PropTypes.object,
   placement: PropTypes.string,
   anchorEl: PropTypes.func,
+  className: PropTypes.string,
+  flip: PropTypes.bool,
 };
 
 

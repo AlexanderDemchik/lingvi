@@ -285,6 +285,8 @@ public class DictionaryService {
             }
 
             List<Translation> translationsFromCommonDict = translationRepository.findByWordIdAndLanguageAndSourceInOrderByPopularityDesc(word.getId(), to, Arrays.asList(TranslationSource.TRANSLATOR, TranslationSource.DICTIONARY));
+            List<Translation> userTranslations = translationRepository.findByWordIdAndLanguageAndSourceInAndAddedBy(word.getId(), to, Collections.singletonList(TranslationSource.USER), userId);
+            translationsFromCommonDict.addAll(userTranslations);
 
             if (translationsFromUserDict != null) {
                 resultTranslations = translationsFromUserDict.stream().map(t -> new TranslationResponse(t, true)).collect(Collectors.toList());
@@ -293,7 +295,7 @@ public class DictionaryService {
                         resultTranslations.add(new TranslationResponse(translation, false));
                     }
                 }
-            } else if (translationsFromCommonDict != null) {
+            } else {
                 resultTranslations = translationsFromCommonDict.stream().map(t -> new TranslationResponse(t, false)).collect(Collectors.toList());
             }
         } else {
@@ -396,7 +398,7 @@ public class DictionaryService {
      * @return ??
      */
     public Object saveWordToUserDictionary(String text, Language from, Language to, List<Translation> translations) {
-        text = text.toLowerCase();
+        text = text.trim().toLowerCase();
         Word w;
         UserWord userWord;
         Long userId = getUserId();
@@ -465,12 +467,10 @@ public class DictionaryService {
                 });
             } else {
                 //in the future it will be good to change this implementation to observable
-                Utils.setTimeout(() -> {
-                    userWordRepository.findById(userWord.getId()).ifPresent((uWord) -> {
-                        uWord.setSelectedImage(imageRepository.findFirstByWord(finalW));
-                        userWordRepository.save(uWord);
-                    });
-                }, 5000);
+                Utils.setTimeout(() -> userWordRepository.findById(userWord.getId()).ifPresent((uWord) -> {
+                    uWord.setSelectedImage(imageRepository.findFirstByWord(finalW));
+                    userWordRepository.save(uWord);
+                }), 5000);
             }
         }
 
@@ -595,7 +595,7 @@ public class DictionaryService {
      * @param wordId user word id
      * @return {@link UserWord}
      */
-    public UserWord addTranslationToUserDictionaryWord(Long wordId, Translation translation) {
+    public TranslationResponse addTranslationToUserDictionaryWord(Long wordId, Translation translation) {
         UserWord userWord = userWordRepository.findById(wordId).orElse(null);
         if (userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
 
@@ -603,14 +603,21 @@ public class DictionaryService {
             translation.setSource(TranslationSource.USER);
             translation.setWord(userWord.getWord());
             translation.setAddedBy(getUserId());
+            translationRepository.save(translation);
         } else {
             translation = translationRepository.findById(translation.getId()).orElse(null);
             if (translation == null) throw new ApiError("Translation not exist", HttpStatus.NOT_FOUND);
         }
-        userWord.getUserTranslations().add(translation);
 
-        userWord = userWordRepository.save(userWord);
-        return userWord;
+        Translation finalTranslation = translation;
+        if (userWord.getUserTranslations().stream().noneMatch((tr) -> tr.getId().equals(finalTranslation.getId()))) {
+            userWord.getUserTranslations().add(translation);
+        } else {
+            throw new ApiError("Already saved", HttpStatus.BAD_REQUEST);
+        }
+
+        userWordRepository.save(userWord);
+        return new TranslationResponse(translation, true);
     }
 
     /**
@@ -621,7 +628,9 @@ public class DictionaryService {
         UserWord userWord = userWordRepository.findById(wordId).orElse(null);
         if(userWord == null) throw new ApiError("Word not exist in user dictionary", HttpStatus.BAD_REQUEST);
 
-        Translation translation = userWord.getUserTranslations().stream().filter(tr -> tr.getId().equals(translationId)).findFirst().orElse(null);
+        List<Translation> userTranslations = userWord.getUserTranslations();
+        if (userTranslations.size() == 1) throw new ApiError("Can not delete last translation, delete all word", HttpStatus.BAD_REQUEST);
+        Translation translation = userTranslations.stream().filter(tr -> tr.getId().equals(translationId)).findFirst().orElse(null);
         if (translation == null) throw new ApiError("Unexpected error", HttpStatus.BAD_REQUEST);
 
         userWord.getUserTranslations().remove(translation);
@@ -631,14 +640,6 @@ public class DictionaryService {
         if (translation.getSource().equals(TranslationSource.USER) && getUserId().equals(translation.getAddedBy())) {
             translationRepository.delete(translation);
         }
-    }
-
-    /**
-     * return user dictionaries and number of words in it (ex. EN -> RU (20 words))
-     * @return List of {@link UserDictMeta}
-     */
-    public List<UserDictMeta> getUserDictionaryMeta() {
-        return userWordRepository.getDictionaryMeta(getUserId());
     }
 
     public UserWordSliceResponse getUserDictionaryWords(int page, int limit, String filter, Language fromLang, Language toLang) {
