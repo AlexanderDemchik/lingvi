@@ -6,6 +6,7 @@ import Checkbox from "@material-ui/core/Checkbox/Checkbox"
 import {Icon} from "@mdi/react";
 import {mdiDelete} from "@mdi/js";
 import VoiceTranslation from "../../shared/VoiceTranslation";
+import WordProgress from "../../shared/WordProgress";
 
 class TableRow extends Component {
 
@@ -37,6 +38,9 @@ class TableRow extends Component {
           <div className={`${classes.column} ${classes.translation}`}>
             {row.userTranslations.map(tr => tr.translation).join(", ")}
           </div>
+        </div>
+        <div className={`${classes.column} ${classes.progress}`}>
+          <WordProgress progress={row.learningProgress || 0}/>
         </div>
         <div className={`${classes.column} ${classes.delete}`}>
           <Icon path={mdiDelete} size={1} className={classes.deleteIcon} onClick={onDelete}/>

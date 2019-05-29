@@ -13,6 +13,9 @@ import AppBar from "./appbar/AppBar";
 import Home from "./home/Home";
 import Settings from "./settings/Settings";
 import AdminPage from "./admin/AdminPage";
+import Videos from "./video/Videos";
+import Film from "./video/films/Film";
+import Trainings from "./trainings/Trainings";
 
 export const Routes = ({logged, ...props}) => (
   <Router history={history}>
@@ -24,6 +27,9 @@ export const Routes = ({logged, ...props}) => (
           <Route path={"/dictionary"} component={Dictionary}/>
           <Route path={"/settings"} component={Settings}/>
           <Route path={"/admin"} component={AdminPage}/>
+          <Route path={"/video"} exact={true} component={Videos}/>
+          <Route path={"/trainings"}  component={Trainings}/>
+          <Route path={"/video/films/:key"} exact={true} component={Film}/>
           <Route path={"*"} exact={true} children={() => (<span>not found</span>)}/>
         </Switch>
       </>

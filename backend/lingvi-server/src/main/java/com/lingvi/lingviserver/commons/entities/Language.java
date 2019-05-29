@@ -20,6 +20,7 @@ public enum Language {
     }
 
     public static Language fromValue(String value) {
+        if (value.contains("-")) value = value.split("-")[0];
         for (Language language: values()) {
             if(language.value.equalsIgnoreCase(value)) {
                 return language;

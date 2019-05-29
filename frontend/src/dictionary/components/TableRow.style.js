@@ -26,11 +26,14 @@ export const style = (theme) => ({
     color: "rgb(100,100,100)"
   },
   delete: {
-    flexGrow: 1,
     marginRight: 10,
     marginLeft: 10,
     justifyContent: "flex-end",
     fill: "rgba(200,200,200,1)",
+  },
+  progress: {
+    flexGrow: 1,
+    justifyContent: "flex-end",
   },
   delimiter: {
     marginRight: 10,

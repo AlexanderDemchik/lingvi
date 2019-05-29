@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.video.entities.primary;
 
 import com.lingvi.lingviserver.commons.entities.Language;
+import com.lingvi.lingviserver.commons.entities.primary.StorageFile;
 import com.lingvi.lingviserver.video.entities.VideoType;
 
 import javax.persistence.*;
@@ -21,6 +22,12 @@ public class Video {
 
     @Column
     private VideoType videoType;
+
+    @OneToOne
+    private StorageFile poster;
+
+    @Column
+    private boolean isReady = false;
 
     @ElementCollection
     @CollectionTable(name = "video_qualities", joinColumns = @JoinColumn(name="video_id"))
@@ -78,5 +85,25 @@ public class Video {
 
     public void setVideoType(VideoType videoType) {
         this.videoType = videoType;
+    }
+
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setReady(boolean ready) {
+        isReady = ready;
+    }
+
+    public String getPath() {
+        return this.rootUrl + this.relativePath;
+    }
+
+    public StorageFile getPoster() {
+        return poster;
+    }
+
+    public void setPoster(StorageFile poster) {
+        this.poster = poster;
     }
 }

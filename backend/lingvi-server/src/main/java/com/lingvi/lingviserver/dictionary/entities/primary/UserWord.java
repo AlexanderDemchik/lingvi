@@ -26,6 +26,9 @@ public class UserWord {
     @Column
     private String context;
 
+    @Column
+    private Integer learningProgress;
+
     @JsonIgnoreProperties({"translations", "lemma", "sounds", "hibernateLazyInitializer"})
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "word_id")
@@ -124,5 +127,13 @@ public class UserWord {
 
     public void setSelectedImage(Image selectedImage) {
         this.selectedImage = selectedImage;
+    }
+
+    public Integer getLearningProgress() {
+        return learningProgress;
+    }
+
+    public void setLearningProgress(Integer learningProgress) {
+        this.learningProgress = learningProgress;
     }
 }

@@ -1,25 +1,46 @@
 package com.lingvi.lingviserver.video.entities.primary;
 
-import javax.persistence.*;
+import com.lingvi.lingviserver.commons.entities.primary.StorageFile;
+import com.lingvi.lingviserver.i18n.entities.primary.I18n;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-@Entity(name = "films")
+import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
+
+@Entity(name = "movies")
+@EntityListeners(AuditingEntityListener.class)
 public class Film {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String key;
 
-    @Column
-    private String previewPosterLink;
-
-    @Column
-    private String videoPosterLink;
-
     @OneToOne
-    private Video video;
+    private StorageFile previewPoster;
+
+    @Column
+    private long views = 0;
+
+    @Column
+    @CreatedDate
+    private Date createdAt;
+
+    @Column
+    private String name;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Video video = new Video();
+
+    @Column(length = 20000,columnDefinition="Text")
+    private String description;
+
+//    @OneToOne
+//    private I18n name;
 
     public Long getId() {
         return id;
@@ -45,19 +66,51 @@ public class Film {
         this.key = key;
     }
 
-    public String getPreviewPosterLink() {
-        return previewPosterLink;
+    public long getViews() {
+        return views;
     }
 
-    public void setPreviewPosterLink(String previewPosterLink) {
-        this.previewPosterLink = previewPosterLink;
+    public void setViews(long views) {
+        this.views = views;
     }
 
-    public String getVideoPosterLink() {
-        return videoPosterLink;
+    public String getName() {
+        return name;
     }
 
-    public void setVideoPosterLink(String videoPosterLink) {
-        this.videoPosterLink = videoPosterLink;
+    public void setName(String name) {
+        this.name = name;
     }
+
+    public StorageFile getPreviewPoster() {
+        return previewPoster;
+    }
+
+    public void setPreviewPoster(StorageFile previewPosterLink) {
+        this.previewPoster = previewPosterLink;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+//    public I18n getName() {
+//        return name;
+//    }
+//
+//    public void setName(I18n name) {
+//        this.name = name;
+//    }
 }

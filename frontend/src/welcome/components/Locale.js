@@ -14,10 +14,10 @@ const Locale = (props) => {
   return (
     <React.Fragment>
       <ButtonBase classes={{root: props.classes.localeWrapper }} buttonRef={anchorEl} onClick={() => setOpen(true)}>
-        <span>
+        <span style={{color: "#fff"}}>
           {props.uiLanguage}
         </span>
-        <ArrowDropDown/>
+        <ArrowDropDown style={{fill: "#fff"}}/>
       </ButtonBase>
       <Popper open={open} anchorEl={anchorEl.current} transition disablePortal>
         {({ TransitionProps, placement }) => (

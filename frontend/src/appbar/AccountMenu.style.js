@@ -21,7 +21,7 @@ export const style = (theme) => ({
     backgroundColor: "rgb(55, 57, 64)",
   },
   menu: {
-    width: 200,
+    minWidth: 200,
     backgroundColor: "#fff",
     position: "absolute",
     boxShadow: theme.shadows[1],

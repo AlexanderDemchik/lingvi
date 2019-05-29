@@ -2,7 +2,7 @@ package com.lingvi.lingviserver.security.controllers;
 
 import com.lingvi.lingviserver.security.config.ControllerPaths;
 import com.lingvi.lingviserver.security.entities.*;
-import com.lingvi.lingviserver.security.entities.primary.User;
+import com.lingvi.lingviserver.account.entities.primary.User;
 import com.lingvi.lingviserver.security.services.SecurityService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;

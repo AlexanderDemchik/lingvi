@@ -3,9 +3,12 @@ import PropTypes from 'prop-types';
 import {style} from "./BootstrapTextField.style";
 import {withStyles} from "@material-ui/core";
 
-const BootstrapTextField = forwardRef(({value, onChange, classes, ...props}, innerRef) => {
+const BootstrapTextField = forwardRef(({value, onChange, classes, required, ...props}, innerRef) => {
   return (
-    <input value={value} onChange={onChange} className={classes.textField} ref={innerRef} {...props}/>
+    <div className={classes.root}>
+      <input value={value} onChange={onChange} className={classes.textField} ref={innerRef} {...props}/>
+      {required && <span className={classes.required}>*</span>}
+    </div>
   );
 });
 

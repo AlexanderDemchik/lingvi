@@ -157,12 +157,20 @@ class Progress extends PureComponent {
 
     return (
       <div style={{position: "relative", width: "100%"}}>
-        <div ref={this.tooltipRef} className={classNames(classes.tooltip, {[classes.hidden]: !this.state.isHover && !this.state.isMouseDown})}
-             style={{backgroundImage: `url(${spritesUrl}/sprite${spritesN}.${spritesExt})`, backgroundPosition: `0 -${numInSprite * 100}%`, backgroundSize: `100% ${imagesPerSprite}00%`}}>
-          <div className={classes.tooltipTime}>
-            {convertTooltipValue(tooltipValue)}
+        {spritesUrl ? (
+          <div ref={this.tooltipRef} className={classNames(classes.tooltip, {[classes.hidden]: !this.state.isHover && !this.state.isMouseDown})}
+               style={{backgroundImage: `url(${spritesUrl}/sprite${spritesN}.${spritesExt})`, backgroundPosition: `0 -${numInSprite * 100}%`, backgroundSize: `100% ${imagesPerSprite}00%`}}>
+            <div className={classes.tooltipTime}>
+              {convertTooltipValue(tooltipValue)}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div ref={this.tooltipRef} className={classNames(classes.tooltipMini, {[classes.hidden]: !this.state.isHover && !this.state.isMouseDown})}>
+            <div className={classes.tooltipTime}>
+              {convertTooltipValue(tooltipValue)}
+            </div>
+          </div>
+        )}
 
         <div className={classes.wrapper} onMouseDown={this.onMouseDown} onTouchStart={this.onTouchStart} onMouseOver={this.onMouseEnter} onMouseOut={this.onMouseLeave} onTouchEnd={this.onTouchEnd} onTouchMove={this.onTouchMove}>
           <div ref={this.sliderRef} className={classes.slider} >

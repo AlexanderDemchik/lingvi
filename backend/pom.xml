@@ -14,6 +14,11 @@
     <name>backend</name>
     <description>Demo project for Spring Boot</description>
 
+    <modules>
+        <module>config-server</module>
+        <module>lingvi-server</module>
+    </modules>
+
     <properties>
         <java.version>1.8</java.version>
     </properties>

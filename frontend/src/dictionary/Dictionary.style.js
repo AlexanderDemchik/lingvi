@@ -17,7 +17,8 @@ export const style = (theme) => ({
   meta: {
     [theme.breakpoints.down("sm")]: {
       paddingRight: 0,
-      flexGrow: 1
+      flexGrow: 1,
+      flexBasis: "100%"
     },
     flexGrow: 0,
     paddingRight: 40,
@@ -30,5 +31,6 @@ export const style = (theme) => ({
     marginBottom: 10,
     flexGrow: 1,
   },
+
   container: containerStyle
 });

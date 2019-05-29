@@ -16,4 +16,5 @@ public interface TranslationRepository extends CrudRepository<Translation, Long>
     List<Translation> findByWordAndLanguageAndSourceIn(Word word, Language language, List<TranslationSource> sources);
     List<Translation> findByWordIdAndLanguageAndSourceInOrderByPopularityDesc(Long word, Language language, List<TranslationSource> sources);
     List<Translation> findByWordIdAndLanguageAndSourceInAndAddedBy(Long word, Language language, List<TranslationSource> sources, Long addedBy);
+    List<Translation> findTranslationByWordLanguageAndLanguage(Language wordLang, Language trLang);
 }

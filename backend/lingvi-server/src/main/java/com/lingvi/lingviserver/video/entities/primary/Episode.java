@@ -1,6 +1,7 @@
 package com.lingvi.lingviserver.video.entities.primary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.lingvi.lingviserver.commons.entities.primary.StorageFile;
 
 import javax.persistence.*;
 
@@ -16,10 +17,13 @@ public class Episode {
     private Integer number;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Video video;
+    private Video video = new Video();
+
+    @OneToOne
+    private StorageFile videoPoster;
 
     @Column
-    private String videoPosterLink;
+    private String description;
 
     @JsonIgnore
     @ManyToOne
@@ -58,11 +62,19 @@ public class Episode {
         this.season = season;
     }
 
-    public String getVideoPosterLink() {
-        return videoPosterLink;
+    public StorageFile getVideoPoster() {
+        return videoPoster;
     }
 
-    public void setVideoPosterLink(String videoPosterLink) {
-        this.videoPosterLink = videoPosterLink;
+    public void setVideoPoster(StorageFile videoPosterLink) {
+        this.videoPoster = videoPosterLink;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -158,7 +158,7 @@ export const exit = () => (
 
 
 export function me() {
-  return api.get( ME_PATH);
+  return api.get(ME_PATH);
 }
 
 export function changeAuthState(state) {

@@ -43,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        web.ignoring().antMatchers(Constants.SWAGGER_PATHS).antMatchers(Constants.H2_DB_PATH);
+        web.ignoring().antMatchers(Constants.SWAGGER_PATHS).antMatchers(Constants.H2_DB_PATH).antMatchers("/storage/**");
     }
 
     @Bean

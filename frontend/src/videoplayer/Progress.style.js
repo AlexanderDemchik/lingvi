@@ -66,6 +66,20 @@ export const styles = (theme) => ({
     //   marginLeft: -5
     // }
   },
+  tooltipMini: {
+    opacity: 1,
+    visibility: "visible",
+    transition: "visibility .2s ease-in-out, opacity .2s ease-in-out",
+    borderRadius: 3,
+    transformOrigin: "bottom",
+    position: "absolute",
+    bottom: "150%",
+    display: "flex",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    backgroundColor: "hsla(0, 0%, 6.7%, .8)",
+    color: theme.palette.secondary.contrastText,
+  },
   tooltipTime: {
     display: "flex",
     alignItems: "center",

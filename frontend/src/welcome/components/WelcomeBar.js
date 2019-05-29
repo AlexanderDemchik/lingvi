@@ -8,15 +8,15 @@ import AppBar from "@material-ui/core/AppBar/AppBar";
 const WelcomeBar = ({classes, ...props}) => (
   <Grid className={classes.wrapper} container alignItems={"center"} justify={"space-between"} wrap={"nowrap"}>
     <Grid item>
-      <div className={classes.logo}>
-        Lingvi
-      </div>
+      {/*<div className={classes.logo}>*/}
+      {/*  Lingvi*/}
+      {/*</div>*/}
     </Grid>
     <Grid item>
         <Grid container spacing={8} alignItems={"stretch"} wrap={"nowrap"}>
           <MediaQuery query="(min-width: 500px)">
             <Grid item>
-              <Button color="secondary" onClick={props.openLoginForm}>
+              <Button color="inherit" onClick={props.openLoginForm} style={{color: "#fff"}}>
                 Войти
               </Button>
             </Grid>

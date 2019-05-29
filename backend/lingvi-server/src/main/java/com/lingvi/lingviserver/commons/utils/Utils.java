@@ -1,8 +1,11 @@
 package com.lingvi.lingviserver.commons.utils;
 
+import com.lingvi.lingviserver.commons.entities.Language;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Locale;
 
 public class Utils {
 
@@ -56,6 +59,17 @@ public class Utils {
             extension = fileName.substring(i+1);
         }
         return extension;
+    }
+
+    public static Language getLanguage() {
+        Locale locale = LocaleContextHolder.getLocale();
+        Language language;
+        try {
+            language = Language.fromValue(locale.getLanguage());
+        } catch (IllegalArgumentException e) {
+            language = Language.EN;
+        }
+        return language;
     }
 }
 

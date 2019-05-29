@@ -55,8 +55,10 @@ class Settings extends Component {
             <MenuItem value={el}>{el}</MenuItem>
           ))}
         </Select>
-        <Button color={"primary"}>Cancel</Button>
-        <RequestButton color={"primary"} variant={"contained"} isRequest={isSavingI18nSettings} onClick={() => saveI18nSettings(translationLanguage, uiLanguage)}>Save</RequestButton>
+        <Grid container justify={"flex-end"} style={{marginTop: "10px"}}>
+        <Button color={"secondary"}>Cancel</Button>
+        <RequestButton color={"secondary"} variant={"contained"} isRequest={isSavingI18nSettings} onClick={() => saveI18nSettings(translationLanguage, uiLanguage)}>Save</RequestButton>
+        </Grid>
       </Grid>
     );
   }

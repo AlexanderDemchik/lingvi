@@ -8,9 +8,12 @@ import {Icon} from "@mdi/react";
 import {ClipLoader} from "react-spinners";
 import {throttle} from "lodash";
 import Subtitle from "./Subtitle";
-import subList from "../assets/gots1e1";
+import RU from "../assets/ru";
+import EN from "../assets/en";
 import PropTypes from "prop-types";
 import TranslateableSubtitle from "./TranslateableSubtitle";
+
+const subs = {RU, EN};
 
 const MOUSE_DOWNTIME = 5000;
 
@@ -56,7 +59,6 @@ class VideoPlayer extends React.PureComponent {
   }
 
   componentDidUpdate() {
-    console.log("updated")
     if(this.state.initialized && this.state.started) {
       if(this.state.playing && !this.state.paused) {
         this.playerRef.getInternalPlayer().play();
@@ -109,6 +111,7 @@ class VideoPlayer extends React.PureComponent {
     this.hlsRef = this.playerRef.getInternalPlayer('hls');
 
     if(this.hlsRef) {
+      console.log(this.hlsRef.levels);
 
       let videoEl = this.playerRef.getInternalPlayer();
       videoEl.onwaiting = () => this.setState({loading: true});
@@ -255,7 +258,7 @@ class VideoPlayer extends React.PureComponent {
       this.setState({qualityAutoSwitch: true})
     } else {
       if (availableQualities.indexOf(quality) !== -1) {
-        this.hlsRef.currentLevel = this.hlsRef.levels.find((level) => level.height === quality).level;
+        this.hlsRef.currentLevel = this.hlsRef.levels.findIndex((level) => level.height === quality);
         this.setState({currentQuality: quality, qualityAutoSwitch: false});
       }
     }
@@ -270,9 +273,9 @@ class VideoPlayer extends React.PureComponent {
   };
 
   render() {
-    const {classes, spritesUrl, url, posterUrl} = this.props;
+    const {classes, spritesUrl, url, posterUrl, availableQualities} = this.props;
     const {played, playing, loading, initialized, buffered, duration, volume, fullScreen, mouseActive, paused, started, selectedSubtitles, currentQuality,
-      availableQualities, qualityAutoSwitch, subtitlesOpen, settingsOpen} = this.state;
+       qualityAutoSwitch, subtitlesOpen, settingsOpen} = this.state;
     return (
       <div className={`${classes.wrapper} ${!mouseActive && classes.cursorHidden}`} ref={ref => this.wrapperRef = ref} onMouseEnter={this.onWrapperMouseEnter} onMouseLeave={this.onWrapperMouseLeave}
           onMouseMove={this.onWrapperMouseMove} onTouchEnd={this.updateActiveState} onTouchMove={this.onWrapperMouseMove} onClick={this.onWrapperClick}
@@ -285,13 +288,19 @@ class VideoPlayer extends React.PureComponent {
                          volume={volume} config={{file: {hlsOptions: {maxBufferLength: 20, maxBufferHole: 0}, hlsVersion: "0.12.4"}}}
             />
             <div className={`${classes.bottomSubWrapper} ${(this.state.mouseActive || !this.state.playing) && classes.bottomSubMargin}`}>
-              {selectedSubtitles.map(subLang => (
-                translateableSubtitles.indexOf(subLang) !== -1 ? (
-                  <TranslateableSubtitle data={subList} time={played} paused={paused} changePausedState={this.changePaused} language={subLang} key={subLang}/>
-                ) : (
-                  <Subtitle data={subList} time={played} language={subLang} key={subLang}/>
+              {selectedSubtitles.map(subLang => {
+                return (
+                  <React.Fragment>
+                  {subs[subLang] &&
+                    translateableSubtitles.indexOf(subLang) !== -1 ? (
+                      <TranslateableSubtitle data={subs[subLang]} time={played} paused={paused} changePausedState={this.changePaused} language={subLang} key={subLang}/>
+                    ) : (
+                      <Subtitle data={subs[subLang]} time={played} language={subLang} key={subLang}/>
+                    )
+                  }
+                  </React.Fragment>
                 )
-              ))}
+              })}
             </div>
             {(loading || !started) && <div className={classes.loaderOverlay}>
               <ClipLoader color={"inherit"} size={70} />

@@ -1,16 +1,14 @@
 package com.lingvi.lingviserver.security.services;
 
-import com.lingvi.lingviserver.account.entities.primary.Account;
-import com.lingvi.lingviserver.account.repositories.primary.AccountRepository;
 import com.lingvi.lingviserver.commons.exceptions.ApiError;
 import com.lingvi.lingviserver.commons.exceptions.ErrorCodes;
 import com.lingvi.lingviserver.security.config.SecurityProperties;
 import com.lingvi.lingviserver.security.entities.*;
-import com.lingvi.lingviserver.security.entities.primary.User;
+import com.lingvi.lingviserver.account.entities.primary.User;
 import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListRepository;
 import com.lingvi.lingviserver.security.repositories.primary.BlackListTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.RefreshTokenRepository;
-import com.lingvi.lingviserver.security.repositories.primary.UserRepository;
+import com.lingvi.lingviserver.account.repositories.primary.UserRepository;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,9 +37,6 @@ public class SecurityServiceTest {
     UserRepository userRepositoryMock;
 
     @Mock
-    AccountRepository accountRepositoryMock;
-
-    @Mock
     SecurityProperties securityPropertiesMock;
 
     @Mock
@@ -63,9 +58,8 @@ public class SecurityServiceTest {
 
     @Before
     public void before() {
-        securityService = new SecurityService(securityPropertiesMock, userRepositoryMock, refreshTokenRepositoryMock, passwordEncoder, googleServiceMock, inMemoryBlackListRepositoryMock, blackListTokenRepositoryMock, accountRepositoryMock);
+        securityService = new SecurityService(securityPropertiesMock, userRepositoryMock, refreshTokenRepositoryMock, passwordEncoder, googleServiceMock, inMemoryBlackListRepositoryMock, blackListTokenRepositoryMock);
         when(userRepositoryMock.save(isA(User.class))).thenReturn(null);
-        when(accountRepositoryMock.save(isA(Account.class))).thenReturn(null);
         when(securityPropertiesMock.getClaimsRoleField()).thenReturn("roles");
         when(securityPropertiesMock.getTokenLifeTime()).thenReturn(121222L);
         when(securityPropertiesMock.getRefreshTokenLifeTime()).thenReturn(121222L);

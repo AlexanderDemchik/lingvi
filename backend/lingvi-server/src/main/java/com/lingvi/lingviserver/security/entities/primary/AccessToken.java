@@ -1,5 +1,7 @@
 package com.lingvi.lingviserver.security.entities.primary;
 
+import com.lingvi.lingviserver.account.entities.primary.User;
+
 import javax.persistence.*;
 import java.util.Date;
 

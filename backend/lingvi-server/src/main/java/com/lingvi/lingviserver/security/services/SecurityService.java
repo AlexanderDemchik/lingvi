@@ -1,7 +1,6 @@
 package com.lingvi.lingviserver.security.services;
 
-import com.lingvi.lingviserver.account.entities.primary.Account;
-import com.lingvi.lingviserver.account.repositories.primary.AccountRepository;
+import com.lingvi.lingviserver.account.entities.primary.User;
 import com.lingvi.lingviserver.security.config.SecurityProperties;
 import com.lingvi.lingviserver.commons.exceptions.*;
 import com.lingvi.lingviserver.security.config.Constants;
@@ -11,7 +10,7 @@ import com.lingvi.lingviserver.security.entities.primary.*;
 import com.lingvi.lingviserver.security.repositories.inmemory.InMemoryBlackListRepository;
 import com.lingvi.lingviserver.security.repositories.primary.BlackListTokenRepository;
 import com.lingvi.lingviserver.security.repositories.primary.RefreshTokenRepository;
-import com.lingvi.lingviserver.security.repositories.primary.UserRepository;
+import com.lingvi.lingviserver.account.repositories.primary.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -42,10 +41,10 @@ public class SecurityService {
     private GoogleService googleService;
     private InMemoryBlackListRepository inMemoryBlackListRepository;
     private BlackListTokenRepository blackListTokenRepository;
-    private AccountRepository accountRepository;
 
     @Autowired
-    public SecurityService(SecurityProperties securityProperties, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository, PasswordEncoder passwordEncoder, GoogleService googleService, InMemoryBlackListRepository inMemoryBlackListRepository, BlackListTokenRepository blackListTokenRepository, AccountRepository accountRepository) {
+    public SecurityService(SecurityProperties securityProperties, UserRepository userRepository, RefreshTokenRepository refreshTokenRepository,
+                           PasswordEncoder passwordEncoder, GoogleService googleService, InMemoryBlackListRepository inMemoryBlackListRepository, BlackListTokenRepository blackListTokenRepository) {
         this.securityProperties = securityProperties;
         this.userRepository = userRepository;
         this.refreshTokenRepository = refreshTokenRepository;
@@ -53,7 +52,6 @@ public class SecurityService {
         this.googleService = googleService;
         this.inMemoryBlackListRepository = inMemoryBlackListRepository;
         this.blackListTokenRepository = blackListTokenRepository;
-        this.accountRepository = accountRepository;
     }
 
     /**
@@ -111,9 +109,8 @@ public class SecurityService {
 
         validateRegisterData(email, password);
 
-        User user = new User(email, passwordEncoder.encode(password), new ArrayList<>(Arrays.asList(Role.USER)));
+        User user = new User(email, passwordEncoder.encode(password), Role.USER);
         userRepository.save(user);
-        accountRepository.save(new Account(user, email));
 
         return createAuthResponse(user);
     }
@@ -220,7 +217,7 @@ public class SecurityService {
         User user;
         if ((user = userRepository.findByProviderAndUserProviderId(provider, providerUser.getId())) == null) {
             user = new User();
-            user.setRoles(new ArrayList<>(Arrays.asList(Role.USER)));
+            user.setRole(Role.USER);
             List<UserProvider> providerList = new ArrayList<>();
             providerList.add(new UserProvider(new UserProviderPK(provider, providerUser.getId()), user));
             user.setUserProviders(providerList);
@@ -229,8 +226,11 @@ public class SecurityService {
                 user.setEmail(providerUser.getEmail());
             }
 
+            user.setGivenName(providerUser.getGivenName());
+            user.setFamilyName(providerUser.getFamilyName());
+            user.setProfilePhoto(providerUser.getProfilePhoto());
+            user.setGender(providerUser.getGender());
             userRepository.save(user);
-            accountRepository.save(new Account(user, providerUser.getGivenName(), providerUser.getFamilyName(), user.getEmail(), providerUser.getProfilePhoto(), providerUser.getGender()));
         }
         return user;
     }
@@ -280,14 +280,14 @@ public class SecurityService {
      */
     private AuthResponse createAuthResponse(User user) {
         Long expireIn = new Date().getTime() + securityProperties.getTokenLifeTime();
-        String token = generateToken(user.getId(), expireIn, user.getRoles() != null ? user.getRoles().stream().map(Role::toString).collect(Collectors.toList()) : null);
+        String token = generateToken(user.getId(), expireIn, user.getRole() != null ? Arrays.asList(user.getRole().toString()) : null);
         String refreshToken = UUID.randomUUID().toString();
 
         user.getAccessTokens().add(new AccessToken(token, new Date(), user));
         user.getRefreshTokens().add(new RefreshToken(refreshToken, new Date(), user));
         userRepository.save(user);
 
-        return new AuthResponse(expireIn, token, refreshToken, accountRepository.findById(user.getId()).orElse(null));
+        return new AuthResponse(expireIn, token, refreshToken, userRepository.findById(user.getId()).orElse(null));
     }
 
     /**
@@ -299,12 +299,12 @@ public class SecurityService {
      */
     private AuthResponse createAuthResponseWithRefreshToken(User user, String refreshToken) {
         Long expireIn = new Date().getTime() + securityProperties.getTokenLifeTime();
-        String token = generateToken(user.getId(), expireIn, user.getRoles() != null ? user.getRoles().stream().map(Role::toString).collect(Collectors.toList()) : null);
+        String token = generateToken(user.getId(), expireIn, user.getRole() != null ? Arrays.asList(user.getRole().toString()) : null);
 
         user.getAccessTokens().add(new AccessToken(token, new Date(), user));
         userRepository.save(user);
 
-        return new AuthResponse(expireIn, token, refreshToken, accountRepository.findById(user.getId()).orElse(null));
+        return new AuthResponse(expireIn, token, refreshToken, userRepository.findById(user.getId()).orElse(null));
     }
 
     /**

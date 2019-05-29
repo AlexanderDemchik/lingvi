@@ -16,9 +16,12 @@
     "jss": "latest",
     "lodash": "latest",
     "mdi-material-ui": "^5.8.0",
+    "moment": "^2.24.0",
+    "perfect-scrollbar": "latest",
     "query-string": "^6.2.0",
     "react": "^16.8.4",
     "react-addons-css-transition-group": "^15.6.2",
+    "react-circle": "^1.1.1",
     "react-custom-scrollbars": "^4.2.1",
     "react-dom": "^16.8.4",
     "react-flip-move": "^3.0.3",
@@ -33,10 +36,12 @@
     "react-router-dom": "^5.0.0",
     "react-scripts": "2.1.8",
     "react-spinners": "^0.5.1",
+    "react-spinners-kit": "^1.9.0",
+    "react-swipeable-routes": "^0.6.0",
+    "react-swipeable-views": "^0.13.1",
     "redux": "^4.0.1",
     "redux-thunk": "^2.3.0",
-    "tus-js-client": "^1.8.0-0",
-    "perfect-scrollbar": "latest"
+    "tus-js-client": "^1.8.0-0"
   },
   "scripts": {
     "start": "react-scripts start",

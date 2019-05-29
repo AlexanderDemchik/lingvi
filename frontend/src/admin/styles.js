@@ -11,11 +11,12 @@ export default (theme) => ({
   },
   drawerPaper: {
     width: 240,
-    background: "linear-gradient( rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8) ), url('/assets/sidebar.jpg')",
+    background: "linear-gradient( rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7) ), url('/assets/sidebar.jpg')",
+    boxShadow: "0 10px 30px -12px rgba(0, 0, 0, 0.42), 0 4px 25px 0px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.2)"
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3,
+    marginLeft: 240
   },
   toolbar: theme.mixins.toolbar,
 });

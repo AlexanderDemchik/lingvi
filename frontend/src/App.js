@@ -6,6 +6,8 @@ import {changeAuthState, me} from "./authorization/actions";
 import Routes from "./Routes";
 import { MuiThemeProvider } from '@material-ui/core/styles';
 import {theme} from "./theme";
+import {getSettings} from "./settings/actions";
+import i18n from "./i18n";
 
 class App extends Component {
   constructor(props) {
@@ -18,8 +20,11 @@ class App extends Component {
   appInit() {
     if(localStorage.getItem(TOKEN_FIELD) !== null && localStorage.getItem(EXPIRE_IN_FIELD) !== null && localStorage.getItem(REFRESH_TOKEN_FIELD) !== null) {
       me().then((r) => {
-        store.dispatch(changeAuthState(true));
-        this.setState({isAppInit: true});
+        store.dispatch(getSettings()).then(() => {
+          store.dispatch(changeAuthState(true));
+          if (store.getState().settings.uiLanguage) i18n.changeLanguage(store.getState().settings.uiLanguage);
+          this.setState({isAppInit: true});
+        });
       }).catch(err => {
         console.log(err);
         this.setState({isAppInit: true});

@@ -1,5 +1,7 @@
 package com.lingvi.lingviserver.video.entities.primary;
 
+import com.lingvi.lingviserver.commons.entities.primary.StorageFile;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +13,14 @@ public class Show {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String key;
 
     @Column
-    private String previewPosterLink;
+    private String name;
+
+    @OneToOne
+    private StorageFile previewPoster;
 
     @OneToMany(mappedBy = "show", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Season> seasons = new ArrayList<>();
@@ -44,11 +49,19 @@ public class Show {
         this.key = key;
     }
 
-    public String getPreviewPosterLink() {
-        return previewPosterLink;
+    public String getName() {
+        return name;
     }
 
-    public void setPreviewPosterLink(String previewPosterLink) {
-        this.previewPosterLink = previewPosterLink;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public StorageFile getPreviewPoster() {
+        return previewPoster;
+    }
+
+    public void setPreviewPoster(StorageFile previewPosterLink) {
+        this.previewPoster = previewPosterLink;
     }
 }

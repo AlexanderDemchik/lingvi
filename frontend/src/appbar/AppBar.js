@@ -14,11 +14,14 @@ import MediaQuery from "react-responsive";
 import {Icon} from "@mdi/react";
 import {mdiMenu} from "@mdi/js";
 
-const locationsWithoutAppBar = ['/admin', "/admin/"];
+const locationsWithoutAppBar = (location) => {
+  if (location.startsWith("/admin")) return true;
+  return false;
+};
 const AppBar = ({classes, location}) => {
   return (
     <Fragment>
-      {locationsWithoutAppBar.includes(location.pathname) ? <Fragment/> :
+      {locationsWithoutAppBar(location.pathname) ? <Fragment/> :
         <Bar position={"sticky"} color={"inherit"} className={classes.appBar}>
           <Toolbar className={classes.toolbar}>
             <MediaQuery query={"(min-width: 600px)"}>
@@ -29,6 +32,7 @@ const AppBar = ({classes, location}) => {
                       <Link to={"/"} active={location.pathname === "/"}>Домой</Link>
                       <Link to={"/video"} active={location.pathname.startsWith("/video")}>Видео</Link>
                       <Link to={"/dictionary"} active={location.pathname.startsWith("/dictionary")}>Словарь</Link>
+                      <Link to={"/trainings"} active={location.pathname.startsWith("/trainings")}>Тренировки</Link>
                     </>
                   ) : (
                     <Icon path={mdiMenu} size={1.5} style={{marginLeft: 10, fill: "#fff"}}/>

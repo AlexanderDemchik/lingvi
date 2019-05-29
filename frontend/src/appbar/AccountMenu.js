@@ -6,7 +6,7 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import {Icon} from "@mdi/react";
 import {mdiChevronDown, mdiSettings} from "@mdi/js";
 import {ClickAwayListener, List, ListItem, ListItemIcon, Divider} from "@material-ui/core";
-import {mdiLogout} from "@mdi/js";
+import {mdiLogout, mdiViewDashboard} from "@mdi/js";
 import {exit} from "../authorization/actions";
 import {connect} from "react-redux";
 import history from "../history";
@@ -30,6 +30,13 @@ const AccountMenu = ({classes, name, exit}) => {
                 <Icon path={mdiSettings} size={1} className={classes.icon}/>
               </ListItemIcon>
               <span>Настройки</span>
+            </ListItem>
+            <Divider/>
+            <ListItem button className={classes.listItem} onClick={() => {history.push("/admin"); setActive(false)}}>
+              <ListItemIcon>
+                <Icon path={mdiViewDashboard} size={1} className={classes.icon}/>
+              </ListItemIcon>
+              <span>Администрирование</span>
             </ListItem>
             <Divider/>
             <ListItem button onClick={exit} className={classes.listItem}>
