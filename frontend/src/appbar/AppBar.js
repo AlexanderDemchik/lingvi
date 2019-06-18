@@ -1,6 +1,6 @@
-import React, {Fragment} from 'react';
+import React, {Fragment, useState} from 'react';
 import PropTypes from 'prop-types';
-import {AppBar as Bar} from "@material-ui/core"
+import {AppBar as Bar, Divider, ListItemText} from "@material-ui/core"
 import Button from "@material-ui/core/Button/Button";
 import {style} from "./AppBar.style";
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -13,12 +13,16 @@ import Grid from "@material-ui/core/Grid/Grid";
 import MediaQuery from "react-responsive";
 import {Icon} from "@mdi/react";
 import {mdiMenu} from "@mdi/js";
+import Drawer from "@material-ui/core/Drawer";
+import ListItem from "@material-ui/core/ListItem";
+import history from "../history"
 
 const locationsWithoutAppBar = (location) => {
   if (location.startsWith("/admin")) return true;
   return false;
 };
 const AppBar = ({classes, location}) => {
+  const [open, setOpen] = useState(false);
   return (
     <Fragment>
       {locationsWithoutAppBar(location.pathname) ? <Fragment/> :
@@ -29,13 +33,31 @@ const AppBar = ({classes, location}) => {
                 (matches) => (
                   matches ? (
                     <>
-                      <Link to={"/"} active={location.pathname === "/"}>Домой</Link>
+                      {/*<Link to={"/"} active={location.pathname === "/"}>Домой</Link>*/}
                       <Link to={"/video"} active={location.pathname.startsWith("/video")}>Видео</Link>
                       <Link to={"/dictionary"} active={location.pathname.startsWith("/dictionary")}>Словарь</Link>
                       <Link to={"/trainings"} active={location.pathname.startsWith("/trainings")}>Тренировки</Link>
                     </>
                   ) : (
-                    <Icon path={mdiMenu} size={1.5} style={{marginLeft: 10, fill: "#fff"}}/>
+                    <>
+                    <Icon path={mdiMenu} size={1.5} style={{marginLeft: 10, fill: "#fff"}} onClick={() => setOpen(true)}/>
+                      <Drawer open={open} onClose={() => setOpen(false)} style={{color: "#fff"}}>
+                        <ListItem button onClick={() => {history.push("/video"); setOpen(false)}}>
+                          <ListItemText>Видео</ListItemText>
+                        </ListItem>
+                        <Divider/>
+                        <ListItem button onClick={() => {history.push("/dictionary"); setOpen(false)}}>
+                          <ListItemText>Словарь</ListItemText>
+                        </ListItem>
+                        <Divider/>
+                        <ListItem button onClick={() => {history.push("/trainings"); setOpen(false)}}>
+                          <ListItemText>Тренировки</ListItemText>
+                        </ListItem>
+                        <Divider/>
+
+                      </Drawer>
+                    </>
+
                   )
                 )
               }

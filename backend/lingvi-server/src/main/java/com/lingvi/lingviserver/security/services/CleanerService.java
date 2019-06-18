@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.security.services;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.lingvi.lingviserver.security.config.SecurityProperties;
 import com.lingvi.lingviserver.security.config.Constants;
 import com.lingvi.lingviserver.security.entities.primary.BlackListToken;

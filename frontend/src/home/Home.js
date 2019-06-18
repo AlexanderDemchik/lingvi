@@ -3,8 +3,14 @@ import PropTypes from 'prop-types';
 import VideoPlayer from "../videoplayer/VideoPlayer";
 import {style} from "./Home.style";
 import withStyles from "@material-ui/core/styles/withStyles";
+import history from "../history";
 
 class Home extends Component {
+
+  componentDidMount() {
+    history.replace("/video");
+  }
+
   render() {
     const {classes} = this.props;
     return (

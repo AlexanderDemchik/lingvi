@@ -17,7 +17,7 @@ class Film extends Component {
     return (
       <div>
         <CssBaseline />
-        <div style={{margin: '50px 200px'}}>
+        <div>
           <div>
           <VideoPlayer availableQualities={film.video.qualities} url={film.video.path}
                        posterUrl={film.video.poster && film.video.poster.path}

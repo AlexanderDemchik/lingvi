@@ -29,8 +29,8 @@ const Locale = (props) => {
             <Paper>
               <ClickAwayListener onClickAway={() => setOpen(false)}>
                 <MenuList>
-                  <MenuItem onClick={() => props.changeUiLanguage("RU")}>RU</MenuItem>
-                  <MenuItem onClick={() => props.changeUiLanguage("EN")}>EN</MenuItem>
+                  <MenuItem onClick={() => {props.changeUiLanguage("RU"); setOpen(false)}}>RU</MenuItem>
+                  <MenuItem onClick={() => {props.changeUiLanguage("EN"); setOpen(false)}}>EN</MenuItem>
                 </MenuList>
               </ClickAwayListener>
             </Paper>

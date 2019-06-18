@@ -51,4 +51,8 @@ public class AccountService {
         userRepository.save(account);
         return new Settings(account.getTranslationLanguage(), account.getUiLanguage());
     }
+
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

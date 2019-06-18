@@ -57,6 +57,12 @@ const styles = (theme) => ({
 });
 
 class Videos extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      searchValue: ""
+    }
+  }
 
   componentDidMount() {
     this.props.getFilms();
@@ -64,21 +70,22 @@ class Videos extends Component {
 
   render() {
     const {films, classes, selectFilm} = this.props;
+    const {searchValue} = this.state;
     return (
       <div className={classes.root}>
         <CssBaseline />
         <Grid container justify={"flex-end"}>
-          <BootstrapTextField placeholder={"Search..."} style={{marginBottom: 20}}/>
+          <BootstrapTextField value={searchValue} onChange={(e) => this.setState({searchValue: e.target.value}) } placeholder={"Search..."} style={{marginBottom: 20}}/>
         </Grid>
         <Grid container spacing={16} justify={""}>
-        {films.map((el) => (
+        {films.filter((e) => e.name.toLowerCase().indexOf(searchValue.toLowerCase()) !== -1).map((el) => (
           <Fragment>
             <div className={classes.card} onClick={() => {
               selectFilm(el);
               history.push(`/video/films/${el.key}`)
             }}>
               <div className={classes.imageWrapper}>
-                <img src={el.previewPoster.path} className={classes.image}/>
+                <img src={el.previewPoster && el.previewPoster.path} className={classes.image}/>
               </div>
               <div className={classes.name}>{el.name}</div>
             </div>

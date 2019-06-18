@@ -6,6 +6,7 @@ import Grid from "@material-ui/core/Grid/index";
 import File from "./File";
 import Upload from "../../utils/Upload";
 import Image from "./Image";
+import {API_ROOT} from "../../api"
 
 class FileChooser extends React.Component{
   constructor(props) {
@@ -49,7 +50,7 @@ class FileChooser extends React.Component{
         this.onClearAll();
 
         let upload = new Upload(file, {
-          endpoint: "http://localhost:8080/uploader",
+          endpoint: API_ROOT + "/uploader",
           retryDelays: [0, 3000, 10000],
           metadata: {
             filename: file.name,

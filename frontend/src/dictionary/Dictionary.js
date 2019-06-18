@@ -84,7 +84,7 @@ class Dictionary extends Component {
                   </Select>
                 {/*</Tooltip>*/}
               </Grid>
-              <RequestButton isRequest={false} style={{marginBottom: 20}} variant={"contained"} color={"secondary"} onClick={() => addDictionary(newDict.from, newDict.to)}>Add new dictionary</RequestButton>
+              <RequestButton isRequest={false} style={{marginBottom: 20}} variant={"contained"} color={"secondary"} onClick={() => addDictionary(newDict.from, newDict.to)}>Добавить словарь</RequestButton>
             </Grid>
           </Grid>
           <Grid item className={classes.dictionary}>

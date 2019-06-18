@@ -38,5 +38,5 @@ package com.lingvi.lingviserver.security.entities.primary;
 //}
 
 public enum Role {
-    ADMIN, USER
+    ADMIN, USER, MODERATOR
 }

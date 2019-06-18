@@ -1,5 +1,6 @@
 package com.lingvi.lingviserver.security.controllers;
 
+import com.lingvi.lingviserver.account.repositories.primary.UserRepository;
 import com.lingvi.lingviserver.security.config.ControllerPaths;
 import com.lingvi.lingviserver.security.entities.*;
 import com.lingvi.lingviserver.account.entities.primary.User;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.*;
 public class SecurityController {
 
     private SecurityService securityService;
+    private UserRepository userRepository;
 
-    public SecurityController(SecurityService securityService) {
+    public SecurityController(SecurityService securityService, UserRepository userRepository) {
         this.securityService = securityService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping(ControllerPaths.LOGIN)
@@ -48,9 +51,7 @@ public class SecurityController {
 
     @GetMapping(ControllerPaths.ME)
     public Object me() {
-        User user = new User();
-        user.setId(Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName()));
-        return user;
+        return userRepository.findById(Long.valueOf(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
 }

@@ -8,6 +8,7 @@ import {
   closeCreateAccountForm, openCreateAccountForm, resetToInitial, setLoginFormErrorState,
   setRegisterFormErrors
 } from "../welcome/actions";
+import {setSettings} from "../settings/actions";
 export const LOGIN_REQUEST = "LOGIN_REQUEST";
 export const LOGIN_REQUEST_SUCCESS = "LOGIN_REQUEST_SUCCESS";
 export const LOGIN_REQUEST_ERROR = "LOGIN_REQUEST_ERROR";
@@ -47,6 +48,7 @@ export const login = (email, password) => {
     api.post(LOGIN_PATH, {email: email, password: password})
       .then(r => {
         fillAuthLocalStorage(r.data);
+        dispatch(setSettings(r.data.account));
         dispatch(resetToInitial());
         dispatch({type: LOGIN_REQUEST_SUCCESS});
       })
@@ -63,6 +65,7 @@ export const register = (email, password, name = "", surname = "") => {
     dispatch({type: REGISTER_REQUEST});
     api.post( REGISTER_PATH, {email: email, password: password, name: name, surname: surname})
       .then(r => {
+        dispatch(setSettings(r.data.account));
         fillAuthLocalStorage(r.data);
         dispatch(resetToInitial());
         dispatch({type: REGISTER_REQUEST_SUCCESS});
@@ -157,9 +160,12 @@ export const exit = () => (
 );
 
 
-export function me() {
-  return api.get(ME_PATH);
-}
+export const me = () => (dispatch) => {
+  return api.get(ME_PATH).then(r => {
+    dispatch(setSettings(r.data));
+    return new Promise(resolve => resolve(r));
+  });
+};
 
 export function changeAuthState(state) {
   if(state === false) clearAuthLocalStorage();

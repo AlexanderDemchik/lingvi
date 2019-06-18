@@ -4,6 +4,8 @@ import com.lingvi.lingviserver.account.entities.primary.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
@@ -15,4 +17,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
     default User findByProviderAndUserProviderId(String provider, String userProviderId) {
         return findByUserProviders_userProviderPK_providerAndUserProviders_userProviderPK_userProviderId(provider, userProviderId);
     }
+
+    List<User> findAll();
 }

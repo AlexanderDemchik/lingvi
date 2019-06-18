@@ -58,7 +58,7 @@ class TranslateableSubtitle extends React.PureComponent {
   divide(str) {
     const {isSelectionProceed, selectionValue} = this.state;
     const {language} = this.props;
-    const DIVIDERS = ["?", ",", ".", " ", "<", ">", "\"", "!", "-", "«", "»", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":"];
+    const DIVIDERS = ["?", ",", ".", " ", "<", ">", "\"", "!", "-", "«", "»", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", "(", ")"];
     let result = [];
     for(let i = 0; i < str.length; i++) {
       if(DIVIDERS.indexOf(str.charAt(i)) === -1) {
@@ -109,7 +109,7 @@ class TranslateableSubtitle extends React.PureComponent {
             {(content && content.length > 0) &&
               <Typography component={"div"} color={"inherit"} classes={{root: classes.text}}>
                 {this.state.content.map((el) => (
-                  <React.Fragment key={el}>{this.divide(el)} <br style={{userSelect: "none"}}/></React.Fragment>
+                  <React.Fragment>{this.divide(el)} <br style={{userSelect: "none"}}/></React.Fragment>
                 ))}
               </Typography>
             }

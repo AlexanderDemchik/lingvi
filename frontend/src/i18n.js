@@ -32,7 +32,18 @@ i18n
     react: {
       useSuspense: true
     }
-  }).then(() => store.dispatch(changeUiLanguage(i18n.language)));
+  }).then(() => {
+    let lang = i18n.language;
+    if (lang) {
+      if (lang.includes("-")) {
+        lang = lang.split("-")[0].toUpperCase();
+      } else {
+        lang = lang.toUpperCase();
+      }
+    } else lang = "RU";
+    i18n.changeLanguage(lang);
+    store.dispatch(changeUiLanguage(lang))
+});
 
 
 export default i18n;

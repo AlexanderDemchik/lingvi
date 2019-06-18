@@ -11,14 +11,14 @@ import {exit} from "../authorization/actions";
 import {connect} from "react-redux";
 import history from "../history";
 
-const AccountMenu = ({classes, name, exit}) => {
+const AccountMenu = ({classes, name, exit, role, email, givenName}) => {
   const [active, setActive] = useState(false);
   return (
     <ClickAwayListener onClickAway={() => {setActive(false);}}>
       <div className={`${classes.wrapper} ${active && classes.active}`}>
 
         <div onClick={() => setActive(!active)} className={classes.block}>
-          <span className={classes.name}>Alexander</span>
+          <span className={classes.name}>{email || givenName}</span>
           <img src={placeholder} className={classes.profilePhoto} alt={"profile"}/>
           <Icon path={mdiChevronDown} size={1}/>
         </div>
@@ -32,12 +32,17 @@ const AccountMenu = ({classes, name, exit}) => {
               <span>Настройки</span>
             </ListItem>
             <Divider/>
-            <ListItem button className={classes.listItem} onClick={() => {history.push("/admin"); setActive(false)}}>
-              <ListItemIcon>
-                <Icon path={mdiViewDashboard} size={1} className={classes.icon}/>
-              </ListItemIcon>
-              <span>Администрирование</span>
-            </ListItem>
+            {role === "ADMIN" &&
+              <ListItem button className={classes.listItem} onClick={() => {
+                history.push("/admin");
+                setActive(false)
+              }}>
+                <ListItemIcon>
+                  <Icon path={mdiViewDashboard} size={1} className={classes.icon}/>
+                </ListItemIcon>
+                <span>Администрирование</span>
+              </ListItem>
+            }
             <Divider/>
             <ListItem button onClick={exit} className={classes.listItem}>
               <ListItemIcon>
@@ -60,4 +65,10 @@ const mapDispatchToProps = (dispatch) => ({
   exit: () => dispatch(exit())
 });
 
-export default connect(null, mapDispatchToProps)(withStyles(style)(AccountMenu));
+const mapStateToProps = (state) => ({
+  role: state.settings.role,
+  email: state.settings.email,
+  givenName: state.settings.givenName
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(style)(AccountMenu));

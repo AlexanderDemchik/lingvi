@@ -136,7 +136,9 @@ class FilmsEdit extends React.Component {
                                  spritesUrl={film.video.path.replace("master.m3u8", "sprites")}
                     />
                   ) : (
-                    <VideoHandler videoId={video.id}/>
+                    <>
+                    {video.id && <VideoHandler videoId={video.id}/>}
+                    </>
                   )
                 }
                 <label>

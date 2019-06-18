@@ -9,7 +9,7 @@ import {ClipLoader} from "react-spinners";
 import {throttle} from "lodash";
 import Subtitle from "./Subtitle";
 import RU from "../assets/ru";
-import EN from "../assets/en";
+import EN from "../assets/en2";
 import PropTypes from "prop-types";
 import TranslateableSubtitle from "./TranslateableSubtitle";
 

@@ -12,6 +12,8 @@ export const UPDATE_I18N_SETTINGS_REQUEST = "UPDATE_I18N_SETTINGS_REQUEST";
 export const UPDATE_I18N_SETTINGS_ERROR = "UPDATE_I18N_SETTINGS_ERROR";
 export const UPDATE_I18N_SETTINGS_SUCCESS = "UPDATE_I18N_SETTINGS_SUCCESS";
 
+export const SET_SETTINGS = "SET_SETTINGS";
+
 export const getSettings = () => (dispatch) => {
   dispatch({type: FETCH_SETTINGS_REQUEST});
   return api.get(`${API_ROOT}/account/settings`).then((r) => {
@@ -42,6 +44,11 @@ export const changeUiLanguage = (lang) => (dispatch) => {
 export const changeTranslationLanguage = (lang) => (dispatch) => ({
   type: CHANGE_TRANSLATION_LANGUAGE,
   data: lang
+});
+
+export const setSettings = (obj) => ({
+  type: SET_SETTINGS,
+  data: obj
 });
 
 

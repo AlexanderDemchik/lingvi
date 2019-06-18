@@ -16,6 +16,8 @@ import Divider from "@material-ui/core/Divider";
 import history from "../history";
 import FilmsCreate from "./containers/films/FilmsCreate";
 import FilmsEdit from "./containers/films/FilmsEdit";
+import Users from "./containers/users/Users";
+import Dashboard from "./containers/dashboard/Dashboard";
 
 class AdminPage extends React.Component {
   constructor(props) {
@@ -59,7 +61,7 @@ class AdminPage extends React.Component {
   render() {
     const {classes, location} = this.props;
     return (
-      <div>
+      <div style={{minWidth: 900}}>
         <CssBaseline/>
         <Drawer
           className={classes.drawer}
@@ -88,8 +90,8 @@ class AdminPage extends React.Component {
             <Route exact={true} path={"/admin/films/create"} component={FilmsCreate}/>
             <Route exact={true} path={"/admin/films/edit/:id"} component={FilmsEdit}/>
             <Route exact={true} path={"/admin/shows"}/>
-            <Route exact={true} path={"/admin/dashboard"}/>
-            <Route exact={true} path={"/admin/users"}/>
+            <Route exact={true} path={"/admin/dashboard"} component={Dashboard}/>
+            <Route exact={true} path={"/admin/users"} component={Users}/>
           </Switch>
         </main>
       </div>

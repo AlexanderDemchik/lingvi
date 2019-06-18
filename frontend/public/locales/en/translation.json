@@ -1,3 +1,14 @@
 {
-  "key": "key"
+  "welcome": {
+    "title": "Fun way to learn English!",
+    "subTitle": "watch the original video, enjoy, learn the language",
+    "login": "log in",
+    "register": "register",
+    "subAndTrTitle": "Subtitles and translator",
+    "subAndTrText": "Subtitles in English and other languages. Translations of unfamiliar words or whole sentences while browsing.",
+    "dictionary": "Dictionary",
+    "dictionaryText": "Add words or phrases to your personal dictionary.",
+    "trainings": "Trainings",
+    "trainingsText": "Train added words."
+  }
 }

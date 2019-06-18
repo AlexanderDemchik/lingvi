@@ -4,8 +4,8 @@ import style from "./WelcomeBar.style";
 import Locale from "./Locale";
 import MediaQuery from "react-responsive";
 import AppBar from "@material-ui/core/AppBar/AppBar";
-
-const WelcomeBar = ({classes, ...props}) => (
+import {withTranslation} from "react-i18next";
+const WelcomeBar = ({classes, t, ...props}) => (
   <Grid className={classes.wrapper} container alignItems={"center"} justify={"space-between"} wrap={"nowrap"}>
     <Grid item>
       {/*<div className={classes.logo}>*/}
@@ -17,12 +17,12 @@ const WelcomeBar = ({classes, ...props}) => (
           <MediaQuery query="(min-width: 500px)">
             <Grid item>
               <Button color="inherit" onClick={props.openLoginForm} style={{color: "#fff"}}>
-                Войти
+                {t('welcome.login')}
               </Button>
             </Grid>
             <Grid item>
               <Button variant="contained" color="secondary" onClick={props.openRegisterForm}>
-                Регистрация
+                {t('welcome.register')}
               </Button>
             </Grid>
           </MediaQuery>
@@ -43,4 +43,4 @@ const WelcomeBar = ({classes, ...props}) => (
   </Grid>
 );
 
-export default withStyles(style)(WelcomeBar)
+export default withStyles(style)(withTranslation()(WelcomeBar))

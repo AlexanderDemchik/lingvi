@@ -4,7 +4,7 @@ import {Grid, withStyles} from "@material-ui/core";
 import Progress from "../../../shared/progress/Progress";
 import Upload from "../../../utils/Upload";
 import {SyncLoader} from "react-spinners";
-import api from "../../../api";
+import api, {API_ROOT} from "../../../api";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Checkbox from "@material-ui/core/Checkbox";
@@ -75,7 +75,7 @@ class VideoHandler extends React.Component {
       this.onCancel();
 
       let upload = new Upload(file, {
-        endpoint: `http://localhost:8080/video/handler/upload/${videoId}`,
+        endpoint: `${API_ROOT}/video/handler/upload/${videoId}`,
         retryDelays: [0, 3000, 10000],
         metadata: {
           filename: file.name,
@@ -156,6 +156,7 @@ class VideoHandler extends React.Component {
 
   async refreshHandler() {
     const {videoId} = this.props;
+    if (!videoId) return;
     try {
       let response = await api.get(`/video/handler/${videoId}`);
       this.setState({handler: response.data === "" ? null : response.data});
